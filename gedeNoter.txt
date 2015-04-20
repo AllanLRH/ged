@@ -1,0 +1,9 @@
+Malthe Schmidt
+
+Spørg Brian Winther om Malthes arbejde.
+
+
+PAG: /Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/disc_backups/disc1/
+No PAG: /Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/disc_backups/disc2/
+
+Scriptet til dist hist: /Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/disc_backups/disc1/volfloat/interface_analysis/dist_hist2_pag.m
