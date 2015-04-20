@@ -23,9 +23,6 @@ end
 % Open image and preallocate
 fid = fopen(imageName, 'r');
 if fid < 1
-    if exist(Name, 'file') ~= 2
-        error('File did not exist')
-    end
     error(['File did not load correctly! ' imageName])
 end
 dims = [2048 2048];
