@@ -14,7 +14,7 @@ end
 
 hold on
 h = imshow(colorMat);
-set(h, 'alphadata', 0.25*alphaMap)
+set(h, 'alphadata', 0.15*alphaMap)
 
 
 end
