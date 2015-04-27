@@ -19,3 +19,6 @@ slprj/
 
 loadGed_2.m
 testFileLoader.m
+
+# Data files
+*.vol
