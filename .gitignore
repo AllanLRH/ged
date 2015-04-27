@@ -22,3 +22,10 @@ testFileLoader.m
 
 # Data files
 *.vol
+
+# Image files
+*.tif
+*.png
+
+*.zip
+
