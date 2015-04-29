@@ -5,6 +5,20 @@ img = loadGed('5.05_ID1662_769_pag0001.vol', 1);
 [r, c] = size(img);
 
 
+%% Find circle containing image
+
+xc = r/2;
+yc = c/2;
+circ = false(r, c);
+for x = 1:r
+    for y = 1:c
+        if (x-xc)^2 + (y-yc)^2 <= xc^2
+            circ(x, y) = 1;
+        end
+    end
+end
+
+
 %% Find implant
 
 close all
@@ -15,6 +29,7 @@ se = strel('disk', 18);
 imp2 = ~imclose(imp1, se);
 h = imshow(img, [scMin, scMax]);
 shadeArea(imp2, [1 0 0]);
+
 
 %% Find bone/soft tissue
 
@@ -28,6 +43,12 @@ se = strel('disk', 7);
 bone3 = imclose(bone2, se);
 % filter out middle
 middle = ~bwfill(imp2, 'holes');
-bone4 = middle.*bone3;
+bone4 = middle.*circ.*bone3;
 shadeArea(bone4, [0 0 1])
 
+
+%% Find the last region for completeness
+
+rest1 = not(bone4);
+rest2 = rest1.*circ.*middle;
+shadeArea(rest2, [0 1 0])
