@@ -1,9 +1,9 @@
-function shadeArea( alphaMap, varargin )
+function shadeArea( alphaMap, color, varargin )
 
 if ~isempty(varargin)
-    color = varargin{1};
+    alpha = varargin{1};
 else
-    color = [1 0 0];
+    alpha = 0.08;
 end
 [r, c] = size(alphaMap);
 
@@ -14,8 +14,6 @@ end
 
 hold on
 h = imshow(colorMat);
-set(h, 'alphadata', 0.15*alphaMap)
-
+set(h, 'alphadata', alpha*alphaMap)
 
 end
-
