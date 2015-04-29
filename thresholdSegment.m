@@ -2,7 +2,11 @@ clear all; close all; clc
 
 % img = loadGed('/Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/data/volfloat/5.05_ID1662_769_pag0001.vol', 1);
 img = loadGed('5.05_ID1662_769_pag0001.vol', 1);
+[r, c] = size(img);
+
+
 %% Find implant
+
 close all
 imp1 = img < 0.62;
 scMin = min(img(:));
@@ -22,4 +26,8 @@ se = strel('disk', 5);
 bone2 = imopen(bone1, se);
 se = strel('disk', 7);
 bone3 = imclose(bone2, se);
-shadeArea(bone3, [0 0 1])
+% filter out middle
+middle = ~bwfill(imp2, 'holes');
+bone4 = middle.*bone3;
+shadeArea(bone4, [0 0 1])
+
