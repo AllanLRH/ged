@@ -38,22 +38,22 @@ shadeArea(imp2, [1 0 0]);
 
 %% Find bone/soft tissue
 
+highThreshold = 0.4488;
+lowThreshold = 0.3054;
 imf = fspecial('gaussian', 4, 2);
 imgB2 = imfilter(imfilter(img, imf), imf);
-imgB3 = medfilt2(imgB2, [4,4]);
-bone1 = imgB3 < 0.10;
-se = strel('disk', 5);
+imgB3 = medfilt2(img, [4,4]);
+bone1 = (lowThreshold < imgB3) & (imgB3 < highThreshold);
+se = strel('square', 4);
 bone2 = imopen(bone1, se);
-se = strel('disk', 7);
-bone3 = imclose(bone2, se);
-% filter out middle
-middle = ~bwfill(imp2, 'holes');
-bone4 = middle.*circ.*bone3;
+se = strel('square', 2);
+bone3 = imdilate(bone2, se);
+bone4 = ~imp2.*circ.*bone3;
 shadeArea(bone4, [0 0 1])
 
 
 %% Find the last region for completeness
 
 rest1 = not(bone4);
-rest2 = rest1.*circ.*middle;
+rest2 = rest1.*circ.*(~imp2);
 shadeArea(rest2, [0 1 0])
