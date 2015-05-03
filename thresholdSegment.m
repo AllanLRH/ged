@@ -1,4 +1,4 @@
-clear all; close all; clc
+clear; close all; clc
 
 % img = loadGed('/Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/data/volfloat/5.05_ID1662_769_pag0001.vol', 1);
 img = loadGed('5.05_ID1662_769_pag0001.vol', 1);
