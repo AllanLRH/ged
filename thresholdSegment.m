@@ -1,9 +1,12 @@
 clear; close all; clc
 
-% img = loadGed('/Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/data/volfloat/5.05_ID1662_769_pag0001.vol', 1);
-img = loadGed('5.05_ID1662_769_pag0001.vol', 1);
-[r, c] = size(img);
+% imgStack = loadGed('/Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/data/volfloat/5.05_ID1662_769_pag0001.vol', 1);
+% imgStack = loadGed('/Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/disc_backups/disc2/volfloat/5.05_ID1662_769_0001.vol', [1 25 50]);
+imgStack = loadGed('5.05_ID1662_769_0001.vol', [1 2 50]);
+[r, c, n] = size(imgStack);
 
+%%
+img = normImage(imgStack(:, :, 3));
 
 %% Find circle containing image
 
