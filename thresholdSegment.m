@@ -25,12 +25,14 @@ end
 %% Find implant
 
 close all
-imp1 = img < 0.62;
-scMin = min(img(:));
-scMax = max(img(:));
-se = strel('disk', 18);
-imp2 = ~imclose(imp1, se);
-h = imshow(img, [scMin, scMax]);
+
+lowThreshold = 0.6386;
+highThreshold = 0.7033;
+imp1 = lowThreshold < img & img < highThreshold;
+% Also fill the inner part of the implant
+se = strel('disk', 30);
+imp2 = imclose(imp1, se);
+h = imsc(img);
 shadeArea(imp2, [1 0 0]);
 
 
