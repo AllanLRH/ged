@@ -2,7 +2,7 @@ clear; close all; clc
 
 % imgStack = loadGed('/Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/data/volfloat/5.05_ID1662_769_pag0001.vol', 1);
 % imgStack = loadGed('/Users/allan/migMount/eScience/XRay/apu05.esci.nbi.dk.0_localhost/tandlaege/disc_backups/disc2/volfloat/5.05_ID1662_769_0001.vol', [1 25 50]);
-imgStack = loadGed('5.05_ID1662_769_0001.vol', [1 2 50]);
+imgStack = loadGed('5.05_ID1662_769_0001.vol', [1 50 255]);
 [r, c, n] = size(imgStack);
 
 %%
@@ -29,10 +29,12 @@ lowThreshold = 0.6386;
 highThreshold = 0.7033;
 imp1 = lowThreshold < img & img < highThreshold;
 % Also fill the inner part of the implant
-se = strel('disk', 30);
-imp2 = imclose(imp1, se);
+se = strel('square', 30);
+imp2 = imclose(imp1, se);  % Make implant solid
+imp3 = imopen(imp2, se);  % Remote white dots inside/outside implant circle
+imp4 = bwfill(imp3, 'holes');  % Fill the middle of the implant in case it's not
 h = imsc(img);
-shadeArea(imp2, [1 0 0]);
+shadeArea(imp4, [1 0 0]);
 
 
 %% Find bone/soft tissue
