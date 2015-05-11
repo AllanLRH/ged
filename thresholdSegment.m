@@ -6,7 +6,8 @@ imgStack = loadGed('5.05_ID1662_769_0001.vol', [1 2 50]);
 [r, c, n] = size(imgStack);
 
 %%
-img = normImage(imgStack(:, :, 3));
+img = normImage(imgStack(:, :, 1));
+ha(1) = subplot(121);
 
 %% Find circle containing image
 
@@ -23,8 +24,6 @@ end
 
 
 %% Find implant
-
-close all
 
 lowThreshold = 0.6386;
 highThreshold = 0.7033;
@@ -57,3 +56,9 @@ shadeArea(bone4, [0 0 1])
 rest1 = not(bone4);
 rest2 = rest1.*circ.*(~imp2);
 shadeArea(rest2, [0 1 0])
+
+%% Finalize plotting
+
+ha(2) = subplot(122);
+imsc(img)
+linkaxes(ha, 'xy');
