@@ -47,17 +47,24 @@ imf = fspecial('gaussian', 3, 25);
 imgB2 = imfilter(imfilter(img, imf), imf);
 imgB3 = medfilt2(img, [2,2]);
 bone1 = (lowThreshold < imgB3) & (imgB3 < highThreshold);
-se = strel('square', 4);
-bone2 = imopen(bone1, se);
-se = strel('square', 2);
-bone3 = imdilate(bone2, se);
-bone4 = ~imp2.*circ.*bone3;
-shadeArea(bone4, [0 0 1])
+se1 = strel('disk', 3);
+bone2 = imopen(bone1, se1);
+se2 = strel('disk', 2);
+bone3 = imclose(bone2, se2);
+se3 = strel('disk', ii);
+bone4 = imopen(bone3, se3);
+
+boneSmallelements1 = img < 0.322;
+boneSmallelements2 = imdilate(boneSmallelements1, ones(2));
+
+bone5 = bone4 | boneSmallelements2;
+bone6 = ~imp4.*circ.*bone5;
+shadeArea(bone6, [0 0 1])
 
 
 %% Find the last region for completeness
 
-rest1 = not(bone4);
+rest1 = not(bone6);
 rest2 = rest1.*circ.*(~imp2);
 shadeArea(rest2, [0 1 0])
 
