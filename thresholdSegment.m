@@ -39,9 +39,10 @@ shadeArea(imp4, [1 0 0]);
 
 %% Find bone/soft tissue
 
-highThreshold = 0.4488;
-lowThreshold = 0.3054;
-imf = fspecial('gaussian', 4, 2);
+% highThreshold = 0.4488;  % old values
+% lowThreshold = 0.3054;  % old values
+lowThreshold = 0.3550;
+highThreshold = 0.4150;
 imgB2 = imfilter(imfilter(img, imf), imf);
 imgB3 = medfilt2(img, [4,4]);
 bone1 = (lowThreshold < imgB3) & (imgB3 < highThreshold);
