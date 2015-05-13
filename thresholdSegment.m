@@ -43,8 +43,9 @@ shadeArea(imp4, [1 0 0]);
 % lowThreshold = 0.3054;  % old values
 lowThreshold = 0.3550;
 highThreshold = 0.4150;
+imf = fspecial('gaussian', 3, 25);
 imgB2 = imfilter(imfilter(img, imf), imf);
-imgB3 = medfilt2(img, [4,4]);
+imgB3 = medfilt2(img, [2,2]);
 bone1 = (lowThreshold < imgB3) & (imgB3 < highThreshold);
 se = strel('square', 4);
 bone2 = imopen(bone1, se);
