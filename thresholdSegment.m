@@ -73,3 +73,4 @@ shadeArea(rest2, [0 1 0])
 ha(2) = subplot(122);
 imsc(img)
 linkaxes(ha, 'xy');
+maximize
