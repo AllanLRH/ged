@@ -48,10 +48,10 @@ imgB2 = imfilter(imfilter(img, imf), imf);
 imgB3 = medfilt2(img, [2,2]);
 bone1 = (lowThreshold < imgB3) & (imgB3 < highThreshold);
 se1 = strel('disk', 3);
-bone2 = imopen(bone1, se1);
+bone2 = imclose(bone1, se1);
 se2 = strel('disk', 2);
-bone3 = imclose(bone2, se2);
-se3 = strel('disk', ii);
+bone3 = imopen(bone2, se2);
+se3 = strel('disk', 4);
 bone4 = imopen(bone3, se3);
 
 boneSmallelements1 = img < 0.322;
