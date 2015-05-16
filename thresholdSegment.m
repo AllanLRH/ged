@@ -33,39 +33,44 @@ se = strel('square', 30);
 imp2 = imclose(imp1, se);  % Make implant solid
 imp3 = imopen(imp2, se);  % Remote white dots inside/outside implant circle
 imp4 = bwfill(imp3, 'holes');  % Fill the middle of the implant in case it's not
+
+
+%% Correct bias
+
+mask = (circ | imp4);
+load('biasImg.mat');
+bias = biasCorrect(biasImg, mask);
+bias = imfilter(bias, fspecial('gaussian', 20, 80), 'circular');
+img = normImage(img.*mask - 0.7*bias.*mask + img.*not(mask));
+
 h = imsc(img);
 shadeArea(imp4, [1 0 0]);
 
-
 %% Find bone/soft tissue
 
-% highThreshold = 0.4488;  % old values
-% lowThreshold = 0.3054;  % old values
-lowThreshold = 0.3550;
-highThreshold = 0.4150;
+lowThreshold = 0.3150;
+highThreshold = 0.4400;
 imf = fspecial('gaussian', 3, 25);
 imgB2 = imfilter(imfilter(img, imf), imf);
 imgB3 = medfilt2(img, [2,2]);
 bone1 = (lowThreshold < imgB3) & (imgB3 < highThreshold);
 se1 = strel('disk', 3);
-bone2 = imclose(bone1, se1);
-se2 = strel('disk', 2);
-bone3 = imopen(bone2, se2);
-se3 = strel('disk', 4);
-bone4 = imopen(bone3, se3);
+bone2 = imopen(bone1, se1);
+se2 = strel('disk', 4);
+bone3 = imclose(bone2, se2);
 
 boneSmallelements1 = img < 0.322;
 boneSmallelements2 = imdilate(boneSmallelements1, ones(2));
 
-bone5 = bone4 | boneSmallelements2;
-bone6 = ~imp4.*circ.*bone5;
-shadeArea(bone6, [0 0 1])
+bone4 = bone3 | boneSmallelements2;
+bone5 = ~imp4.*circ.*bone4;
+shadeArea(bone5, [0 0 1])
 
 
 %% Find the last region for completeness
 
-rest1 = not(bone6);
-rest2 = rest1.*circ.*(~imp2);
+rest1 = not(bone5);
+rest2 = rest1.*circ.*(~imp4);
 shadeArea(rest2, [0 1 0])
 
 %% Finalize plotting
