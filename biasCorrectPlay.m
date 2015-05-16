@@ -32,7 +32,8 @@ imp4 = bwfill(imp3, 'holes');  % Fill the middle of the implant in case it's not
 %% Correct bias
 
 mask = (circ | imp4);
-bias = biasCorrect(img, mask);
+load('biasImgOpened.mat');
+bias = biasCorrect(biasImageOpened, mask);
 biasCorrected = img.*mask - bias.*mask + img.*not(mask);
 
 %% Plot result
