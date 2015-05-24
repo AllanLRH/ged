@@ -9,13 +9,14 @@ boneVolumeFraction = zeros(1, nBands);
 [implant, bone, cavity] = thresholdSegment(img);
 load('circ.mat')
 
-dstMap = abs(sgnDstFromImg(img));
+dstMap = sgnDstFromImg(implant);
 for ii = 1:nBands
-    dstMask = bandBorders(ii) < dstMap & dstMap < bandBorders(ii+1);
-    boneVolumeFraction(ii) = sum(bone(dstMask))/sum(cavity(dstMask)) * 1/numel(dstMask);
+    dstMask = (bandBorders(ii) > dstMap) & (dstMap > 0);
+    boneVolumeFraction(ii) = sum(bone(dstMask))/(pi*bandBorders(ii)^2);% * 1/numel(dstMask);
+    % imsc(dstMask)
+    % pause(0.01)
 end
-boneVolumeFraction(isnan(boneVolumeFraction)) = 0;
-plot(cumsum(boneVolumeFraction))
+plot(boneVolumeFraction)
 
 % Check that there's no summing going on outside the circular image
 
