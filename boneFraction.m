@@ -42,10 +42,21 @@ for ii = 2:10
 
     im2 = normImage(loadGed('5.05_ID1662_769_0001.vol', ii));
 
-    boneStd    = std(im2(boneMaskNextImg));
-    boneMean   = mean(im2(boneMaskNextImg));
-    cavityStd  = std(im2(cavityMaskNextImg));
-    cavityMean = mean(im2(cavityMaskNextImg));
+    boneStdSimple    = std(im2(boneMaskNextImg));
+    boneMeanSimple   = mean(im2(boneMaskNextImg));
+    cavityStdSimple  = std(im2(cavityMaskNextImg));
+    cavityMeanSimple = mean(im2(cavityMaskNextImg));
+    mask4 = mask2;
+    [boneStd, boneMean, cavityStd, cavityMean] = statsFromPrevMask(im2, mask4, interestMask);
+
+    disp('boneStd')
+    disp(boneStdSimple - boneStd)
+    disp('boneMean')
+    disp(boneMeanSimple - boneMean)
+    disp('cavityStd')
+    disp(cavityStdSimple - cavityStd)
+    disp('cavityMean')
+    disp(cavityMeanSimple - cavityMean)
 
     meanImg    = getMeanImage(im2, boxsize);
     stdImg     = getStdImage(im2, boxsize, meanImg);
@@ -58,7 +69,7 @@ for ii = 2:10
     boneMaskNextImg   = logical(imopen(mask4, seNextImg));
     cavityMaskNextImg = logical(imopen((bone2 < cavity2).*interestMask, seNextImg));
 
-    shadeLinker(im2, mask4, 'shadeAndMask')
+%     shadeLinker(im2, mask4, 'shadeAndMask')
 
 end
 
