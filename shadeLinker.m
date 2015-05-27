@@ -13,7 +13,7 @@ if nargin > 2  % Non-default behaviour
         ha(1) = subplot(121);
         imsc(img)
         ha(2) = subplot(122);
-        imsc(mask)
+        imsc(img)
         shadeArea(mask, maskColor);
     end
 else  % Default behaviour: Plot shaded image left, image right
