@@ -1,10 +1,16 @@
 clear; close all; clc;
 
 img = normImage(loadGed('5.05_ID1662_769_0001.vol', 1));
+load('circ.mat');
+implantMask  = thresholdSegment(img);
+interestMask = (circ & ~implantMask);
+bias         = biasCorrect(img, interestMask);
+img          = normImage(img - bias);
+
 s = size(img, 1);  % Quadratic image
 
-lightMask = logical(mean(imread('lightMask.tiff'), 3));
-darkMask = logical(mean(imread('darkMask.tiff'), 3));
+lightMask = logical(mean(imread('problemLight.tiff'), 3));
+darkMask = logical(mean(imread('problemDark.tiff'), 3));
 
 imsc(img)
 shadeArea(lightMask, [1 0 0], 0.2)
@@ -39,14 +45,20 @@ legend('Light','Dark')
 
 %%
 
-funMean = @(x) mean(x(:));
-meanImg = nlfilter(img, [5 5], funMean);
+% funMean = @(x) mean(x(:));
+% meanImg = nlfilter(img, [5 5], funMean);
 
 
-funStd = @(x) std(x(:));
-stdImg = nlfilter(img, [5 5], funStd);
+% funStd = @(x) std(x(:));
+% stdImg = nlfilter(img, [5 5], funStd);
+
+% load('meanAndStdImages.mat')
+
+stdImg = getStdImage(img, 5);
+meanImg = getMeanImage(img, 5);
 
 figure; subplot(1,2,1); imagesc(meanImg); colormap(gray); subplot(1,2,2); imagesc(stdImg); colormap(gray)
+title('Mean and std image')
 
 lightI = img(lightMask);
 lightV = [mean(lightI(:)),std(lightI(:))];
@@ -58,13 +70,15 @@ darkD = (meanImg-darkV(1)).^2+(stdImg-darkV(2)).^2;
 
 D = (lightD < darkD);
 shadeLinker(img, D, 'maskAndImg')
+title('mask')
 
-D = (lightD > darkD);
-shadeLinker(img, D, 'maskAndImg')
+% D = (lightD > darkD);
+% shadeLinker(img, D, 'maskAndImg')
 
 [imgx,imgy] = gradient(meanImg);
 imgg = log(log(1+imgx.^2+imgy.^2));
 shadeLinker(img, imgg, 'maskAndImg')
+title('gradiendt magnitude (log(log))')
 
 
 
