@@ -1,14 +1,13 @@
-function [imp4] = segmentImplant(img)
+function [imp4] = segmentImplant(meanStdImg)
 %% segmentImplant: Return a mask covering the implant
-% img is a normalized image.
+% meanStdImg is a getMeanImgge(nm1, 5).^2 + getStdImage(img, n).^2.
 
-    lowThreshold = 0.6386;
-    highThreshold = 0.7033;
-    imp1 = (lowThreshold < img) & (img < highThreshold);
-    % Also fill the inner part of the implant
-    se = strel('square', 30);
-    imp2 = imclose(imp1, se);  % Make implant solid
-    imp3 = imopen(imp2, se);  % Remote white dots inside/outside implant circle
-    imp4 = logical(bwfill(imp3, 'holes'));  % Fill the middle of the implant in case it's not
-
+    threshold = 0.33;
+    imp1 = meanStdImg > threshold;
+    % Remove small misclassified areas
+    se = strel('disk', 25);
+    imp2 = imopen(imp1, se);
+    imp3 = imclose(imp2, se);
+    % Fill the middle of the implant in case it's not
+    imp4 = logical(bwfill(imp3, 'holes'));
 end
