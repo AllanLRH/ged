@@ -26,14 +26,14 @@ stdImg       = getStdImage(im1, boxsize, meanImg);
 
 bone1        = (meanImg-boneMean).^2+(stdImg-boneStd).^2;
 cavity1      = (meanImg-cavityMean).^2+(stdImg-cavityStd).^2;
-mask1        = (bone1 > cavity1).*interestMask;
+mask1        = (bone1 > cavity1) & interestMask;
 
 seCleaner         = strel('disk', 4);
 mask2             = imclose(mask1, seCleaner);
 
 seNextImg         = strel('disk', 7);
-boneMaskNextImg   = logical(imopen(mask1, seNextImg));
-cavityMaskNextImg = logical(imopen((bone1 < cavity1).*interestMask, seNextImg));
+boneMaskNextImg   = imerode((bone1 > cavity1), seNextImg) & interestMask;
+cavityMaskNextImg = imerode((bone1 < cavity1), seNextImg) & interestMask;
 
 shadeLinker(im1, mask2, 'shadeAndMask')
 
@@ -70,6 +70,11 @@ for ii = 2:10
     cavityMaskNextImg = logical(imopen((bone2 < cavity2).*interestMask, seNextImg));
 
 %     shadeLinker(im2, mask4, 'shadeAndMask')
+    mask3   = (bone2 > cavity2);
+    mask4   = imclose(mask3, seCleaner) & interestMask;
+
+    boneMaskNextImg   = imerode(mask3, seNextImg) & interestMask;
+    cavityMaskNextImg = imerode(~mask3, seNextImg) & interestMask;
 
 end
 
