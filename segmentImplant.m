@@ -4,7 +4,7 @@ function [imp4] = segmentImplant(img)
 
     lowThreshold = 0.6386;
     highThreshold = 0.7033;
-    imp1 = lowThreshold < img & img < highThreshold;
+    imp1 = (lowThreshold < img) & (img < highThreshold);
     % Also fill the inner part of the implant
     se = strel('square', 30);
     imp2 = imclose(imp1, se);  % Make implant solid
