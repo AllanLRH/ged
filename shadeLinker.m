@@ -12,9 +12,9 @@ if nargin > 2  % Non-default behaviour
     elseif strcmpi(varargin{1}, 'shadeAndMask') || strcmpi(varargin{1}, 'maskAndShade')  % Plot shaded image left, image right
         ha(1) = subplot(121);
         imsc(img)
-        ha(2) = subplot(122);
-        imsc(img)
         shadeArea(mask, maskColor);
+        ha(2) = subplot(122);
+        imsc(mask)
     end
 else  % Default behaviour: Plot shaded image left, image right
     ha(1) = subplot(121);
