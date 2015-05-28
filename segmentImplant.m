@@ -1,7 +1,9 @@
-function [imp4] = segmentImplant(meanStdImg)
+function [imp4] = segmentImplant(meanImg, stdImg)
 %% segmentImplant: Return a mask covering the implant
-% meanStdImg is a getMeanImgge(nm1, 5).^2 + getStdImage(img, n).^2.
-
+% meanImg is getMeanImgge(nm1, 5).^2
+% stdImg is  getStdImage(img, n).^2
+    
+    meanStdImg = meanImg.^2 + stdImg.^2;
     threshold = 0.33;
     imp1 = meanStdImg > threshold;
     % Remove small misclassified areas
