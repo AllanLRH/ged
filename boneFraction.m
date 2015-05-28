@@ -1,4 +1,4 @@
-clear; close all; clc
+clear; %close all; clc
 
 nBands = 100;
 boxsize = 5;
@@ -26,19 +26,20 @@ stdImg       = getStdImage(im1, boxsize, meanImg);
 
 bone1        = (meanImg-boneMean).^2+(stdImg-boneStd).^2;
 cavity1      = (meanImg-cavityMean).^2+(stdImg-cavityStd).^2;
-mask1        = (bone1 > cavity1) & interestMask;
+mask1        = (bone1 > cavity1);
 
 seCleaner         = strel('disk', 4);
-mask2             = imclose(mask1, seCleaner);
+mask2             = imclose(mask1, seCleaner) & interestMask;
 
 seNextImg         = strel('disk', 7);
-boneMaskNextImg   = imerode((bone1 > cavity1), seNextImg) & interestMask;
-cavityMaskNextImg = imerode((bone1 < cavity1), seNextImg) & interestMask;
+boneMaskNextImg   = imerode(~mask1, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
+cavityMaskNextImg = imerode(mask1, seNextImg) & interestMask;
 
 % shadeLinker(im1, mask2, 'shadeAndMask')
 
+
 %% Process next image
-for ii = 2:4
+for ii = 2:16
 
     im2 = normImage(loadGed('5.05_ID1662_769_0001.vol', ii));
 
@@ -46,22 +47,18 @@ for ii = 2:4
     boneMean   = mean(im2(boneMaskNextImg));
     cavityStd  = std(im2(cavityMaskNextImg));
     cavityMean = mean(im2(cavityMaskNextImg));
-    % mask4 = logical(mask2);
-    % [boneStd, boneMean, cavityStd, cavityMean] = statsFromPrevMask(im2, mask4, interestMask);
 
     meanImg = getMeanImage(im2, boxsize);
     stdImg  = getStdImage(im2, boxsize, meanImg);
-
     bone2   = (meanImg-boneMean).^2+(stdImg-boneStd).^2;
     cavity2 = (meanImg-cavityMean).^2+(stdImg-cavityStd).^2;
     mask3   = (bone2 > cavity2);
     mask4   = imclose(mask3, seCleaner) & interestMask;
 
-    boneMaskNextImg   = imerode(mask3, seNextImg) & interestMask;
-    cavityMaskNextImg = imerode(~mask3, seNextImg) & interestMask;
+    boneMaskNextImg   = imerode(~mask3, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
+    cavityMaskNextImg = imerode(mask3, seNextImg) & interestMask;
 
     % shadeLinker(im2, mask4, 'shadeAndMask')
-
 end
 
 
