@@ -13,7 +13,7 @@ function [imp5] = segmentImplant(img)
     se = strel('disk', 10);
     imp2 = imclose(imp1, se);
     imp3 = imopen(imp2, se);
-    se = strel('disk', 45);
+    se = strel('disk', 35);
     imp4 = imopen(imp3, se);
     imp5 = logical(bwfill(imp4, 'holes'));
 end
