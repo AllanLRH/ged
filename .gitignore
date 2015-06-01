@@ -45,3 +45,7 @@ problem*.tiff
 smallVersions
 *_nextimg.mat
 eksp
+cdfMismatchMatrix.fig
+pdfMismatchMatrix.fig
+temp.m
+temp2.m
