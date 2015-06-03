@@ -1,4 +1,5 @@
-function [imp4, bone5, cavity2] = thresholdSegment(img)
+function [imp4] = thresholdSegment(img)
+% function [imp4, bone5, cavity2] = thresholdSegment(img)
 %% thresholdSegment: Segment x-ray image using thresholding
 % img as a normalized image
 % return values is
@@ -35,34 +36,34 @@ imp3 = imopen(imp2, se);  % Remote white dots inside/outside implant circle
 imp4 = bwfill(imp3, 'holes');  % Fill the middle of the implant in case it's not
 
 
-%% Correct bias
-mask = (circ | imp4);
-load('biasImg.mat');
-bias = biasCorrect(biasImg, mask);
-bias = imfilter(bias, fspecial('gaussian', 20, 80), 'circular');
-img = normImage(img.*mask - 0.7*bias.*mask + img.*not(mask));
-
-
-%% Find bone/soft tissue
-lowThreshold = 0.3150;
-highThreshold = 0.4400;
-imgB1 = medfilt2(img, [2,2]);
-bone1 = (lowThreshold < imgB1) & (imgB1 < highThreshold);
-se1 = strel('disk', 3);
-bone2 = imopen(bone1, se1);
-se2 = strel('disk', 4);
-bone3 = imclose(bone2, se2);
-
-boneSmallelements1 = img < 0.322;
-boneSmallelements2 = imdilate(boneSmallelements1, ones(2));
-
-bone4 = bone3 | boneSmallelements2;
-bone5 = logical(~imp4.*circ.*bone4);
-
-
-%% Find the last region for completeness
-cavity1 = not(bone5);
-cavity2 = logical(cavity1.*circ.*(~imp4));
+% %% Correct bias
+% mask = (circ | imp4);
+% load('biasImg.mat');
+% bias = biasCorrect(biasImg, mask);
+% bias = imfilter(bias, fspecial('gaussian', 20, 80), 'circular');
+% img = normImage(img.*mask - 0.7*bias.*mask + img.*not(mask));
+% 
+% 
+% %% Find bone/soft tissue
+% lowThreshold = 0.3150;
+% highThreshold = 0.4400;
+% imgB1 = medfilt2(img, [2,2]);
+% bone1 = (lowThreshold < imgB1) & (imgB1 < highThreshold);
+% se1 = strel('disk', 3);
+% bone2 = imopen(bone1, se1);
+% se2 = strel('disk', 4);
+% bone3 = imclose(bone2, se2);
+% 
+% boneSmallelements1 = img < 0.322;
+% boneSmallelements2 = imdilate(boneSmallelements1, ones(2));
+% 
+% bone4 = bone3 | boneSmallelements2;
+% bone5 = logical(~imp4.*circ.*bone4);
+% 
+% 
+% %% Find the last region for completeness
+% cavity1 = not(bone5);
+% cavity2 = logical(cavity1.*circ.*(~imp4));
 
 end
 
