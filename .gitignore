@@ -47,6 +47,5 @@ smallVersions
 eksp
 cdfMismatchMatrix.fig
 pdfMismatchMatrix.fig
-temp.m
-temp2.m
+temp*.m
 segmentImplant2.m
