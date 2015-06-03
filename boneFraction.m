@@ -45,24 +45,24 @@ cdfAbsDiffSum(1) = sum(abs(desiredHistogram - img2cdf(im1)));
 
 %% Process next image
 for ii = 2:255
-    
+
     im2 = normImage(loadGed('5.05_ID1662_769_0001.vol', ii));
-    
     implantMask  = segmentImplant(im2);
-%     implantMask  = thresholdSegment(im2);
     interestMask = (circ & ~implantMask);
-    
+    bias         = biasCorrect(im2, interestMask);
+    im2          = im2 - bias;
+
     cdfAbsDiffSum(ii) = sum(abs(desiredHistogram - img2cdf(im2)));
-    
+
 %     if cdfAbsDiffSum(ii) > 18
 %         im2 = equalizeImage(im2, interestMask);
 %     end
-    
+
     imsc(im2)
     title(num2str(ii))
     shadeArea(cavityMaskNextImg, [1 0 0])
     drawnow
-        
+
     boneMean   = median(im2(boneMaskNextImg));
     boneStd    = median(abs(im2(boneMaskNextImg)-boneMean));
     %cavityStd  = std(im2(cavityMaskNextImg));
@@ -80,7 +80,7 @@ for ii = 2:255
     boneMaskNextImg   = imerode(~mask3, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
     cavityMaskNextImg = imerode(mask3, seNextImg) & interestMask;
 
-    
+
 
 %     currentFig = figure;
 %     subplot(2, 2, 1)
