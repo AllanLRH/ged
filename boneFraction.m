@@ -8,6 +8,7 @@ circArea     = sum(circ(:));
 im1 = normImage(loadGed('5.05_ID1662_769_0001.vol', 1));
 s = size(im1, 1);  %  Quadratic image
 
+% implantMask  = segmentImplant(im1);
 implantMask  = thresholdSegment(im1);
 interestMask = (circ & ~implantMask);
 bias         = biasCorrect(im1, interestMask);
@@ -31,22 +32,43 @@ mask1        = (bone1 > cavity1);
 seCleaner         = strel('disk', 4);
 mask2             = imclose(mask1, seCleaner) & interestMask;
 
-seNextImg         = strel('disk', 7);
+seNextImg         = strel('disk', 5);
 boneMaskNextImg   = imerode(~mask1, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
 cavityMaskNextImg = imerode(mask1, seNextImg) & interestMask;
 
 % shadeLinker(im1, mask2, 'shadeAndMask')
 
+load('desiredHistogram');
+cdfAbsDiffSum = zeros([1 255]);
+cdfAbsDiffSum(1) = sum(abs(desiredHistogram - img2cdf(im1)));
+
 
 %% Process next image
-for ii = 2:16
-
+for ii = 2:255
+    
     im2 = normImage(loadGed('5.05_ID1662_769_0001.vol', ii));
-
-    boneStd    = std(im2(boneMaskNextImg));
-    boneMean   = mean(im2(boneMaskNextImg));
-    cavityStd  = std(im2(cavityMaskNextImg));
-    cavityMean = mean(im2(cavityMaskNextImg));
+    
+    implantMask  = segmentImplant(im2);
+%     implantMask  = thresholdSegment(im2);
+    interestMask = (circ & ~implantMask);
+    
+    cdfAbsDiffSum(ii) = sum(abs(desiredHistogram - img2cdf(im2)));
+    
+%     if cdfAbsDiffSum(ii) > 18
+%         im2 = equalizeImage(im2, interestMask);
+%     end
+    
+    imsc(im2)
+    title(num2str(ii))
+    shadeArea(cavityMaskNextImg, [1 0 0])
+    drawnow
+        
+    boneMean   = median(im2(boneMaskNextImg));
+    boneStd    = median(abs(im2(boneMaskNextImg)-boneMean));
+    %cavityStd  = std(im2(cavityMaskNextImg));
+    %cavityMean = mean(im2(cavityMaskNextImg));
+    cavityMean   = median(im2(cavityMaskNextImg));
+    cavityStd    = median(abs(im2(cavityMaskNextImg)-cavityMean));
 
     meanImg = getMeanImage(im2, boxsize);
     stdImg  = getStdImage(im2, boxsize, meanImg);
@@ -58,9 +80,36 @@ for ii = 2:16
     boneMaskNextImg   = imerode(~mask3, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
     cavityMaskNextImg = imerode(mask3, seNextImg) & interestMask;
 
-    % shadeLinker(im2, mask4, 'shadeAndMask')
-end
+    
 
+%     currentFig = figure;
+%     subplot(2, 2, 1)
+%     imsc(im2)
+%     subplot(2, 2, 2)
+%     imsc(im2)
+%     shadeArea(mask4, [1 0 0])
+%     subplot(2, 2, 3)
+%     imsc(boneMaskNextImg)
+%     subplot(2, 2, 4)
+%     imsc(cavityMaskNextImg)
+%     % maximize
+%     export_fig(['figureExports/overview_' num2str(ii) '.png'])
+%     % close(currentFig)
+%     % currentFig = figure;
+%     clf;
+%     imsc(im2)
+%     shadeArea(mask4, [1 0 0])
+%     text(20, 70, sprintf('%3.3f', cdfAbsDiffSum(ii)), 'color', 'red')
+%     export_fig(['figureExports/segmentation_' num2str(ii) '.png'])
+%     close(currentFig)
+%     % shadeLinker(im2, mask4, 'shadeAndMask')
+end
+% figure
+% plot(cdfAbsDiffSum, 'o-')
+
+
+
+% shadeLinker(im2, mask4, 'shadeAndMask')
 
 %%  De statistics
 % [xi, yi] = find(implantMask);
