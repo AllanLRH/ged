@@ -51,3 +51,8 @@ temp*.m
 segmentImplant2.m
 dilations
 5.05_ID1662_769_0001_masks.mat
+cdfMismatchMatrix.fig
+pdfMismatchMatrix.fig
+torstensKurve.fig
+volumeFractions.fig
+maskMovie
