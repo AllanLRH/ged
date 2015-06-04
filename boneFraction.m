@@ -44,26 +44,26 @@ cavityMaskNextImg = imerode(mask1, seNextImg) & interestMask;
 
 % shadeLinker(im1, mask2, 'shadeAndMask')
 
-load('desiredHistogram');
-cdfAbsDiffSum = zeros([1 stackSize]);
-cdfAbsDiffSum(1) = sum(abs(desiredHistogram - img2cdf(im1)));
+% load('desiredHistogram');
+% cdfAbsDiffSum = zeros([1 stackSize]);
+% cdfAbsDiffSum(1) = sum(abs(desiredHistogram - img2cdf(im1)));
 
 
-[xi, yi] = find(implantMask);
-dstMap = sgnDstFromImg(implantMask);
-dstBorders = [dstMap(1:s, 1) dstMap(1:s, s) dstMap(1, 1:s)' dstMap(s, 1:s)'];
-maxRadius = floor(min(dstBorders(:)));
-bandBorders = linspace(0, maxRadius, nBands);
-boneVolume = zeros(nBands, 1);
-area = zeros(nBands, 1);
+% [xi, yi] = find(implantMask);
+% dstMap = sgnDstFromImg(implantMask);
+% dstBorders = [dstMap(1:s, 1) dstMap(1:s, s) dstMap(1, 1:s)' dstMap(s, 1:s)'];
+% maxRadius = floor(min(dstBorders(:)));
+% bandBorders = linspace(0, maxRadius, nBands);
+% boneVolume = zeros(nBands, 1);
+% area = zeros(nBands, 1);
 
-for ii = 1:nBands
-    dstMask = (dstMap < bandBorders(ii)) & (dstMap > 0);
-    boneVolume(ii) = sum(mask4(dstMask));
-    area(ii) = sum(dstMask(:));
-    % imsc(dstMask)
-    % pause(0.01)
-end
+% for ii = 1:nBands
+%     dstMask = (dstMap < bandBorders(ii)) & (dstMap > 0);
+%     boneVolume(ii) = sum(mask4(dstMask));
+%     area(ii) = sum(dstMask(:));
+%     % imsc(dstMask)
+%     % pause(0.01)
+% end
 
 %% Process next image
 for ii = 2:stackSize
@@ -74,7 +74,7 @@ for ii = 2:stackSize
     bias         = biasCorrect(im2, interestMask);
     im2          = im2 - bias;
 
-    cdfAbsDiffSum(ii) = sum(abs(desiredHistogram - img2cdf(im2)));
+%     cdfAbsDiffSum(ii) = sum(abs(desiredHistogram - img2cdf(im2)));
 
 %     if cdfAbsDiffSum(ii) > 18
 %         im2 = equalizeImage(im2, interestMask);
@@ -101,30 +101,30 @@ for ii = 2:stackSize
     savedBoneMasks(:, :, ii) = mask4;
 
 
-    %%  Do statistics
-    [xi, yi] = find(implantMask);
-    dstMap = sgnDstFromImg(implantMask);
-    % dstBorders = [dstMap(1:s, 1) dstMap(1:s, s) dstMap(1, 1:s)' dstMap(s, 1:s)'];
-    % maxRadius = floor(min(dstBorders));
-    % bandBorders = linspace(0, maxRadius, floor(maxRadius/nBands));
-    % boneVolume = zeros(nBands, 1);
-    % area = zeros(nBands, 1);
-
-    for jj = 1:nBands
-        dstMask = (dstMap < bandBorders(jj)) & (dstMap > 0);
-        boneVolume(jj) = sum(mask4(dstMask));
-        area(jj) = sum(dstMask(:));
-        % imsc(dstMask)
-        % pause(0.01)
-    end
-
-
+%     %%  Do statistics
+%     [xi, yi] = find(implantMask);
+%     dstMap = sgnDstFromImg(implantMask);
+%     % dstBorders = [dstMap(1:s, 1) dstMap(1:s, s) dstMap(1, 1:s)' dstMap(s, 1:s)'];
+%     % maxRadius = floor(min(dstBorders));
+%     % bandBorders = linspace(0, maxRadius, floor(maxRadius/nBands));
+%     % boneVolume = zeros(nBands, 1);
+%     % area = zeros(nBands, 1);
+% 
+%     for jj = 1:nBands
+%         dstMask = (dstMap < bandBorders(jj)) & (dstMap > 0);
+%         boneVolume(jj) = sum(mask4(dstMask));
+%         area(jj) = sum(dstMask(:));
+%         % imsc(dstMask)
+%         % pause(0.01)
+%     end
 
 
-    % imsc(im2)
-    % title(num2str(ii))
-    % shadeArea(mask4, [1 0 0])
-    % saveas(gcf,sprintf('segmentationOverlays/%3.3d.png', ii))
+
+
+    imsc(im2)
+    title(num2str(ii))
+    shadeArea(mask4, [1 0 0])
+    saveas(gcf,sprintf('segmentationOverlays/%3.3d.png', ii))
 
 
 %     currentFig = figure;
@@ -158,7 +158,7 @@ end
 
 
 
-plot(boneVolume)
+% plot(boneVolume)
 
 % Check that there's no summing going on outside the circular image
 
