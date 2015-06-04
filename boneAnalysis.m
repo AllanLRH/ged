@@ -12,7 +12,7 @@ x3 = 0:10;
 [majorAxis,origo] = getMajorAxis(savedImplantMasks);
 resampledBoneMask = sample3d(single(savedBoneMasks),origo,majorAxis,x1,x2,x3);
 resampledDistance = sample3d(DFull,origo,majorAxis,x1,x2,x3);
-maxDistance = 100;
+maxDistance = 30;
 [boneVolume, totalVolume] = boneFractionFunction(resampledBoneMask,resampledDistance,maxDistance);
 dBoneVolume = (boneVolume(3:end)-boneVolume(1:end-2))/2;
 dTotalVolume = (totalVolume(3:end)-totalVolume(1:end-2))/2;
@@ -23,6 +23,7 @@ plot(boneVolume); xlabel('radius'); ylabel('bone integral');
 hold on
 plot(totalVolume);
 hold off
+legend('Bone fraction volume', 'Total band volume')
 
 figure(2)
 plot((2:(maxDistance-1)),dRelativeBoneVolume); xlabel('radius'); ylabel('bone integral');
@@ -37,4 +38,5 @@ for no=-100:100
     contour(dist, r*[0:5:25],'r');
     hold off;
     drawnow;
+%     saveas(gcf, sprintf('maskMovie/%3.3d_frame.png', no))
 end
