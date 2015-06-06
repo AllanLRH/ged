@@ -14,7 +14,7 @@ savedBoneMasks = false(s, s, stackSize);
 
 % implantMask  = segmentImplant(im1);
 implantMask  = thresholdSegment(im1);
-savedImplantMasks(:, :, 1) = implantMask;
+% savedImplantMasks(:, :, 1) = implantMask;
 interestMask = (circ & ~implantMask);
 bias         = biasCorrect(im1, interestMask);
 im1          = im1 - bias;
@@ -36,7 +36,7 @@ mask1        = (bone1 > cavity1);
 
 seCleaner         = strel('disk', 4);
 mask2             = imclose(mask1, seCleaner) & interestMask;
-savedBoneMasks(:, :, 1) = mask2;
+% savedBoneMasks(:, :, 1) = mask2;
 
 seNextImg         = strel('disk', 5);
 boneMaskNextImg   = imerode(~mask1, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
@@ -97,8 +97,8 @@ for ii = 2:stackSize
     boneMaskNextImg   = imerode(~mask3, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
     cavityMaskNextImg = imerode(mask3, seNextImg) & interestMask;
 
-    savedImplantMasks(:, :, ii) = implantMask;
-    savedBoneMasks(:, :, ii) = mask4;
+%     savedImplantMasks(:, :, ii) = implantMask;
+%     savedBoneMasks(:, :, ii) = mask4;
 
 
 %     %%  Do statistics
