@@ -9,7 +9,7 @@ x = N2*ones(3,1);
 J = sample3d(I,x,w,(-(N2-1):N2),(-(N2-1):N2),(-(N2-1):N2));
 
 M = J>0.5;
-[w,x] = majorAxis(J>0.5);
+[w,x] = getMajorAxis(J>0.5);
 K = sample3d(J,x,w,-(N2-1):N2,-(N2-1):N2,10:30);
 
 figure(1);
