@@ -1,4 +1,4 @@
-load 5.05_ID1662_769_0001_masks.mat;
+load('5.05_ID1662_769_0001_masks_v6.mat');
 % implantMask, boneMask;
 
 savedImplantMasks = imresize(savedImplantMasks, 1/4);
