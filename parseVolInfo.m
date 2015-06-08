@@ -7,12 +7,17 @@ function infoStruct = parseVolInfo(filename)
     if fid > 0
         infoStruct = struct;
         fgetl(fid);  % Throw away first line
-        for ii = 1:3
-            rawText = fgetl(fid);
+        for ii = 1:4
+            rawText = fgetl(fid);  %  get line
+            %  split at '=' info cell array
             lineValues = cellfun(@strtrim, strsplit(rawText, '='), 'uniformOutput', false);
-            infoStruct.(lineValues{1}) = str2num(lineValues{2});
+            if any(isletter(lineValues{2}))  % the value of the key-value pair is not a number
+                infoStruct.(lineValues{1}) = lineValues{2};
+            else
+                infoStruct.(lineValues{1}) = str2num(lineValues{2});
+            end
         end
-    else
+    else  % File didn't open correctly
         error('Could not open info file for filename %s', filename)
     end
 
