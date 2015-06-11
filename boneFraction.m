@@ -9,17 +9,16 @@ circArea     = sum(circ(:));
 im1 = normImage(loadGed('5.05_ID1662_769_0001.vol', 1));
 s = size(im1, 1);  %  Quadratic image
 
-savedImplantMasks = false(s, s, stackSize);
-savedBoneMasks = false(s, s, stackSize);
+% savedImplantMasks = false(s, s, stackSize);
+% savedBoneMasks = false(s, s, stackSize);
 
-% implantMask  = segmentImplant(im1);
-implantMask  = thresholdSegment(im1);
+implantMask  = segmentImplant(im1);
 % savedImplantMasks(:, :, 1) = implantMask;
 interestMask = (circ & ~implantMask);
 bias         = biasCorrect(im1, interestMask);
 im1          = im1 - bias;
 
-mask4     = logical(mean(imread('darkMask.tiff'), 3));
+mask4        = logical(mean(imread('darkMask.tiff'), 3));
 cavityMask   = logical(mean(imread('lightMask.tiff'), 3));
 
 boneStd      = std(im1(mask4));
@@ -109,7 +108,7 @@ for ii = 2:stackSize
 %     % bandBorders = linspace(0, maxRadius, floor(maxRadius/nBands));
 %     % boneVolume = zeros(nBands, 1);
 %     % area = zeros(nBands, 1);
-% 
+%
 %     for jj = 1:nBands
 %         dstMask = (dstMap < bandBorders(jj)) & (dstMap > 0);
 %         boneVolume(jj) = sum(mask4(dstMask));
