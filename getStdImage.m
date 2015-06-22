@@ -1,7 +1,7 @@
 function [stdImg] = getStdImage(img, mask, boxsize, varargin)
 %% getMeanImage: Calculates the standard deviaton image by convolving with a box filter
 % varargin is the mean image
-    if nargin == 3
+    if nargin == 4
         meanImg = varargin{1};
     else
         meanImg = getMeanImage(img, mask, boxsize);
