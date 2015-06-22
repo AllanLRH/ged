@@ -1,4 +1,12 @@
-load('5.05_ID1662_769_0001_masks_v6.mat');
+home; close all
+
+clear DFull majorAxis ans maxDistance totalVolume boneVolume
+clear no x1 dBoneVolume origo x2 dRelativeBoneVolume r x3 img
+clear dTotalVolume resampledBoneMask xMax dist resampledDistance
+
+if not(all([exist('savedBoneMasks') exist('savedImplantMasks')]))
+    load('5.05_ID1662_769_0001_masks_v6.mat');
+end
 % implantMask, boneMask;
 
 savedImplantMasks = imresize(savedImplantMasks, 1/4);
