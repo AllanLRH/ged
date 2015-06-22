@@ -6,7 +6,7 @@ function [stdImg] = getStdImage(img, mask, boxsize, varargin)
     else
         meanImg = getMeanImage(img, mask, boxsize);
     end
-    box = ones(boxsize)/boxsize^2;
-    stdImg = (conv2((img.*mask).^2, box, 'same') - meanImg.^2) ./ conv2(double(mask), box, 'same'); % .* mask;
-
+    box    = ones(boxsize)/boxsize^2;
+    temp   = normConv(img.^2, mask.^2, box);
+    stdImg = temp - meanImg.^2;
 end
