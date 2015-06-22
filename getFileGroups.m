@@ -1,6 +1,9 @@
-%% getFileGroups: Get a cell array with cell arrays of file pairs
+    %% getFileGroups: Get a cell array with cell arrays of file pairs
 function fileGroups = getFileGroups(folderPath)
     % Get list of info files
+    if exist(folderPath, 'dir') ~= 7
+        error('Specied folder does not exist. folder specified was %s', folderPath)
+    end
     if strcmp(folderPath(end), '/')
         cont = dir([folderPath '*.vol.info']);
     else
