@@ -1,8 +1,16 @@
-function [mask] = segmentBoneAndCavity(img, boxsize)
-    boneMean   = 0.4331;
-    boneStd    = 0.0192;
-    cavityMean = 0.3954;
-    cavityStd  = 0.0160;
+function mask = segmentBoneAndCavity(img, interestMask, boxsize, varargin)
+    if nargin > 3
+        boneMean   = 0.4331;
+        boneStd    = 0.0192;
+        cavityMean = 0.3954;
+        cavityStd  = 0.0160;
+    else
+        argin      = varargin{1};
+        boneMean   = argin(1);
+        boneStd    = argin(2);
+        cavityMean = argin(3);
+        cavityStd  = argin(4);
+    end
 
     meanImg = getMeanImage(img, boxsize);
     stdImg = getStdImage(img, boxsize, meanImg);
