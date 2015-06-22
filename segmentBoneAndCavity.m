@@ -13,7 +13,7 @@ function mask = segmentBoneAndCavity(img, interestMask, boxsize, varargin)
     end
 
     meanImg = getMeanImage(img, interestMask, boxsize);
-    stdImg  = getStdImage(img, interestMask, boxsize, meanImg);
+    stdImg  = getVarImage(img, interestMask, boxsize, meanImg);
 
     bone   = (meanImg-boneMean).^2 + (stdImg-boneStd).^2;
     cavity = (meanImg-cavityMean).^2 + (stdImg-cavityStd).^2;

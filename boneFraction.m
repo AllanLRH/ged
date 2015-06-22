@@ -27,7 +27,7 @@ cavityStd    = std(im1(cavityMask));
 cavityMean   = mean(im1(cavityMask));
 
 meanImg      = getMeanImage(im1, interestMask, boxsize);
-stdImg       = getStdImage(im1, interestMask, boxsize, meanImg);
+stdImg       = getVarImage(im1, interestMask, boxsize, meanImg);
 
 bone1        = (meanImg-boneMean).^2+(stdImg-boneStd).^2;
 cavity1      = (meanImg-cavityMean).^2+(stdImg-cavityStd).^2;
@@ -87,7 +87,7 @@ for ii = 2:stackSize
     cavityStd    = median(abs(im2(cavityMaskNextImg)-cavityMean));
 
     meanImg = getMeanImage(im2, interestMask, boxsize);
-    stdImg  = getStdImage(im2, interestMask, boxsize, meanImg);
+    stdImg  = getVarImage(im2, interestMask, boxsize, meanImg);
     bone2   = (meanImg-boneMean).^2+(stdImg-boneStd).^2;
     cavity2 = (meanImg-cavityMean).^2+(stdImg-cavityStd).^2;
     mask3   = (bone2 > cavity2);

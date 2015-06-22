@@ -1,4 +1,4 @@
-function [stdImg] = getStdImage(img, mask, boxsize, varargin)
+function [stdImg] = getVarImage(img, mask, boxsize, varargin)
 %% getMeanImage: Calculates the standard deviaton image by convolving with a box filter
 % varargin is the mean image
     if nargin == 4

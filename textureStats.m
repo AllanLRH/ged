@@ -54,7 +54,7 @@ legend('Light','Dark')
 
 % load('meanAndStdImages.mat')
 
-stdImg = getStdImage(img, 5);
+stdImg = getVarImage(img, 5);
 meanImg = getMeanImage(img, 5);
 
 figure; subplot(1,2,1); imagesc(meanImg); colormap(gray); subplot(1,2,2); imagesc(stdImg); colormap(gray)
