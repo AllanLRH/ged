@@ -6,7 +6,6 @@ function [stdImg] = getVarImage(img, mask, boxsize, varargin)
     else
         meanImg = getMeanImage(img, mask, boxsize);
     end
-    box    = ones(boxsize)/numel(boxsize)^2;
-    temp   = normConv(img.^2, mask.^2, box);
-    stdImg = temp - meanImg.^2;
+    stdImg = getMeanImage(img.^2, mask.^2, boxsize) - meanImg.^2;
+    stdImg(~mask) = 0;  % Remove NaN's caused by dividing with 0
 end
