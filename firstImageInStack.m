@@ -4,5 +4,5 @@ filenames = {'5.05_ID1662_770_0001.vol', '5.05_ID1662_771_0001.vol', '5.05_ID166
 
 for ii = 1:length(filenames)
     img = 255*normImage(loadGed(['data/' filenames{ii}], 1));
-    imsave(img, ['firstImageInStack/' filenames{ii} '.tiff'])
+    imwrite(img, ['firstImageInStack/' filenames{ii} '.tiff']);
 end
