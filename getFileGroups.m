@@ -10,6 +10,11 @@ function fileGroups = getFileGroups(folderPath)
         cont = dir([folderPath '/*.vol.info']);
     end
     cont = {cont.name};
+    if strcmp(folderPath(end), '/')
+        cont = strcat(folderPath, cont);
+    else
+        cont = strcat([folderPath '/'], cont);
+    end
     % Preallocate
     fileGroups = cell(0);
     temp = cell(0);
