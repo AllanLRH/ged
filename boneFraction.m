@@ -21,16 +21,16 @@ im1          = im1 - bias;
 mask4        = logical(mean(imread('darkMask.tiff'), 3));
 cavityMask   = logical(mean(imread('lightMask.tiff'), 3));
 
-boneStd      = std(im1(mask4));
-boneMean     = mean(im1(mask4));
-cavityStd    = std(im1(cavityMask));
-cavityMean   = mean(im1(cavityMask));
+boneMean     = median(im1(mask4));
+boneStd      = abs(boneMean - im1(mask4));
+cavityMean   = median(im1(cavityMask));
+cavityStd    = abs(cavityMean - im1(cavityMask));
 
-meanImg      = getMeanImage(im1, interestMask, boxsize);
-stdImg       = getVarImage(im1, interestMask, boxsize, meanImg);
+medianImg      = getMedianImage(im1, interestMask, boxsize);
+boneAbsDstImg  = abs(im1 - medianImg).*interestMask;
 
-bone1        = (meanImg-boneMean).^2+(stdImg-boneStd).^2;
-cavity1      = (meanImg-cavityMean).^2+(stdImg-cavityStd).^2;
+bone1        = (medianImg - boneMean).^2 + (boneAbsDstImg - boneStd).^2;
+cavity1      = (medianImg - cavityMean).^2 + (boneAbsDstImg - cavityStd).^2;
 mask1        = (bone1 > cavity1);
 
 seCleaner         = strel('disk', 4);
@@ -79,17 +79,15 @@ for ii = 2:stackSize
 %         im2 = equalizeImage(im2, interestMask);
 %     end
 
-    boneMean   = median(im2(boneMaskNextImg));
-    boneStd    = median(abs(im2(boneMaskNextImg)-boneMean));
-    %cavityStd  = std(im2(cavityMaskNextImg));
-    %cavityMean = mean(im2(cavityMaskNextImg));
-    cavityMean   = median(im2(cavityMaskNextImg));
-    cavityStd    = median(abs(im2(cavityMaskNextImg)-cavityMean));
+    boneMedian   = median(im2(boneMaskNextImg));
+    boneAbsDev   = median(abs(im2(boneMaskNextImg) - boneMedian));
+    cavityMedian = median(im2(cavityMaskNextImg));
+    cavityAbsDev = median(abs(im2(cavityMaskNextImg) - cavityMedian));
 
-    meanImg = getMeanImage(im2, interestMask, boxsize);
-    stdImg  = getVarImage(im2, interestMask, boxsize, meanImg);
-    bone2   = (meanImg-boneMean).^2+(stdImg-boneStd).^2;
-    cavity2 = (meanImg-cavityMean).^2+(stdImg-cavityStd).^2;
+    medianImg = getMedianImage(im2, interestMask, boxsize);
+    boneAbsDstImg  = abs(im1 - medianImg).*interestMask;
+    bone2   = (medianImg-boneMean).^2+(boneAbsDstImg-boneStd).^2;
+    cavity2 = (medianImg-cavityMean).^2+(boneAbsDstImg-cavityStd).^2;
     mask3   = (bone2 > cavity2);
     mask4   = imclose(mask3, seCleaner) & interestMask;
 
@@ -151,4 +149,4 @@ end
 % figure
 % plot(cdfAbsDiffSum, 'o-')
 
-save('5.05_ID1662_769_0001_masks_2_v6.mat', 'savedImplantMasks', 'savedBoneMasks', '-v6');
+save('5.05_ID1662_769_0001_masks_median_v6.mat', 'savedImplantMasks', 'savedBoneMasks', '-v6');
