@@ -149,4 +149,4 @@ end
 % figure
 % plot(cdfAbsDiffSum, 'o-')
 
-save('5.05_ID1662_769_0001_masks_2_v6.mat', 'savedImplantMasks', 'savedBoneMasks', '-v6');
+save('5.05_ID1662_769_0001_masks_median_v6.mat', 'savedImplantMasks', 'savedBoneMasks', '-v6');
