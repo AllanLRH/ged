@@ -9,11 +9,11 @@ circArea     = sum(circ(:));
 im1 = normImage(loadGed('5.05_ID1662_769_0001.vol', 1));
 s = size(im1, 1);  %  Quadratic image
 
-% savedImplantMasks = false(s, s, stackSize);
-% savedBoneMasks = false(s, s, stackSize);
+savedImplantMasks = false(s, s, stackSize);
+savedBoneMasks = false(s, s, stackSize);
 
 implantMask  = segmentImplant(im1);
-% savedImplantMasks(:, :, 1) = implantMask;
+savedImplantMasks(:, :, 1) = implantMask;
 interestMask = (circ & ~implantMask);
 bias         = biasCorrect(im1, interestMask);
 im1          = im1 - bias;
@@ -35,7 +35,7 @@ mask1        = (bone1 > cavity1);
 
 seCleaner         = strel('disk', 4);
 mask2             = imclose(mask1, seCleaner) & interestMask;
-% savedBoneMasks(:, :, 1) = mask2;
+savedBoneMasks(:, :, 1) = mask2;
 
 seNextImg         = strel('disk', 5);
 boneMaskNextImg   = imerode(~mask1, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
@@ -96,8 +96,8 @@ for ii = 2:stackSize
     boneMaskNextImg   = imerode(~mask3, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
     cavityMaskNextImg = imerode(mask3, seNextImg) & interestMask;
 
-%     savedImplantMasks(:, :, ii) = implantMask;
-%     savedBoneMasks(:, :, ii) = mask4;
+    savedImplantMasks(:, :, ii) = implantMask;
+    savedBoneMasks(:, :, ii) = mask4;
 
 
 %     %%  Do statistics
@@ -120,10 +120,10 @@ for ii = 2:stackSize
 
 
 
-    imsc(im2)
-    title(num2str(ii))
-    shadeArea(mask4, [1 0 0])
-    saveas(gcf,sprintf('segmentationOverlays/%3.3d.png', ii))
+    % imsc(im2)
+    % title(num2str(ii))
+    % shadeArea(mask4, [1 0 0])
+    % saveas(gcf,sprintf('segmentationOverlays/%3.3d.png', ii))
 
 
 %     currentFig = figure;
@@ -151,18 +151,4 @@ end
 % figure
 % plot(cdfAbsDiffSum, 'o-')
 
-
-
-% shadeLinker(im2, mask4, 'shadeAndMask')
-
-
-
-% plot(boneVolume)
-
-% Check that there's no summing going on outside the circular image
-
-% Don't sum in the implant
-
-% Limut summing to first half of image
-
-% Reproduce Torstens graph
+save('5.05_ID1662_769_0001_masks_2_v6.mat', 'savedImplantMasks', 'savedBoneMasks', '-v6');
