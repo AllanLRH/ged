@@ -21,16 +21,16 @@ im1          = im1 - bias;
 mask4        = logical(mean(imread('darkMask.tiff'), 3));
 cavityMask   = logical(mean(imread('lightMask.tiff'), 3));
 
-boneMean     = median(im1(mask4));
-boneStd      = abs(boneMean - im1(mask4));
-cavityMean   = median(im1(cavityMask));
-cavityStd    = abs(cavityMean - im1(cavityMask));
+boneMedian     = median(im1(mask4));
+boneAbsDist      = abs(boneMedian - im1(mask4));
+cavityMedian   = median(im1(cavityMask));
+cavityAbsDist    = abs(cavityMedian - im1(cavityMask));
 
 medianImg      = getMedianImage(im1, interestMask, boxsize);
 boneAbsDstImg  = abs(im1 - medianImg).*interestMask;
 
-bone1        = (medianImg - boneMean).^2 + (boneAbsDstImg - boneStd).^2;
-cavity1      = (medianImg - cavityMean).^2 + (boneAbsDstImg - cavityStd).^2;
+bone1        = (medianImg - boneMedian).^2 + (boneAbsDstImg - boneAbsDist).^2;
+cavity1      = (medianImg - cavityMedian).^2 + (boneAbsDstImg - cavityAbsDist).^2;
 mask1        = (bone1 > cavity1);
 
 seCleaner         = strel('disk', 4);
@@ -86,8 +86,8 @@ for ii = 2:stackSize
 
     medianImg = getMedianImage(im2, interestMask, boxsize);
     boneAbsDstImg  = abs(im1 - medianImg).*interestMask;
-    bone2   = (medianImg-boneMean).^2+(boneAbsDstImg-boneStd).^2;
-    cavity2 = (medianImg-cavityMean).^2+(boneAbsDstImg-cavityStd).^2;
+    bone2   = (medianImg-boneMedian).^2+(boneAbsDstImg-boneAbsDist).^2;
+    cavity2 = (medianImg-cavityMedian).^2+(boneAbsDstImg-cavityAbsDist).^2;
     mask3   = (bone2 > cavity2);
     mask4   = imclose(mask3, seCleaner) & interestMask;
 
