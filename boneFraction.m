@@ -22,9 +22,9 @@ mask4        = logical(mean(imread('darkMask.tiff'), 3));
 cavityMask   = logical(mean(imread('lightMask.tiff'), 3));
 
 boneMedian     = median(im1(mask4));
-boneAbsDist      = abs(boneMedian - im1(mask4));
+boneAbsDist      = median(abs(boneMedian - im1(mask4)));
 cavityMedian   = median(im1(cavityMask));
-cavityAbsDist    = abs(cavityMedian - im1(cavityMask));
+cavityAbsDist    = median(abs(cavityMedian - im1(cavityMask)));
 
 medianImg      = getMedianImage(im1, interestMask, boxsize);
 boneAbsDstImg  = abs(im1 - medianImg).*interestMask;
