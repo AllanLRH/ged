@@ -23,7 +23,7 @@ function [ei] = energyImage(im1, im2, varargin)
     halfBinWidth = 1/(2*nBins);
     ip1 = zeros(size(im1));
     ip2 = zeros(size(im2));
-    % Maybe use [bins, centers] = hist(imX) for speedup?
+    % Maybe use [bins, centers] = hist(imX) or histcount for speedup?
     for bin = linspace(0+halfBinWidth, 1-halfBinWidth, nBins)
         mask = (im1 > (bin - halfBinWidth)) & (im1 < (bin + halfBinWidth));
         ip1(mask) = sum(mask(:))/nPixels;
@@ -33,5 +33,5 @@ function [ei] = energyImage(im1, im2, varargin)
 
     % Reuse computation & memory
     ei = ip1.*ip2;
-    ei = ei .* log(ip1.*ip2);
+    ei = ei .* log(ei);
 end
