@@ -19,23 +19,28 @@ function [ei] = energyImage(im1, im2, varargin)
         error('im1 and im2 must be the same size')
     end
 
-    nPixels = numel(im1);
     halfBinWidth = 1/(2*nBins);
     pi1 = zeros(size(im1));  % probability image
     pi2 = zeros(size(im2));  % probability image
     % Maybe use [bins, centers] = hist(imX) or histcount for speedup?
     for bin = linspace(0+halfBinWidth, 1-halfBinWidth, nBins)
         mask = (im1 > (bin - halfBinWidth)) & (im1 < (bin + halfBinWidth));
-        pi1(mask) = sum(mask(:))/nPixels;
+        pi1(mask) = sum(mask(:));
         mask = (im2 > (bin - halfBinWidth)) & (im2 < (bin + halfBinWidth));
-        pi2(mask) = sum(mask(:))/nPixels;
+        pi2(mask) = sum(mask(:));
     end
+    pi1 = pi1/sum(pi1(:));
+    pi2 = pi2/sum(pi2(:));
+
+
 
     % Probability for a given value in pixel in im1 to be in bin X and for a pixel in im2 to
     % be in bin Y is the product of the probabilities for being in bin X and Y respectively.
-    % ---------------------------------------------------------------------------------------
-    % Reuse computation & memory
-    ei = pi1.*pi2;             % This is the Joint Propability Distribution for im1 and im2
+
+    % This is the Joint Propability Distribution for im1 and im2
+    ei = pi1.*pi2;  % Renormalize?
+
     % This is the energy image, add 1e-99 to avoid NaN's from log(0)
     ei = pi1.*log(pi1+1e-99) + pi2.*log(pi2+1e-99) - ei.*log(ei+1e-99);
+
 end
