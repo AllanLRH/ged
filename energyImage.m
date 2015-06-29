@@ -1,7 +1,20 @@
 function [ei] = energyImage(im1, im2, varargin)
 %% energyImage: Computes the energy image (entropi based)
 % Images im1 and im2 should be normalized between ([0 1]).
+% im1 is the static image (not a requirement, but better performance).
 % Varargin is number of bins to use, default is 100.
+
+    % This handles when to clear the persistent variable pi1
+    persistent pi1
+    persistent im1Hash
+    recompute_pi1 = false;
+    if isempty(im1Hash)
+        im1Hash = DataHash(im1);
+    else
+        if not(strcmp(im1Hash, DataHash(im1)))
+            recompute_pi1 = true;  % im1 have changed since last call, recompute pi1
+        end
+    end
 
     % Set number of bins to use
     if nargin == 3
@@ -15,21 +28,31 @@ function [ei] = energyImage(im1, im2, varargin)
         error('Inputs im1 and im2 must be normalized ([0 1])')
     end
 
-    if numel(im1) ~= numel(im2)
+    % Ensure that the input images are the same size
+    if any(size(im1) ~= size(im2))
         error('im1 and im2 must be the same size')
     end
 
     halfBinWidth = 1/(2*nBins);
-    pi1 = zeros(size(im1));  % probability image
-    pi2 = zeros(size(im2));  % probability image
+
+    % Recompute pi1 if im1 have changed since last call
+    if isempty(pi1) || recompute_pi1
+        pi1 = zeros(size(im1));  % probability image
+        for bin = linspace(0+halfBinWidth, 1-halfBinWidth, nBins)
+            mask = (im1 > (bin - halfBinWidth)) & (im1 < (bin + halfBinWidth));
+            pi1(mask) = sum(mask(:));
+        end
+        pi1 = pi1/sum(pi1(:));
+    end
+
     % Maybe use [bins, centers] = hist(imX) or histcount for speedup?
+    pi2 = zeros(size(im2));  % probability image
     for bin = linspace(0+halfBinWidth, 1-halfBinWidth, nBins)
         mask = (im1 > (bin - halfBinWidth)) & (im1 < (bin + halfBinWidth));
         pi1(mask) = sum(mask(:));
         mask = (im2 > (bin - halfBinWidth)) & (im2 < (bin + halfBinWidth));
         pi2(mask) = sum(mask(:));
     end
-    pi1 = pi1/sum(pi1(:));
     pi2 = pi2/sum(pi2(:));
 
 
