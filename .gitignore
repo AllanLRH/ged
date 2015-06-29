@@ -106,3 +106,4 @@ firstImageInStack
 data/
 histologyImages/
 firstImageInStack/
+.fuse_hidden*
