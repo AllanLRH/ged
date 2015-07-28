@@ -1,4 +1,5 @@
 clear; close all; clc;
+%% Check texture for dark and light areas (make bar graphs)
 
 img = normImage(loadGed('5.05_ID1662_769_0001.vol', 1));
 load('circ.mat');
@@ -9,8 +10,8 @@ img          = normImage(img - bias);
 
 s = size(img, 1);  % Quadratic image
 
-lightMask = logical(mean(imread('problemLight.tiff'), 3));
-darkMask = logical(mean(imread('problemDark.tiff'), 3));
+lightMask = logical(mean(imread('lightMask.tiff'), 3));
+darkMask = logical(mean(imread('darkMask.tiff'), 3));
 
 imsc(img)
 shadeArea(lightMask, [1 0 0], 0.2)
@@ -43,7 +44,7 @@ set(h,'facealpha',0.75);
 legend('Light','Dark')
 
 
-%%
+%% Do some plots of the mean, std and log amplitude images
 
 % funMean = @(x) mean(x(:));
 % meanImg = nlfilter(img, [5 5], funMean);
@@ -54,8 +55,12 @@ legend('Light','Dark')
 
 % load('meanAndStdImages.mat')
 
-stdImg = getVarImage(img, 5);
-meanImg = getMeanImage(img, 5);
+load('circ.mat')
+implantMask = segmentImplant(img);
+interestMask = (circ | implantMask);
+
+stdImg = getVarImage(img, interestMask, 5);
+meanImg = getMeanImage(img, interestMask, 5);
 
 figure; subplot(1,2,1); imagesc(meanImg); colormap(gray); subplot(1,2,2); imagesc(stdImg); colormap(gray)
 title('Mean and std image')
