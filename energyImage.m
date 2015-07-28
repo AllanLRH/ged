@@ -41,6 +41,8 @@ function [ei] = energyImage(im1, im2, varargin)
     ei = pi1.*pi2;  % Renormalize?
 
     % This is the energy image, add 1e-99 to avoid NaN's from log(0)
-    ei = pi1.*log(pi1+1e-99) + pi2.*log(pi2+1e-99) - ei.*log(ei+1e-99);
+    % ei = pi1.*log(pi1+1e-99) + pi2.*log(pi2+1e-99) - ei.*log(ei+1e-99);
+    ei = pi1.*log(pi1) + pi2.*log(pi2) - ei.*log(ei);
+    ei(isnan(ei)) = 0;
 
 end
