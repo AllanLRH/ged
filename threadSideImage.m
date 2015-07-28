@@ -1,3 +1,4 @@
+% To improve: Rotate to match major axis
 clear;
 load('5.05_ID1662_769_0001_masks_v6.mat', 'savedImplantMasks')
 s = 2048;
