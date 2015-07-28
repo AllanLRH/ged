@@ -6,7 +6,7 @@ boxsize = 5;
 load('circ.mat')
 circArea     = sum(circ(:));
 
-im1 = normImage(loadGed('5.05_ID1662_769_0001.vol', 1));
+im1 = normImage(loadGed('5.05_ID1662_769_0001_masks_v6.mat', 1));
 s = size(im1, 1);  %  Quadratic image
 
 savedImplantMasks = false(s, s, stackSize);
@@ -18,19 +18,25 @@ interestMask = (circ & ~implantMask);
 bias         = biasCorrect(im1, interestMask);
 im1          = im1 - bias;
 
-mask4        = logical(mean(imread('darkMask.tiff'), 3));
-cavityMask   = logical(mean(imread('lightMask.tiff'), 3));
+temp         = logical(imread('5.05_ID1689_808_0001_mask.vol.png'))
+mask4        = temp(:,:,3);
+cavityMask   = temp(:,:,1);
+granulateMask= temp(:,:,2);
+% mask4        = logical(mean(imread('darkMask.tiff'), 3));
+% cavityMask   = logical(mean(imread('lightMask.tiff'), 3));
 
 boneStd      = std(im1(mask4));
 boneMean     = mean(im1(mask4));
 cavityStd    = std(im1(cavityMask));
 cavityMean   = mean(im1(cavityMask));
+granulateStd    = std(im1(granulateMask));
+granulateMean   = mean(im1(granulateMask));
 
 meanImg      = getMeanImage(im1, interestMask, boxsize);
 stdImg       = getVarImage(im1, interestMask, boxsize, meanImg);
 
-bone1        = (meanImg-boneMean).^2+(stdImg-boneStd).^2;
-cavity1      = (meanImg-cavityMean).^2+(stdImg-cavityStd).^2;
+bone1        = (meanImg-boneMean).^2 + (stdImg-boneStd).^2;
+cavity1      = (meanImg-cavityMean).^2 + (stdImg-cavityStd).^2;
 mask1        = (bone1 > cavity1);
 
 seCleaner         = strel('disk', 4);
@@ -151,4 +157,4 @@ end
 % figure
 % plot(cdfAbsDiffSum, 'o-')
 
-save('5.05_ID1662_769_0001_masks_2_v6.mat', 'savedImplantMasks', 'savedBoneMasks', '-v6');
+% save('5.05_ID1662_769_0001_masks_2_v6.mat', 'savedImplantMasks', 'savedBoneMasks', '-v6');
