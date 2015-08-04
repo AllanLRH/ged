@@ -1,5 +1,6 @@
 % make random images (ensuring that the values are integer and 1 or above
 % for matlab indexing)
+clear; home; close all;
 N = 100;
 I = round(abs(3*randn(N,N)+5)) + 1;
 J = round(abs(1*randn(N,N)+3)) + 1;
@@ -30,7 +31,7 @@ end
 subplot(133)
 imagesc(H); colormap(gray); axis equal tight;
 xlabel('J values'); ylabel('I values'); title('Joint histogram');
-maximize
+
 % alternative histogram calculation
 I==1
 J==7
