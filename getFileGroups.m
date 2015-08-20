@@ -23,6 +23,7 @@ function fileGroups = getFileGroups(folderPath)
         temp{length(temp)+1} = cont{ii};  % Append to temp
         if fileInfo.NUM_Z ~= 256
             fileGroups{length(fileGroups)+1} = temp;  % Write temp to fileGroups
+            fileGroups{length(fileGroups)+2} = (ii - 1)*255 + fileInfo.NUM_Z;  % Write number of images in stack at the end of fileGroups
             temp = cell(0);  % Make new empty temp
         end
     end

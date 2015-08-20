@@ -105,68 +105,101 @@ switch popup_sel_index
 case 1
     disp('Detected filegroup 1')
     fileGroup = fileGroups{1};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 2
     disp('Detected filegroup 2')
     fileGroup = fileGroups{2};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 3
     disp('Detected filegroup 3')
     fileGroup = fileGroups{3};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 4
     disp('Detected filegroup 4')
     fileGroup = fileGroups{4};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 5
     disp('Detected filegroup 5')
     fileGroup = fileGroups{5};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 6
     disp('Detected filegroup 6')
     fileGroup = fileGroups{6};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 7
     disp('Detected filegroup 7')
     fileGroup = fileGroups{7};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 8
     disp('Detected filegroup 8')
     fileGroup = fileGroups{8};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 9
     disp('Detected filegroup 9')
     fileGroup = fileGroups{9};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 10
     disp('Detected filegroup 10')
     fileGroup = fileGroups{10};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 case 11
     disp('Detected filegroup 11')
     fileGroup = fileGroups{11};
-    fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5), height));
+    stackSize = fileGroup{end};
+    fileIndex = fix(stackSize/255);
+    fileName = fileGroup{fileIndex};
+    useHeight = height - (fileIndex-1)*255;
+    imgSlice = normImage(loadGed(fileName(1:end-5), useHeight));
     imsc(imgSlice)
 end
 
