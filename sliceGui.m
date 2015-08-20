@@ -22,12 +22,14 @@ function varargout = sliceGui(varargin)
 
 % Edit the above text to modify the response to help sliceGui
 
-% Last Modified by GUIDE v2.5 20-Aug-2015 11:44:23
+% Last Modified by GUIDE v2.5 20-Aug-2015 13:13:09
 
 % Begin initialization code - DO NOT EDIT
 
 global fileGroups
-fileGroups = getFileGroups('data');
+if isempty(fileGroups)
+    fileGroups = getFileGroups('data');
+end
 
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
@@ -90,6 +92,13 @@ axes(handles.axes1);
 cla;
 
 global fileGroups
+global height
+if isempty(fileGroups)
+    fileGroups = getFileGroups('data');
+end
+if isempty(height)
+    height = 1;
+end
 
 popup_sel_index = get(handles.popupmenu1, 'Value');
 switch popup_sel_index
@@ -97,67 +106,67 @@ case 1
     disp('Detected filegroup 1')
     fileGroup = fileGroups{1};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 2
     disp('Detected filegroup 2')
     fileGroup = fileGroups{2};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 3
     disp('Detected filegroup 3')
     fileGroup = fileGroups{3};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 4
     disp('Detected filegroup 4')
     fileGroup = fileGroups{4};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 5
     disp('Detected filegroup 5')
     fileGroup = fileGroups{5};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 6
     disp('Detected filegroup 6')
     fileGroup = fileGroups{6};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 7
     disp('Detected filegroup 7')
     fileGroup = fileGroups{7};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 8
     disp('Detected filegroup 8')
     fileGroup = fileGroups{8};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 9
     disp('Detected filegroup 9')
     fileGroup = fileGroups{9};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 10
     disp('Detected filegroup 10')
     fileGroup = fileGroups{10};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 case 11
     disp('Detected filegroup 11')
     fileGroup = fileGroups{11};
     fileName = fileGroup{1};
-    imgSlice = normImage(loadGed(fileName(1:end-5)), 1);
+    imgSlice = normImage(loadGed(fileName(1:end-5), height));
     imsc(imgSlice)
 end
 
@@ -264,4 +273,29 @@ function datafilesPath_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on slider movement.
+function heightSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to heightSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+global height;
+height = round(get(hObject,'Value'));
+fprintf('Height slider value is %d\n', height)
+
+
+% --- Executes during object creation, after setting all properties.
+function heightSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to heightSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
