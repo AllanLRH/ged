@@ -109,3 +109,4 @@ firstImageInStack/
 .fuse_hidden*
 minivol.mat
 minvol.mat
+*.diff
