@@ -110,3 +110,5 @@ firstImageInStack/
 minivol.mat
 minvol.mat
 *.diff
+smallData
+goat_gui_log.txt
