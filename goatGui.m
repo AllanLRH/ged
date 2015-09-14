@@ -213,14 +213,17 @@ function gedeGui
     dataPath = '';  % Initial value
     loadDatasetButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Load a dataset', 'fontsize', 12, 'position', [30 675+15 215 30], 'callback', @loadDataset);
     histologyImage = [];  % Initial value
-    loadHistologyButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Load histology image', 'fontsize', 12, 'position', [30 640+15 215 30], 'callback', @setHistologyImage);
+    histologyShowImage = [];  % Initial value
+    loadHistologyButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Load histology image', 'fontsize', 12, 'position', [30 640+15 215 30], 'callback', @loadHistologyImage);
 
-    function setHistologyImage(obj, eventdata)
+    function loadHistologyImage(obj, eventdata)
         [filename, filepath] = uigetfile('*.tif', 'Select a histology image file');
         if filepath ~= 0
             histologyFilePath = fullfile(filepath, filename);
             histologyImage = imread(histologyFilePath);
+            histologyShowImage = imresize(histologyImage, [512 512]);
             postMessage(sprintf('Loaded the histology image "%s"', histologyFilePath))
+            updateView
         end
     end
 
@@ -239,8 +242,7 @@ function gedeGui
             % volDouble = volDouble.newVol;
             % postMessage(sprintf('Loaded double precision version of dataset %s', datasetIdentifier))
             postMessage(sprintf('Loaded the dataset %s', datasetIdentifier))
-            imagesc(volUint8(:,:,1))
-            colormap(gray)
+            updateView
         end
     end
 
@@ -351,7 +353,16 @@ function gedeGui
         angles(1) = a1SliderHandle.Value;
         angles(2) = a2SliderHandle.Value;
         angles(3) = a3SliderHandle.Value;
-
+        if not(isempty(volUint8)) && not(isempty(histologyImage))
+            imshowpair(volUint8(:,:,round(xyz(3))), histologyShowImage, 'montage')
+            colormap('gray');
+        elseif not(isempty(volUint8))
+            imagesc(volUint8(:,:,round(xyz(3))))
+            colormap('gray');
+        elseif not(isempty(histologyImage))
+            imshow(histologyImage)
+            colormap('gray');
+        end
     end
 
 
