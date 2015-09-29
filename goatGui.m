@@ -9,13 +9,13 @@ function gedeGui
 
     % used for the file log, see the documentation for atomicLogUpdate.m for details
     baseLogName = 'goat_gui_log';
-    templogFid = fopen([baseLogName '_temp.txt'], 'a');
+    % templogFid = fopen([baseLogName '_temp.txt'], 'a');  % TEMP
 
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
     % This part defines the sliders and associated function for the x, y, z sliders %
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
     xMin = 1;
-    xMax = 255;
+    xMax = 250;
     xSliderHandle = uicontrol('style', 'slider', 'position', [35 180 10 385], 'min', xMin, 'max', xMax, 'Value', 1);
     xLabelHandle =  uicontrol('style', 'text', 'position', [33 585-17 10 15], 'string', 'x', 'fontsize', 12, 'backgroundColor', backgroundColor);
     xValueHandle =  uicontrol('style', 'edit', 'position', [20 155 35 20], 'string', xSliderHandle.Value, 'fontsize', 10, 'backgroundColor', 'white', 'callback', @xSliderValueInput);
@@ -23,7 +23,7 @@ function gedeGui
     addlistener(xSliderHandle, 'ContinuousValueChange', @moveXSlider);
 
     yMin = 1;
-    yMax = 255;
+    yMax = 250;
     ySliderHandle = uicontrol('style', 'slider', 'position', [35+40 180 10 385], 'min', yMin, 'max', yMax, 'Value', 1);
     yHandle = uicontrol('style', 'text', 'position', [33+40 585-17 10 15], 'string', 'y', 'fontsize', 12, 'backgroundColor', backgroundColor);
     yValueHandle = uicontrol('style', 'edit', 'position', [10+50 155 35 20], 'string', ySliderHandle.Value, 'fontsize', 10, 'backgroundColor', 'white', 'callback', @ySliderValueInput);
@@ -31,7 +31,7 @@ function gedeGui
     addlistener(ySliderHandle, 'ContinuousValueChange', @moveYSlider);
 
     zMin = 1;
-    zMax = 255;
+    zMax = 250;
     zSliderHandle = uicontrol('style', 'slider', 'position', [115 180 10 385], 'min', zMin, 'max', zMax, 'Value', 1);
     zLabelHandle = uicontrol('style', 'text', 'position', [113 585-17 10 15], 'string', 'z', 'fontsize', 12, 'backgroundColor', backgroundColor);
     zValueHandle = uicontrol('style', 'edit', 'position', [10+90 155 35 20], 'string', zSliderHandle.Value, 'fontsize', 10, 'backgroundColor', 'white', 'callback', @zSliderValueInput);
@@ -292,7 +292,7 @@ function gedeGui
         logCell = cat(1, paddedMessage, logCell);
         set(logPanelHandle, 'string', logCell);
 
-        atomicLogUpdate(templogFid, baseLogName, paddedMessage)
+        % atomicLogUpdate(templogFid, baseLogName, paddedMessage)  % TEMP
 
         function padded = padString(inString, len)
             % Pads inString with spaces and a datetime to the right
@@ -353,11 +353,21 @@ function gedeGui
         angles(1) = a1SliderHandle.Value;
         angles(2) = a2SliderHandle.Value;
         angles(3) = a3SliderHandle.Value;
+        angles = angles * pi/180;
+
+        planePoints = 256;  % points along one direction, will be squared
+        z = 20;
+        sideLength = 128;
+        planePoints = 256;
+        imslice = getSlice(double(volUint8), angles, z, planePoints);
+
         if not(isempty(volUint8)) && not(isempty(histologyImage))
-            imshowpair(volUint8(:,:,round(xyz(3))), histologyShowImage, 'montage')
+            % imshowpair(volUint8(:,:,round(xyz(3))), histologyShowImage, 'montage')
+            imshowpair(imslice, histologyShowImage, 'montage')
             colormap('gray');
         elseif not(isempty(volUint8))
-            imagesc(volUint8(:,:,round(xyz(3))))
+            % imagesc(volUint8(:,:,round(xyz(3))))
+            imagesc(imslice)
             colormap('gray');
         elseif not(isempty(histologyImage))
             imshow(histologyImage)
