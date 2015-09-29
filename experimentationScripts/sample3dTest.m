@@ -1,12 +1,12 @@
-% N = 50;
+N = 50;
 
-% N2 = round(N/2);
-% I = zeros(N, N, N);
-% I(N2+(-5:5), N2+(-10:10), N2+(-20:20)) = 1;
-
-I = loadGed('../data/5.05_ID1662_769_0001.vol', 1:255);
-N = size(I, 1);
 N2 = round(N/2);
+I = zeros(N, N, N);
+I(N2+(-5:5), N2+(-10:10), N2+(-20:20)) = 1;
+
+% I = loadGed('../data/5.05_ID1662_769_0001.vol', 1:255);
+% N = size(I, 1);
+% N2 = round(N/2);
 
 %w = [1, 1, 1]';
 w = randn(3, 1);
@@ -42,6 +42,7 @@ else
     ylabel('y');
 end
 
+figure(4)
 L = sample3d(I, x, [1, 1, 0]', w, (-(N2-1):N2), (-(N2-1):N2), 0);
 clf; imagesc(L); axis equal, colormap(gray); colorbar;
 xlabel('x');
