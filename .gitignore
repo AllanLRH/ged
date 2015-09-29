@@ -112,3 +112,8 @@ minvol.mat
 *.diff
 smallData
 goat_gui_log.txt
+experimentationScripts/getFileGroup.m
+experimentationScripts/getSlice.m
+experimentationScripts/glob.m
+experimentationScripts/normImage.m
+experimentationScripts/parseVolInfo.m
