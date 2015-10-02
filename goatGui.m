@@ -14,6 +14,9 @@ function gedeGui
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
     % This part defines the sliders and associated function for the x, y, z sliders %
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+    planeVectorMidpointLabel = uicontrol('style', 'text', 'position', [45 585 70 15], 'fontsize', 12, 'string', 'Vector origo', 'backgroundColor', backgroundColor);
+
     xMin = 1;
     xMax = 250;
     xSliderHandle = uicontrol('style', 'slider', 'position', [35 180 10 385], 'min', xMin, 'max', xMax, 'Value', 1);
@@ -104,6 +107,9 @@ function gedeGui
     a1Min = 0;
     a1Max = 360;
     a1SliderHandle = uicontrol('style', 'slider', 'position', [35+120 180 10 385], 'min', a1Min, 'max', a1Max);
+
+    planeVectorLabel = uicontrol('style', 'text', 'position', [45+115 585 80 15], 'fontsize', 12, 'string', 'Vector angles', 'backgroundColor', backgroundColor);
+
     a1LabelHandle =  uicontrol('style', 'text', 'position', [30+120 585-17 20 15], 'string', 'a1', 'fontsize', 12, 'backgroundColor', backgroundColor);
     a1ValueHandle =  uicontrol('style', 'edit', 'position', [20+120 155 35 20], 'string', a1SliderHandle.Value, 'fontsize', 10, 'backgroundColor', 'white', 'callback', @a1SliderValueInput);
     a1SliderHandle.UserData.lastValue = a1Min;  % Initialize to some value
