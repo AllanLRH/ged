@@ -353,20 +353,13 @@ function gedeGui
         angles(1) = a1SliderHandle.Value;
         angles(2) = a2SliderHandle.Value;
         angles(3) = a3SliderHandle.Value;
-        angles = angles * pi/180;
-
-        planePoints = 256;  % points along one direction, will be squared
-        z = 20;
-        sideLength = 128;
-        planePoints = 256;
-        imslice = getSlice(double(volUint8), angles, z, planePoints);
 
         if not(isempty(volUint8)) && not(isempty(histologyImage))
-            % imshowpair(volUint8(:,:,round(xyz(3))), histologyShowImage, 'montage')
+            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), angles(1), angles(2), angles(3), max([size(volUint8, 1), size(volUint8, 2)])/2);
             imshowpair(imslice, histologyShowImage, 'montage')
             colormap('gray');
         elseif not(isempty(volUint8))
-            % imagesc(volUint8(:,:,round(xyz(3))))
+            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), angles(1), angles(2), angles(3), max([size(volUint8, 1), size(volUint8, 2)])/2);
             imagesc(imslice)
             colormap('gray');
         elseif not(isempty(histologyImage))
