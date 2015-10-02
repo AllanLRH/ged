@@ -318,12 +318,12 @@ function gedeGui
 
 
     function xMoveAction
-        % STUB
+        updateView;
     end
 
 
     function yMoveAction
-        % STUB
+        updateView;
     end
 
 
@@ -333,17 +333,17 @@ function gedeGui
 
 
     function a1MoveAction
-        % STUB
+        updateView;
     end
 
 
     function a2MoveAction
-        % STUB
+        updateView;
     end
 
 
     function a3MoveAction
-        % STUB
+        updateView;
     end
 
     function updateView
