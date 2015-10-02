@@ -9,7 +9,7 @@ function gedeGui
 
     % used for the file log, see the documentation for atomicLogUpdate.m for details
     baseLogName = 'goat_gui_log';
-    % templogFid = fopen([baseLogName '_temp.txt'], 'a');  % TEMP
+    templogFid = fopen([baseLogName '_temp.txt'], 'a');
 
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
     % This part defines the sliders and associated function for the x, y, z sliders %
@@ -292,7 +292,7 @@ function gedeGui
         logCell = cat(1, paddedMessage, logCell);
         set(logPanelHandle, 'string', logCell);
 
-        % atomicLogUpdate(templogFid, baseLogName, paddedMessage)  % TEMP
+        atomicLogUpdate(templogFid, baseLogName, paddedMessage)
 
         function padded = padString(inString, len)
             % Pads inString with spaces and a datetime to the right
