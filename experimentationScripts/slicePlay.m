@@ -1,12 +1,12 @@
 clear; close; home
 
-% Example 1: First example from 'doc slice'
-[x,y,z] = meshgrid(-2:.2:2,-2:.25:2,-2:.16:2);
-v = x.*exp(-x.^2-y.^2-z.^2);
-xslice = [-1.2,.8,2];
-yslice = 2;
-zslice = [-2,0];
-slice(x,y,z,v,xslice,yslice,zslice)
+% % Example 1: First example from 'doc slice'
+% [x,y,z] = meshgrid(-2:.2:2,-2:.25:2,-2:.16:2);
+% v = x.*exp(-x.^2-y.^2-z.^2);
+% xslice = [-1.2,.8,2];
+% yslice = 2;
+% zslice = [-2,0];
+% slice(x,y,z,v,xslice,yslice,zslice)
 
 
 
@@ -28,7 +28,7 @@ figure
 N = 80;
 for k = -2:.1:2
    hsp = surf(linspace(-2,2,N), linspace(-2,2,N), zeros(N) + k);
-   rotate(hsp,[1,-1,1],30)
+   rotate(hsp,[0, 1, 0], 90)
    xd = hsp.XData;
    yd = hsp.YData;
    zd = hsp.ZData;
@@ -49,24 +49,24 @@ for k = -2:.1:2
 end
 
 
-%% Slicing with a Nonplanar Surface
-% You can slice the volume with any surface. This example probes the volume created in the previous example by passing a spherical slice surface through the volume.
-
-[xsp,ysp,zsp] = sphere;
-slice(x,y,z,v,[-2,2],2,-2)
-for i = -3:.2:3
-   hsp = surface(xsp+i,ysp,zsp);
-   rotate(hsp,[1 0 0],90)
-   xd = hsp.XData;
-   yd = hsp.YData;
-   zd = hsp.ZData;
-   delete(hsp)
-   hold on
-   hslicer = slice(x,y,z,v,xd,yd,zd);
-   axis tight
-   xlim([-3,3])
-   view(-10,35)
-   drawnow
-   delete(hslicer)
-   hold off
-end
+% %% Slicing with a Nonplanar Surface
+% % You can slice the volume with any surface. This example probes the volume created in the previous example by passing a spherical slice surface through the volume.
+% 
+% [xsp,ysp,zsp] = sphere;
+% slice(x,y,z,v,[-2,2],2,-2)
+% for i = -3:.2:3
+%    hsp = surface(xsp+i,ysp,zsp);
+%    rotate(hsp,[1 0 0],90)
+%    xd = hsp.XData;
+%    yd = hsp.YData;
+%    zd = hsp.ZData;
+%    delete(hsp)
+%    hold on
+%    hslicer = slice(x,y,z,v,xd,yd,zd);
+%    axis tight
+%    xlim([-3,3])
+%    view(-10,35)
+%    drawnow
+%    delete(hslicer)
+%    hold off
+% end
