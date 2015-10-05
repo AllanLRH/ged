@@ -231,7 +231,7 @@ function gedeGui
         [filename, filepath] = uigetfile('*.tif', 'Select a histology image file');
         if filepath ~= 0
             histologyFilePath = fullfile(filepath, filename);
-            histologyImage = imread(histologyFilePath);
+            histologyImage = rgb2gray(imread(histologyFilePath));
             histologyShowImage = imresize(histologyImage, [512 512]);
             postMessage(sprintf('Loaded the histology image "%s"', histologyFilePath))
             updateView
