@@ -240,19 +240,17 @@ function gedeGui
 
     function loadDataset(obj, eventdata)
         [filename, filepath] = uigetfile('*.vol', 'Select a .vol-file from a dataset');
-        filename
-        filepath
         if filepath ~= 0
             datasetIdentifier = filename(1:end-9);
             postMessage(sprintf('Loading the dataset %s, please be patient', datasetIdentifier))
             pause(0.01)
-            volUint8 = load(['/Users/allan/akiraMount/smallData/' datasetIdentifier '_v7.3_uint8.mat']);
+            volUint8 = load(['smallData/' datasetIdentifier '_v7.3_uint8.mat']);
             volUint8 = volUint8.newVol;
             postMessage(sprintf('Loaded integer 8 version of dataset %s', datasetIdentifier))
-            % volDouble = load(['/Users/allan/akiraMount/smallData/' datasetIdentifier '_v7.3_double.mat']);
+            % volDouble = load(['smallData/' datasetIdentifier '_v7.3_double.mat']);
             % volDouble = volDouble.newVol;
             % postMessage(sprintf('Loaded double precision version of dataset %s', datasetIdentifier))
-            postMessage(sprintf('Loaded the dataset %s', datasetIdentifier))
+            postMessage(sprintf('Loaded scaled version of the dataset %s with size %d x %d x %d', datasetIdentifier, size(volUint8, 1), size(volUint8, 2), size(volUint8, 3)))
             updateView
         end
     end
