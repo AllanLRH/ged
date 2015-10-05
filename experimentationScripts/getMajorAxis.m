@@ -1,1 +1,0 @@
-../getMajorAxis.m
