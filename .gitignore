@@ -117,3 +117,4 @@ experimentationScripts/getSlice.m
 experimentationScripts/glob.m
 experimentationScripts/normImage.m
 experimentationScripts/parseVolInfo.m
+.DS_Store
