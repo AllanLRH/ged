@@ -3,6 +3,9 @@ function gedeGui
     f = figure('visible', 'off', 'color', backgroundColor, 'position', [15 95 955 730], 'toolbar', 'none', 'deleteFcn', @runAtGuiExit);
     set(f, 'name', 'Gedetands grafisk brugerflade 0.1');
 
+    planeNormal_original = [0 0 1];
+    planeNormal = [0 0 1];
+
     zoomFactor = 1.0;  % Initial value
     volUint8 = [];  % Initial value
     volDouble = [];  % Initial value
@@ -110,8 +113,8 @@ function gedeGui
 
     planeVectorLabel = uicontrol('style', 'text', 'position', [45+115 585 80 15], 'fontsize', 12, 'string', 'Vector angles', 'backgroundColor', backgroundColor);
 
-    a1Min = -1;
-    a1Max = 1;
+    a1Min = 0;
+    a1Max = 360;
     a1SliderHandle = uicontrol('style', 'slider', 'position', [35+120 180 10 385], 'min', a1Min, 'max', a1Max, 'value', 0);
     a1LabelHandle =  uicontrol('style', 'text', 'position', [30+120 585-17 20 15], 'string', 'a1', 'fontsize', 12, 'backgroundColor', backgroundColor);
     a1ValueHandle =  uicontrol('style', 'edit', 'position', [20+120 155 35 20], 'string', a1SliderHandle.Value,...
@@ -119,8 +122,8 @@ function gedeGui
     a1SliderHandle.UserData.lastValue = a1Min;  % Initialize to some value
     addlistener(a1SliderHandle, 'ContinuousValueChange', @moveA1Slider);
 
-    a2Min = -1;
-    a2Max = 1;
+    a2Min = 0;
+    a2Max = 360;
     a2SliderHandle = uicontrol('style', 'slider', 'position', [35+160 180 10 385], 'min', a2Min, 'max', a2Max, 'value', 0);
     a2LabelHandle =  uicontrol('style', 'text', 'position', [30+160 585-17 20 15], 'string', 'a2', 'fontsize', 12, 'backgroundColor', backgroundColor);
     a2ValueHandle =  uicontrol('style', 'edit', 'position', [20+160 155 35 20], 'string', a2SliderHandle.Value,...
@@ -128,8 +131,8 @@ function gedeGui
     a2SliderHandle.UserData.lastValue = a2Min;  % Initialize to some value
     addlistener(a2SliderHandle, 'ContinuousValueChange', @moveA2Slider);
 
-    a3Min = -1;
-    a3Max = 1;
+    a3Min = 0;
+    a3Max = 360;
     a3SliderHandle = uicontrol('style', 'slider', 'position', [35+200 180 10 385], 'min', a3Min, 'max', a3Max, 'value', 0);
     a3LabelHandle =  uicontrol('style', 'text', 'position', [30+200 585-17 20 15], 'string', 'a3', 'fontsize', 12, 'backgroundColor', backgroundColor);
     a3ValueHandle =  uicontrol('style', 'edit', 'position', [20+200 155 35 20], 'string', a3SliderHandle.Value,...
@@ -141,7 +144,7 @@ function gedeGui
     function moveA1Slider(obj, sliderHandle)
         if a1SliderHandle.UserData.lastValue ~= a1SliderHandle.Value
             sliderValue = a1SliderHandle.Value;
-            set(a1ValueHandle, 'string', sprintf('%.3f', sliderValue))
+            set(a1ValueHandle, 'string', sprintf('%.1f', sliderValue))
             a1MoveAction;
         end
     end
@@ -150,14 +153,14 @@ function gedeGui
         newValue = str2double(get(a1ValueHandle, 'string'));
         newValue = mod(newValue, a1Max);
         set(a1SliderHandle, 'value', newValue);
-        set(a1ValueHandle, 'string', sprintf('%.3f', newValue))
+        set(a1ValueHandle, 'string', sprintf('%.1f', newValue))
         a1MoveAction;
     end
 
     function moveA2Slider(obj, sliderHandle)
         if a2SliderHandle.UserData.lastValue ~= a2SliderHandle.Value
             sliderValue = a2SliderHandle.Value;
-            set(a2ValueHandle, 'string', sprintf('%.3f', sliderValue))
+            set(a2ValueHandle, 'string', sprintf('%.1f', sliderValue))
             a2MoveAction;
         end
     end
@@ -166,14 +169,14 @@ function gedeGui
         newValue = str2double(get(a2ValueHandle, 'string'));
         newValue = mod(newValue, a2Max);
         set(a2SliderHandle, 'value', newValue);
-        set(a2ValueHandle, 'string', sprintf('%.3f', newValue))
+        set(a2ValueHandle, 'string', sprintf('%.1f', newValue))
         a2MoveAction;
     end
 
     function moveA3Slider(obj, sliderHandle)
         if a3SliderHandle.UserData.lastValue ~= a3SliderHandle.Value
             sliderValue = a3SliderHandle.Value;
-            set(a3ValueHandle, 'string', sprintf('%.3f', sliderValue))
+            set(a3ValueHandle, 'string', sprintf('%.1f', sliderValue))
             a3MoveAction;
         end
     end
@@ -182,7 +185,7 @@ function gedeGui
         newValue = str2double(get(a3ValueHandle, 'string'));
         newValue = mod(newValue, a3Max);
         set(a3SliderHandle, 'value', newValue);
-        set(a3ValueHandle, 'string', sprintf('%.3f', newValue))
+        set(a3ValueHandle, 'string', sprintf('%.1f', newValue))
         a3MoveAction;
     end
 
@@ -360,16 +363,18 @@ function gedeGui
         xyz(1) = xSliderHandle.Value;
         xyz(2) = ySliderHandle.Value;
         xyz(3) = zSliderHandle.Value;
-        angles(1) = a1SliderHandle.Value;
-        angles(2) = a2SliderHandle.Value;
-        angles(3) = a3SliderHandle.Value;
+        angles(1) = a1SliderHandle.Value * pi/180;
+        angles(2) = a2SliderHandle.Value * pi/180;
+        angles(3) = a3SliderHandle.Value * pi/180;
+        rotMat = getRotMat(angles);
+        planeNormal = (rotMat*planeNormal_original');
 
         if not(isempty(volUint8)) && not(isempty(histologyImage))
-            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), angles(1), angles(2), angles(3), max([size(volUint8, 1), size(volUint8, 2)])/2);
+            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), max([size(volUint8, 1), size(volUint8, 2)])/2);
             imshowpair(imslice, histologyShowImage, 'montage')
             colormap('gray');
         elseif not(isempty(volUint8))
-            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), angles(1), angles(2), angles(3), max([size(volUint8, 1), size(volUint8, 2)])/2);
+            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), max([size(volUint8, 1), size(volUint8, 2)])/2);
             imagesc(imslice)
             colormap('gray');
         elseif not(isempty(histologyImage))
