@@ -293,7 +293,8 @@ function gedeGui
     % This handles the logging  %
     % % % % % % % % % % % % % % %
     logCell = {'This is the log panel, new entries appear on top'};
-    logPanelHandle =  uicontrol('style', 'edit', 'position', [30 20 890 65], 'string', logCell, 'fontsize', 10, 'fontname', 'Courier New', 'backgroundColor', 'white', 'enable', 'inactive', 'max', 999999, 'min', 1);
+    logPanelHandle =  uicontrol('style', 'edit', 'position', [30 20 890 65], 'string', logCell, 'fontsize', 10, 'fontname', 'Courier New',...
+                                'backgroundColor', 'white', 'enable', 'inactive', 'max', 999999, 'min', 1);
 
     function postMessage(message)
         % Handles logging. Writes message to log. Appends date to hte right, because Matlab doesn't allow any alignment but centered.
