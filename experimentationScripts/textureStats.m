@@ -1,14 +1,14 @@
 clear; close all; clc;
 %% Check texture for dark and light areas (make bar graphs)
 
-img = normImage(loadGed('5.05_ID1662_769_0001.vol', 1));
+img = normImage(loadGed('../data/5.05_ID1662_769_0001.vol', 1));
 load('circ.mat');
 implantMask  = thresholdSegment(img);
 interestMask = (circ & ~implantMask);
 bias         = biasCorrect(img, interestMask);
 img          = normImage(img - bias);
 
-s = size(img, 1);  % Quadratic image
+s = size(img, 1);  % Square image
 
 lightMask = logical(mean(imread('lightMask.tiff'), 3));
 darkMask = logical(mean(imread('darkMask.tiff'), 3));
