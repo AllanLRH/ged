@@ -9,6 +9,7 @@ circArea     = sum(circ(:));
 im1 = normImage(loadGed('data/5.05_ID1662_769_0001.vol', 1));
 s = size(im1, 1);  %  square image dimmensions
 
+% Preallocate mask volumes
 savedImplantMasks = false(s, s, stackSize);
 savedBoneMasks = false(s, s, stackSize);
 
@@ -18,11 +19,13 @@ interestMask = (circ & ~implantMask);
 bias         = biasCorrect(im1, interestMask);
 im1          = im1 - bias;
 
+% Load image where the initial bone and cavity areas are marked. Ignore granulate channel for now
 temp          = logical(imread('firstImageInStack/5.05_ID1662_769_0001_mask.vol.png'));
 boneMask      = temp(:,:,3);
 cavityMask    = temp(:,:,1);
 % granulateMask = temp(:,:,2);
 
+% Get estimates fo the mean and the standard deviation for canity and bone, using the masks loaded above
 boneStd      = std(im1(boneMask));
 boneMean     = mean(im1(boneMask));
 cavityStd    = std(im1(cavityMask));
@@ -30,17 +33,23 @@ cavityMean   = mean(im1(cavityMask));
 % granulateStd    = std(im1(granulateMask));
 % granulateMean   = mean(im1(granulateMask));
 
+% Calculate the mean and std image
 meanImg      = getMeanImage(im1, interestMask, boxsize);
 stdImg       = getVarImage(im1, interestMask, boxsize, meanImg);
 
+% First center the mean and std images around 0, using the estimates from the loaded masks
+% The square the values and compare them to get a bone-mask and cavity-mask
 bone1        = (meanImg-boneMean).^2 + (stdImg-boneStd).^2;
 cavity1      = (meanImg-cavityMean).^2 + (stdImg-cavityStd).^2;
 mask1        = (bone1 > cavity1);
 
+% Clean up the mask a bit, save the result
 seCleaner         = strel('disk', 4);
 mask2             = imclose(mask1, seCleaner) & interestMask;
 savedBoneMasks(:, :, 1) = mask2;
 
+% Shrink the "selected" areas in the masks, and use theese new masks for estimating the
+% mean and standard deviation for the next image in the stack
 seNextImg         = strel('disk', 5);
 boneMaskNextImg   = imerode(~mask1, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
 cavityMaskNextImg = imerode(mask1, seNextImg) & interestMask;
