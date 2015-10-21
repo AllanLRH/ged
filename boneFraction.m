@@ -1,13 +1,13 @@
 clear; %close all; clc
 
-nBands = 100;
+% nBands = 100;
 stackSize = 255;
 boxsize = 5;
 load('circ.mat')
 circArea     = sum(circ(:));
 
-im1 = normImage(loadGed('5.05_ID1662_769_0001_masks_v6.mat', 1));
-s = size(im1, 1);  %  Quadratic image
+im1 = normImage(loadGed('data/5.05_ID1662_769_0001.vol', 1));
+s = size(im1, 1);  %  square image dimmensions
 
 savedImplantMasks = false(s, s, stackSize);
 savedBoneMasks = false(s, s, stackSize);
@@ -18,19 +18,17 @@ interestMask = (circ & ~implantMask);
 bias         = biasCorrect(im1, interestMask);
 im1          = im1 - bias;
 
-temp         = logical(imread('5.05_ID1689_808_0001_mask.vol.png'))
-mask4        = temp(:,:,3);
-cavityMask   = temp(:,:,1);
-granulateMask= temp(:,:,2);
-% mask4        = logical(mean(imread('darkMask.tiff'), 3));
-% cavityMask   = logical(mean(imread('lightMask.tiff'), 3));
+temp          = logical(imread('firstImageInStack/5.05_ID1662_769_0001_mask.vol.png'));
+boneMask      = temp(:,:,3);
+cavityMask    = temp(:,:,1);
+% granulateMask = temp(:,:,2);
 
-boneStd      = std(im1(mask4));
-boneMean     = mean(im1(mask4));
+boneStd      = std(im1(boneMask));
+boneMean     = mean(im1(boneMask));
 cavityStd    = std(im1(cavityMask));
 cavityMean   = mean(im1(cavityMask));
-granulateStd    = std(im1(granulateMask));
-granulateMean   = mean(im1(granulateMask));
+% granulateStd    = std(im1(granulateMask));
+% granulateMean   = mean(im1(granulateMask));
 
 meanImg      = getMeanImage(im1, interestMask, boxsize);
 stdImg       = getVarImage(im1, interestMask, boxsize, meanImg);
@@ -64,14 +62,14 @@ cavityMaskNextImg = imerode(mask1, seNextImg) & interestMask;
 
 % for ii = 1:nBands
 %     dstMask = (dstMap < bandBorders(ii)) & (dstMap > 0);
-%     boneVolume(ii) = sum(mask4(dstMask));
+%     boneVolume(ii) = sum(boneMask(dstMask));
 %     area(ii) = sum(dstMask(:));
 %     % imsc(dstMask)
 %     % pause(0.01)
 % end
 
 %% Process next image
-for ii = 2:stackSize
+for ii = 2:5
     disp(ii/stackSize*100)
     im2 = normImage(loadGed('5.05_ID1662_769_0001.vol', ii));
     implantMask  = segmentImplant(im2);
@@ -97,13 +95,13 @@ for ii = 2:stackSize
     bone2   = (meanImg-boneMean).^2+(stdImg-boneStd).^2;
     cavity2 = (meanImg-cavityMean).^2+(stdImg-cavityStd).^2;
     mask3   = (bone2 > cavity2);
-    mask4   = imclose(mask3, seCleaner) & interestMask;
+    boneMask   = imclose(mask3, seCleaner) & interestMask;
 
     boneMaskNextImg   = imerode(~mask3, seNextImg) & interestMask;  % why isn't the ~ on the cavityMaskNextImg?
     cavityMaskNextImg = imerode(mask3, seNextImg) & interestMask;
 
     savedImplantMasks(:, :, ii) = implantMask;
-    savedBoneMasks(:, :, ii) = mask4;
+    savedBoneMasks(:, :, ii) = boneMask;
 
 
 %     %%  Do statistics
@@ -117,7 +115,7 @@ for ii = 2:stackSize
 %
 %     for jj = 1:nBands
 %         dstMask = (dstMap < bandBorders(jj)) & (dstMap > 0);
-%         boneVolume(jj) = sum(mask4(dstMask));
+%         boneVolume(jj) = sum(boneMask(dstMask));
 %         area(jj) = sum(dstMask(:));
 %         % imsc(dstMask)
 %         % pause(0.01)
@@ -128,7 +126,7 @@ for ii = 2:stackSize
 
     % imsc(im2)
     % title(num2str(ii))
-    % shadeArea(mask4, [1 0 0])
+    % shadeArea(boneMask, [1 0 0])
     % saveas(gcf,sprintf('segmentationOverlays/%3.3d.png', ii))
 
 
@@ -137,7 +135,7 @@ for ii = 2:stackSize
 %     imsc(im2)
 %     subplot(2, 2, 2)
 %     imsc(im2)
-%     shadeArea(mask4, [1 0 0])
+%     shadeArea(boneMask, [1 0 0])
 %     subplot(2, 2, 3)
 %     imsc(boneMaskNextImg)
 %     subplot(2, 2, 4)
@@ -148,13 +146,9 @@ for ii = 2:stackSize
 %     % currentFig = figure;
 %     clf;
 %     imsc(im2)
-%     shadeArea(mask4, [1 0 0])
+%     shadeArea(boneMask, [1 0 0])
 %     text(20, 70, sprintf('%3.3f', cdfAbsDiffSum(ii)), 'color', 'red')
 %     export_fig(['figureExports/segmentation_' num2str(ii) '.png'])
 %     close(currentFig)
-%     % shadeLinker(im2, mask4, 'shadeAndMask')
+%     % shadeLinker(im2, boneMask, 'shadeAndMask')
 end
-% figure
-% plot(cdfAbsDiffSum, 'o-')
-
-% save('5.05_ID1662_769_0001_masks_2_v6.mat', 'savedImplantMasks', 'savedBoneMasks', '-v6');
