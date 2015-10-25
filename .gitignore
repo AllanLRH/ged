@@ -119,3 +119,4 @@ experimentationScripts/normImage.m
 experimentationScripts/parseVolInfo.m
 experimentationScripts/.DS_Store
 *.DS_Store
+csvfiles
