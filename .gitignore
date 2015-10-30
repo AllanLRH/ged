@@ -120,3 +120,6 @@ experimentationScripts/parseVolInfo.m
 experimentationScripts/.DS_Store
 *.DS_Store
 csvfiles
+stats
+segmentations
+logfile_boneFraction.txt
