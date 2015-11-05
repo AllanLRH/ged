@@ -2,11 +2,14 @@ Søjle,      Række
 12 pixels, 690 pixels (Nederste venstre hjørne)
 
 Top til top
-Øverst:  478 pixels, -> 190 pixels
-Nederst: 480 pixels, -> 239 pixels
-0.7949790794979079
+Øverst:  671 pixels, -> 323 pixels
+Nederst: 669 pixels, -> 466 pixels
+466 - 323 = 143
 
 Top til dal
-Top: -> 479 pixels, 239 pixels
-Dal: -> 484 pixels, 215 pixels
-0.9896694214876033
+Top: -> 669 pixels, 466 pixels
+Dal: -> 652 pixels, 392 pixels
+669 - 652 = 17
+
+
+
