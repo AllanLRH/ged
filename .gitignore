@@ -123,3 +123,5 @@ csvfiles
 stats
 segmentations
 logfile_boneFraction.txt
+newSmallData
+boneCavityFraction.eps
