@@ -1,4 +1,4 @@
-function gedeGui
+    function gedeGui
     backgroundColor = [0.92 0.92 0.92];  % backgroundcolor for GUI
     f = figure('visible', 'off', 'color', backgroundColor, 'position', [15 95 955 730], 'toolbar', 'none', 'deleteFcn', @runAtGuiExit);
     set(f, 'name', 'Gedetands grafisk brugerflade 0.1');
@@ -6,7 +6,7 @@ function gedeGui
     planeNormal_original = [0 0 1];
     planeNormal = [0 0 1];
 
-    zoomFactor = 1.0;  % Initial value
+    zAxisFactor = 3.74;  % Initial value
     volUint8 = [];  % Initial value
     volDouble = [];  % Initial value
 
@@ -52,6 +52,7 @@ function gedeGui
             sliderValue = xSliderHandle.Value;
             set(xValueHandle, 'string', sprintf('%.3f', sliderValue))
             xMoveAction;
+            postMessage(sprintf('Set X-slider to %.3f', sliderValue))
         end
     end
 
@@ -72,6 +73,7 @@ function gedeGui
             sliderValue = ySliderHandle.Value;
             set(yValueHandle, 'string', sprintf('%.3f', sliderValue))
             yMoveAction;
+            postMessage(sprintf('Set Y-slider to %.3f', sliderValue))
         end
     end
 
@@ -92,6 +94,7 @@ function gedeGui
             sliderValue = zSliderHandle.Value;
             set(zValueHandle, 'string', sprintf('%.3f', sliderValue))
             zMoveAction;
+            postMessage(sprintf('Set Z-slider to %.3f', sliderValue))
         end
     end
 
@@ -146,6 +149,7 @@ function gedeGui
             sliderValue = a1SliderHandle.Value;
             set(a1ValueHandle, 'string', sprintf('%.1f', sliderValue))
             a1MoveAction;
+            postMessage(sprintf('Set A-1slider to %.1f', sliderValue))
         end
     end
 
@@ -162,6 +166,7 @@ function gedeGui
             sliderValue = a2SliderHandle.Value;
             set(a2ValueHandle, 'string', sprintf('%.1f', sliderValue))
             a2MoveAction;
+            postMessage(sprintf('Set A-2slider to %.1f', sliderValue))
         end
     end
 
@@ -178,6 +183,7 @@ function gedeGui
             sliderValue = a3SliderHandle.Value;
             set(a3ValueHandle, 'string', sprintf('%.1f', sliderValue))
             a3MoveAction;
+            postMessage(sprintf('Set A-3slider to %.1f', sliderValue))
         end
     end
 
@@ -200,21 +206,22 @@ function gedeGui
     end
 
 
-    % % % % % % % % % % % % % %
-    % Relating to zoom values %
-    % % % % % % % % % % % % % %
-    zoomFactorLabel = uicontrol('style', 'text', 'position', [20 600+15 150 30], 'fontsize', 12, 'string', 'Zoom factor', 'backgroundColor', backgroundColor);
-    zoomFactorHandle = uicontrol('style', 'edit', 'position', [135 605+15 65 30], 'fontsize', 10, 'backgroundColor', 'white', 'string', 1.0, 'callback', @setZoomFactor);
+    % % % % % % % % % % % % % % % % % % %
+    % Relating to z-axis factor values  %
+    % % % % % % % % % % % % % % % % % % %
+    zAxisFactorLabel = uicontrol('style', 'text', 'position', [20 600+15 150 30], 'fontsize', 12, 'string', 'Z-axis factor', 'backgroundColor', backgroundColor);
+    zAxisFactorHandle = uicontrol('style', 'edit', 'position', [135 605+15 65 30], 'fontsize', 10, 'backgroundColor', 'white', 'string', 1.0, 'callback', @setZAxisFactor);
 
-    function setZoomFactor(obj, eventdata)
-        newZoomFactor = str2double(get(zoomFactorHandle, 'string'));
-        if newZoomFactor > 0
-            oldZoomFactor = zoomFactor;
-            zoomFactor = newZoomFactor;
-            postMessage(sprintf('Changed zoomfactor from %.2f to %.2f', oldZoomFactor, newZoomFactor))
+    function setZAxisFactor(obj, eventdata)
+        newZAxisFactor = str2double(get(zAxisFactorHandle, 'string'));
+        if newZAxisFactor > 0
+            oldzAxisFactor = zAxisFactor;
+            zAxisFactor = newZAxisFactor;
+            postMessage(sprintf('Changed z-axis factor from %.2f to %.2f', oldzAxisFactor, newZAxisFactor))
+            updateView;
         else
-            postMessage(sprintf('The zoom factor must be larger than 0 (you entered %.2f). The zoom factor haven''t been changed', newZoomFactor))
-            set(zoomFactorHandle, 'string', zoomFactor)
+            postMessage(sprintf('The Z-axis factor must be larger than 0 (you entered %.2f). The Z-axis factor haven''t been changed', newZAxisFactor))
+            set(zAxisFactorHandle, 'string', zAxisFactor)
         end
     end
 
@@ -370,11 +377,11 @@ function gedeGui
         planeNormal = (rotMat*planeNormal_original');
 
         if not(isempty(volUint8)) && not(isempty(histologyImage))
-            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), max([size(volUint8, 1), size(volUint8, 2)])/2);
+            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor);
             imshowpair(imslice, histologyShowImage, 'montage')
             colormap('gray');
         elseif not(isempty(volUint8))
-            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), max([size(volUint8, 1), size(volUint8, 2)])/2);
+            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor);
             imagesc(imslice)
             colormap('gray');
         elseif not(isempty(histologyImage))

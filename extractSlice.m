@@ -1,4 +1,4 @@
-function [slice, subX, subY, subZ] = extractSlice(volume, centerX, centerY, centerZ, normX, normY, normZ, radius)
+function [slice, subX, subY, subZ] = extractSlice(volume, centerX, centerY, centerZ, normX, normY, normZ, radius, zFactor)
 % function [slice, sliceInd, subX, subY, subZ] = extractSlice(volume, centerX, centerY, centerZ, normX, normY, normZ, radius)
 
 %%extractSlice extracts an arbitray slice from a volume.
@@ -44,9 +44,14 @@ if nargin < 7
    return;
 end
 
-if nargin < 8,
+if nargin < 8
     % sets the size for output slice radius*2+1.
     radius = 50;
+end
+
+if nargin < 9
+    % zet factor for z-axis elongation compensation
+    zFactor = 3.74;
 end
 
 isDebug = false;
@@ -106,7 +111,7 @@ rotate(hsp, hspVecXvec(:)', 180*acosineVal/pi, [0, 0, 0]);
 %get the coordinates
 xd = get(hsp, 'XData');
 yd = get(hsp, 'YData');
-zd = get(hsp, 'ZData');
+zd = get(hsp, 'ZData')*zFactor;
 
 %translate;
 subX = xd + pt(1);
