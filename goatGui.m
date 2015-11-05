@@ -210,7 +210,7 @@
     % Relating to z-axis factor values  %
     % % % % % % % % % % % % % % % % % % %
     zAxisFactorLabel = uicontrol('style', 'text', 'position', [20 600+15 150 30], 'fontsize', 12, 'string', 'Z-axis factor', 'backgroundColor', backgroundColor);
-    zAxisFactorHandle = uicontrol('style', 'edit', 'position', [135 605+15 65 30], 'fontsize', 10, 'backgroundColor', 'white', 'string', 1.0, 'callback', @setZAxisFactor);
+    zAxisFactorHandle = uicontrol('style', 'edit', 'position', [135 605+15 65 30], 'fontsize', 10, 'backgroundColor', 'white', 'string', zAxisFactor, 'callback', @setZAxisFactor);
 
     function setZAxisFactor(obj, eventdata)
         newZAxisFactor = str2double(get(zAxisFactorHandle, 'string'));
