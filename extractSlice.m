@@ -1,4 +1,4 @@
-function [slice, subX, subY, subZ] = extractSlice(volume, centerX, centerY, centerZ, normX, normY, normZ, radius, zFactor)
+function [slice, subX, subY, subZ] = extractSlice(volume, centerX, centerY, centerZ, normX, normY, normZ, radius, zFactor, angles)
 % function [slice, sliceInd, subX, subY, subZ] = extractSlice(volume, centerX, centerY, centerZ, normX, normY, normZ, radius)
 
 %%extractSlice extracts an arbitray slice from a volume.
@@ -85,7 +85,7 @@ vec = vec/norm(vec);
 vec(vec == 0)=epsilon;
 
 %this does not rotate the surface, but initializes the subscript z in hsp.
-rotate(hsp, [0, 0, 1], 0);
+rotate(hsp, [0, 0, 1], angles(3));
 
 if isDebug,
     %get the coordinates
