@@ -22,7 +22,7 @@
 
     xMin = 1;
     xMax = 512;
-    xSliderHandle = uicontrol('style', 'slider', 'position', [35 180 10 385], 'min', xMin, 'max', xMax, 'Value', 256);
+    xSliderHandle = uicontrol('style', 'slider', 'position', [35 180 10 385], 'min', xMin, 'max', xMax, 'Value', 256, 'SliderStep', [1/(xMax-xMin+1), 10/(xMax-xMin+1)]);
     xLabelHandle =  uicontrol('style', 'text', 'position', [33 585-17 10 15], 'string', 'x', 'fontsize', 12, 'backgroundColor', backgroundColor);
     xValueHandle =  uicontrol('style', 'edit', 'position', [20 155 35 20], 'string', xSliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @xSliderValueInput);
@@ -31,7 +31,7 @@
 
     yMin = 1;
     yMax = 512;
-    ySliderHandle = uicontrol('style', 'slider', 'position', [35+40 180 10 385], 'min', yMin, 'max', yMax, 'Value', 256);
+    ySliderHandle = uicontrol('style', 'slider', 'position', [35+40 180 10 385], 'min', yMin, 'max', yMax, 'Value', 256, 'SliderStep', [1/(yMax-yMin+1), 10/(yMax-yMin+1)]);
     yHandle = uicontrol('style', 'text', 'position', [33+40 585-17 10 15], 'string', 'y', 'fontsize', 12, 'backgroundColor', backgroundColor);
     yValueHandle = uicontrol('style', 'edit', 'position', [10+50 155 35 20], 'string', ySliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @ySliderValueInput);
@@ -40,7 +40,7 @@
 
     zMin = 1;
     zMax = 1000;
-    zSliderHandle = uicontrol('style', 'slider', 'position', [115 180 10 385], 'min', zMin, 'max', zMax, 'Value', 512);
+    zSliderHandle = uicontrol('style', 'slider', 'position', [115 180 10 385], 'min', zMin, 'max', zMax, 'Value', 512, 'SliderStep', [1/(zMax-zMin+1), 10/(zMax-zMin+1)]);
     zLabelHandle = uicontrol('style', 'text', 'position', [113 585-17 10 15], 'string', 'z', 'fontsize', 12, 'backgroundColor', backgroundColor);
     zValueHandle = uicontrol('style', 'edit', 'position', [10+90 155 35 20], 'string', zSliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @zSliderValueInput);
@@ -118,7 +118,7 @@
 
     a1Min = 0;
     a1Max = 360;
-    a1SliderHandle = uicontrol('style', 'slider', 'position', [35+120 180 10 385], 'min', a1Min, 'max', a1Max, 'value', 0);
+    a1SliderHandle = uicontrol('style', 'slider', 'position', [35+120 180 10 385], 'min', a1Min, 'max', a1Max, 'value', 0, 'SliderStep', [1/(a1Max-a1Min+1), 10/(a1Max-a1Min+1)]);
     a1LabelHandle =  uicontrol('style', 'text', 'position', [30+120 585-17 20 15], 'string', 'a1', 'fontsize', 12, 'backgroundColor', backgroundColor);
     a1ValueHandle =  uicontrol('style', 'edit', 'position', [20+120 155 35 20], 'string', a1SliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @a1SliderValueInput);
@@ -127,7 +127,7 @@
 
     a2Min = 0;
     a2Max = 360;
-    a2SliderHandle = uicontrol('style', 'slider', 'position', [35+160 180 10 385], 'min', a2Min, 'max', a2Max, 'value', 0);
+    a2SliderHandle = uicontrol('style', 'slider', 'position', [35+160 180 10 385], 'min', a2Min, 'max', a2Max, 'value', 0, 'SliderStep', [1/(a2Max-a2Min+1), 10/(a2Max-a2Min+1)]);
     a2LabelHandle =  uicontrol('style', 'text', 'position', [30+160 585-17 20 15], 'string', 'a2', 'fontsize', 12, 'backgroundColor', backgroundColor);
     a2ValueHandle =  uicontrol('style', 'edit', 'position', [20+160 155 35 20], 'string', a2SliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @a2SliderValueInput);
@@ -136,7 +136,7 @@
 
     a3Min = 0;
     a3Max = 360;
-    a3SliderHandle = uicontrol('style', 'slider', 'position', [35+200 180 10 385], 'min', a3Min, 'max', a3Max, 'value', 0);
+    a3SliderHandle = uicontrol('style', 'slider', 'position', [35+200 180 10 385], 'min', a3Min, 'max', a3Max, 'value', 0, 'SliderStep', [1/(a3Max-a3Min+1), 10/(a3Max-a3Min+1)]);
     a3LabelHandle =  uicontrol('style', 'text', 'position', [30+200 585-17 20 15], 'string', 'a3', 'fontsize', 12, 'backgroundColor', backgroundColor);
     a3ValueHandle =  uicontrol('style', 'edit', 'position', [20+200 155 35 20], 'string', a3SliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @a3SliderValueInput);
