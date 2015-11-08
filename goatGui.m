@@ -11,7 +11,7 @@ function gedeGui
     volDouble = [];  % Initial value
 
     % used for the file log, see the documentation for atomicLogUpdate.m for details
-    baseLogName = 'goat_gui_log';
+    baseLogName = ['goat_gui_log_' datestr(now,'HH.MM.SS_dd-mm-yyyy')];
     templogFid = fopen([baseLogName '_temp.txt'], 'a');
 
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
