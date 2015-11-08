@@ -1,4 +1,4 @@
-    function gedeGui
+function gedeGui
     backgroundColor = [0.92 0.92 0.92];  % backgroundcolor for GUI
     f = figure('visible', 'off', 'color', backgroundColor, 'position', [15 95 955 730], 'toolbar', 'none', 'deleteFcn', @runAtGuiExit);
     set(f, 'name', 'Gedetands grafisk brugerflade 0.1');
