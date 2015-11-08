@@ -265,39 +265,11 @@ function gedeGui
         end
     end
 
-    function getDropdownDataSTUB
-        % STUB -- just list all filenames for now
-        postMessage('Gathering datasets, please wait...')
-        dirCont = dir(dataPath);
-        avaiableDatasets = {dirCont.name};
-        [~, regexMatch] = regexp(avaiableDatasets, '^\.+$', 'match');
-        avaiableDatasets = {avaiableDatasets{cellfun(@isempty, regexMatch)}};
-
-        % For testing purposes
-        tempCell = {};
-        for ii = 1:length(avaiableDatasets)
-            name = avaiableDatasets{ii};
-            if strcmp(name(end-3:end), '.mat')
-                tempCell{length(tempCell)+1} = name;
-            end
-        end
-        avaiableDatasets = tempCell;
-        if isempty(avaiableDatasets)
-            postMessage(sprintf('No datasets found at %s', dataPath))
-        else
-            set(selectDataPopupHandle, 'string', avaiableDatasets);
-            postMessage('Finished gathering datasets')
-        end
-        % outData = {'foo', 'bar', 'baz'};
-    end
-
 
     % % % % % % % % % % % % % % % % % % % % % % %
     % Handle for image axes (image in the GUI)  %
     % % % % % % % % % % % % % % % % % % % % % % %
     imageAxesHandle = axes('units', 'pixels', 'position', [350 130 570 570]);
-
-
 
     % % % % % % % % % % % % % % %
     % This handles the logging  %
