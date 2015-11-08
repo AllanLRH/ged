@@ -370,18 +370,22 @@
         xyz(1) = xSliderHandle.Value;
         xyz(2) = ySliderHandle.Value;
         xyz(3) = zSliderHandle.Value;
-        angles(1) = a1SliderHandle.Value * pi/180;
-        angles(2) = a2SliderHandle.Value * pi/180;
-        angles(3) = a3SliderHandle.Value * pi/180;
-        rotMat = getRotMat(angles);
-        planeNormal = (rotMat*planeNormal_original');
+        angles(1) = a1SliderHandle.Value; % * pi/180;
+        angles(2) = a2SliderHandle.Value; % * pi/180;
+        angles(3) = a3SliderHandle.Value; % * pi/180;
+        planeNormal(1) = cosd(angles(1))*sind(angles(2));
+        planeNormal(2) = sind(angles(1))*sind(angles(2));
+        planeNormal(3) = cosd(angles(2));
+        postMessage(sprintf('Normal vector components: %.2f, %.2f, %.2f', planeNormal(1), planeNormal(2), planeNormal(3)))
 
         if not(isempty(volUint8)) && not(isempty(histologyImage))
-            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor);
+            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), ...
+                max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor, angles);
             imshowpair(imslice, histologyShowImage, 'montage')
             colormap('gray');
         elseif not(isempty(volUint8))
-            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor);
+            imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), ...
+                max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor, angles);
             imagesc(imslice)
             colormap('gray');
         elseif not(isempty(histologyImage))
