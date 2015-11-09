@@ -13,6 +13,7 @@ function gedeGui
     % used for the file log, see the documentation for atomicLogUpdate.m for details
     baseLogName = ['goat_gui_log_' datestr(now,'HH.MM.SS_dd-mm-yyyy')];
     templogFid = fopen([baseLogName '_temp.txt'], 'a');
+    sliderLogCell = cell(0);
 
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
     % This part defines the sliders and associated function for the x, y, z sliders %
@@ -296,36 +297,42 @@ function gedeGui
     function xMoveAction(newValue)
         updateView;
         postMessage(sprintf('Set X-slider to %.3f', newValue))
+        sliderLogCell{length(sliderLogCell)+1} = {{'x', newValue}};
     end
 
 
     function yMoveAction(newValue)
         updateView;
         postMessage(sprintf('Set Y-slider to %.3f', newValue))
+        sliderLogCell{length(sliderLogCell)+1} = {{'y', newValue}};
     end
 
 
     function zMoveAction(newValue)
         updateView;
         postMessage(sprintf('Set Z-slider to %.3f', newValue))
+        sliderLogCell{length(sliderLogCell)+1} = {{'z', newValue}};
     end
 
 
     function a1MoveAction(newValue)
         updateView;
         postMessage(sprintf('Set A1-slider to %.1f', newValue))
+        sliderLogCell{length(sliderLogCell)+1} = {{'a1', newValue}};
     end
 
 
     function a2MoveAction(newValue)
         updateView;
         postMessage(sprintf('Set A2-slider to %.1f', newValue))
+        sliderLogCell{length(sliderLogCell)+1} = {{'a2', newValue}};
     end
 
 
     function a3MoveAction(newValue)
         updateView;
         postMessage(sprintf('Set A3-slider to %.1f', newValue))
+        sliderLogCell{length(sliderLogCell)+1} = {{'a3', newValue}};
     end
 
     function updateView
