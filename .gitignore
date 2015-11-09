@@ -104,14 +104,13 @@ firstImageInStack
 5.05_ID1662_769_0001_masks_2_v6.mat
 5.05_ID1662_769_0001_masks_median_v6.mat
 data/
-histologyImages/
 firstImageInStack/
 .fuse_hidden*
 minivol.mat
 minvol.mat
 *.diff
 smallData
-goat_gui_log.txt
+goat_gui_log*.txt
 experimentationScripts/getFileGroup.m
 experimentationScripts/getSlice.m
 experimentationScripts/glob.m
