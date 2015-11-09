@@ -23,28 +23,34 @@ function gedeGui
 
     xMin = 1;
     xMax = 512;
-    xSliderHandle = uicontrol('style', 'slider', 'position', [35 180 10 385], 'min', xMin, 'max', xMax, 'Value', 256, 'SliderStep', [1/(xMax-xMin+1), 10/(xMax-xMin+1)]);
+    xValueInitial = 255;
+    xSliderHandle = uicontrol('style', 'slider', 'position', [35 180 10 385], 'min', xMin, 'max', xMax, 'Value', xValueInitial, 'SliderStep', [1/(xMax-xMin+1), 10/(xMax-xMin+1)]);
     xLabelHandle =  uicontrol('style', 'text', 'position', [33 585-17 10 15], 'string', 'x', 'fontsize', 12, 'backgroundColor', backgroundColor);
     xValueHandle =  uicontrol('style', 'edit', 'position', [20 155 35 20], 'string', xSliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @xSliderValueInput);
+    xMacroHandle=   uicontrol('style', 'edit', 'position', [20 130 35 20], 'string', 'x', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @macro);
     xSliderHandle.UserData.lastValue = xMin;  % Initialize to some value
     addlistener(xSliderHandle, 'ContinuousValueChange', @moveXSlider);
 
     yMin = 1;
     yMax = 512;
-    ySliderHandle = uicontrol('style', 'slider', 'position', [35+40 180 10 385], 'min', yMin, 'max', yMax, 'Value', 256, 'SliderStep', [1/(yMax-yMin+1), 10/(yMax-yMin+1)]);
+    yValueInitial = 256;
+    ySliderHandle = uicontrol('style', 'slider', 'position', [35+40 180 10 385], 'min', yMin, 'max', yMax, 'Value', yValueInitial, 'SliderStep', [1/(yMax-yMin+1), 10/(yMax-yMin+1)]);
     yHandle = uicontrol('style', 'text', 'position', [33+40 585-17 10 15], 'string', 'y', 'fontsize', 12, 'backgroundColor', backgroundColor);
     yValueHandle = uicontrol('style', 'edit', 'position', [10+50 155 35 20], 'string', ySliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @ySliderValueInput);
+    yMacroHandle =uicontrol ('style', 'edit', 'position', [10+50 130 35 20], 'string', 'y', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @macro);
     ySliderHandle.UserData.lastValue = yMin;  % Initialize to some value
     addlistener(ySliderHandle, 'ContinuousValueChange', @moveYSlider);
 
     zMin = 1;
     zMax = 1000;
-    zSliderHandle = uicontrol('style', 'slider', 'position', [115 180 10 385], 'min', zMin, 'max', zMax, 'Value', 512, 'SliderStep', [1/(zMax-zMin+1), 10/(zMax-zMin+1)]);
+    zValueInitial = 500;
+    zSliderHandle = uicontrol('style', 'slider', 'position', [115 180 10 385], 'min', zMin, 'max', zMax, 'Value', zValueInitial, 'SliderStep', [1/(zMax-zMin+1), 10/(zMax-zMin+1)]);
     zLabelHandle = uicontrol('style', 'text', 'position', [113 585-17 10 15], 'string', 'z', 'fontsize', 12, 'backgroundColor', backgroundColor);
     zValueHandle = uicontrol('style', 'edit', 'position', [10+90 155 35 20], 'string', zSliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @zSliderValueInput);
+    zMacroHandle =uicontrol ('style', 'edit', 'position', [10+90 130 35 20], 'string', 'z', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @macro);
     zSliderHandle.UserData.lastValue = zMin;  % Initialize to some value
     addlistener(zSliderHandle, 'ContinuousValueChange', @moveZSlider);
 
@@ -116,28 +122,34 @@ function gedeGui
 
     a1Min = 0;
     a1Max = 360;
+    a1ValueInitial = 0;
     a1SliderHandle = uicontrol('style', 'slider', 'position', [35+120 180 10 385], 'min', a1Min, 'max', a1Max, 'value', 0, 'SliderStep', [1/(a1Max-a1Min+1), 10/(a1Max-a1Min+1)]);
     a1LabelHandle =  uicontrol('style', 'text', 'position', [30+120 585-17 20 15], 'string', 'a1', 'fontsize', 12, 'backgroundColor', backgroundColor);
-    a1ValueHandle =  uicontrol('style', 'edit', 'position', [20+120 155 35 20], 'string', a1SliderHandle.Value,...
+    a1ValueHandle = uicontrol('style', 'edit', 'position', [20+120 155 35 20], 'string', a1SliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @a1SliderValueInput);
+    a1MacroHandle =  uicontrol('style', 'edit', 'position', [20+120 130 35 20], 'string', 'a1', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @macro);
     a1SliderHandle.UserData.lastValue = a1Min;  % Initialize to some value
     addlistener(a1SliderHandle, 'ContinuousValueChange', @moveA1Slider);
 
     a2Min = 0;
     a2Max = 360;
+    a2ValueInitial = 0;
     a2SliderHandle = uicontrol('style', 'slider', 'position', [35+160 180 10 385], 'min', a2Min, 'max', a2Max, 'value', 0, 'SliderStep', [1/(a2Max-a2Min+1), 10/(a2Max-a2Min+1)]);
     a2LabelHandle =  uicontrol('style', 'text', 'position', [30+160 585-17 20 15], 'string', 'a2', 'fontsize', 12, 'backgroundColor', backgroundColor);
-    a2ValueHandle =  uicontrol('style', 'edit', 'position', [20+160 155 35 20], 'string', a2SliderHandle.Value,...
+    a2ValueHandle = uicontrol('style', 'edit', 'position', [20+160 155 35 20], 'string', a2SliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @a2SliderValueInput);
+    a2MacroHandle =  uicontrol('style', 'edit', 'position', [20+160 130 35 20], 'string', 'a2', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @macro);
     a2SliderHandle.UserData.lastValue = a2Min;  % Initialize to some value
     addlistener(a2SliderHandle, 'ContinuousValueChange', @moveA2Slider);
 
     a3Min = 0;
     a3Max = 360;
+    a3ValueInitial = 0;
     a3SliderHandle = uicontrol('style', 'slider', 'position', [35+200 180 10 385], 'min', a3Min, 'max', a3Max, 'value', 0, 'SliderStep', [1/(a3Max-a3Min+1), 10/(a3Max-a3Min+1)]);
     a3LabelHandle =  uicontrol('style', 'text', 'position', [30+200 585-17 20 15], 'string', 'a3', 'fontsize', 12, 'backgroundColor', backgroundColor);
-    a3ValueHandle =  uicontrol('style', 'edit', 'position', [20+200 155 35 20], 'string', a3SliderHandle.Value,...
+    a3ValueHandle = uicontrol('style', 'edit', 'position', [20+200 155 35 20], 'string', a3SliderHandle.Value,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @a3SliderValueInput);
+    a3MacroHandle =  uicontrol('style', 'edit', 'position', [20+200 130 35 20], 'string', 'a3', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @macro);
     a3SliderHandle.UserData.lastValue = a3Min;  % Initialize to some value
     addlistener(a3SliderHandle, 'ContinuousValueChange', @moveA3Slider);
 
@@ -190,6 +202,60 @@ function gedeGui
         a3MoveAction(newValue);
     end
 
+    function macro(obj, eventdata)
+        newValue = str2double(get(obj, 'string'));
+        set(xValueHandle, 'string', num2str(a3ValueInitial))
+        xSliderValueInput;
+        set(yValueHandle, 'string', num2str(a3ValueInitial))
+        ySliderValueInput;
+        set(zValueHandle, 'string', num2str(a3ValueInitial))
+        zSliderValueInput;
+        set(a1ValueHandle, 'string', num2str(a3ValueInitial))
+        a1SliderValueInput;
+        set(a2ValueHandle, 'string', num2str(a3ValueInitial))
+        a2SliderValueInput;
+        set(a3ValueHandle, 'string', num2str(a3ValueInitial))
+        a3SliderValueInput;
+        for ii = 1:length(sliderLogCell)
+            oldHist = sliderLogCell{ii};
+            oldParam = oldHist{1};
+            oldValue = oldHist{2};
+            if strcmp(oldParam, 'x')
+                set(xValueHandle, 'string', num2str(oldValue));
+                xSliderValueInput;
+                updateView;
+            elseif strcmp(oldParam, 'y')
+                set(yValueHandle, 'string', num2str(oldValue));
+                ySliderValueInput;
+                updateView;
+            elseif strcmp(oldParam, 'z')
+                set(zValueHandle, 'string', num2str(oldValue));
+                zSliderValueInput;
+                updateView;
+            elseif strcmp(oldParam, 'a1')
+                set(a1ValueHandle, 'string', num2str(oldValue));
+                a1SliderValueInput;
+                updateView;
+            elseif strcmp(oldParam, 'a2')
+                set(a2ValueHandle, 'string', num2str(oldValue));
+                a2SliderValueInput;
+                updateView;
+            elseif strcmp(oldParam, 'a3')
+                set(a3ValueHandle, 'string', num2str(oldValue));
+                a3SliderValueInput;
+                updateView;
+            end
+            set(obj, 'string', sprintf('%.3f', sliderValue));
+            xSliderValueInput;
+            ySliderValueInput;
+            zSliderValueInput;
+            a1SliderValueInput;
+            a2SliderValueInput;
+            a3SliderValueInput;
+        end
+
+
+    end
 
     % % % % % % % % % % % % % % % % % % %
     % Relating to z-axis factor values  %
