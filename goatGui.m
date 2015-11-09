@@ -65,6 +65,7 @@ function gedeGui
         end
         set(xSliderHandle, 'value', newValue);
         set(xValueHandle, 'string', sprintf('%.3f', newValue))
+        postMessage(sprintf('Set X-slider to %.3f', newValue))
         xMoveAction;
     end
 
@@ -86,6 +87,7 @@ function gedeGui
         end
         set(ySliderHandle, 'value', newValue);
         set(yValueHandle, 'string', sprintf('%.3f', newValue))
+        postMessage(sprintf('Set Y-slider to %.3f', newValue))
         yMoveAction;
     end
 
@@ -107,6 +109,7 @@ function gedeGui
         end
         set(zSliderHandle, 'value', newValue);
         set(zValueHandle, 'string', sprintf('%.3f', newValue))
+        postMessage(sprintf('Set Z-slider to %.3f', newValue))
         zMoveAction;
     end
 
@@ -149,7 +152,7 @@ function gedeGui
             sliderValue = a1SliderHandle.Value;
             set(a1ValueHandle, 'string', sprintf('%.1f', sliderValue))
             a1MoveAction;
-            postMessage(sprintf('Set A-1slider to %.1f', sliderValue))
+            postMessage(sprintf('Set A1-slider to %.1f', sliderValue))
         end
     end
 
@@ -158,6 +161,7 @@ function gedeGui
         newValue = mod(newValue, a1Max);
         set(a1SliderHandle, 'value', newValue);
         set(a1ValueHandle, 'string', sprintf('%.1f', newValue))
+        postMessage(sprintf('Set A1-slider to %.1f', newValue))
         a1MoveAction;
     end
 
@@ -166,7 +170,7 @@ function gedeGui
             sliderValue = a2SliderHandle.Value;
             set(a2ValueHandle, 'string', sprintf('%.1f', sliderValue))
             a2MoveAction;
-            postMessage(sprintf('Set A-2slider to %.1f', sliderValue))
+            postMessage(sprintf('Set A2-slider to %.1f', sliderValue))
         end
     end
 
@@ -175,6 +179,7 @@ function gedeGui
         newValue = mod(newValue, a2Max);
         set(a2SliderHandle, 'value', newValue);
         set(a2ValueHandle, 'string', sprintf('%.1f', newValue))
+        postMessage(sprintf('Set A2-slider to %.1f', newValue))
         a2MoveAction;
     end
 
@@ -183,7 +188,7 @@ function gedeGui
             sliderValue = a3SliderHandle.Value;
             set(a3ValueHandle, 'string', sprintf('%.1f', sliderValue))
             a3MoveAction;
-            postMessage(sprintf('Set A-3slider to %.1f', sliderValue))
+            postMessage(sprintf('Set A3-slider to %.1f', sliderValue))
         end
     end
 
@@ -192,6 +197,7 @@ function gedeGui
         newValue = mod(newValue, a3Max);
         set(a3SliderHandle, 'value', newValue);
         set(a3ValueHandle, 'string', sprintf('%.1f', newValue))
+        postMessage(sprintf('Set A3-slider to %.1f', newValue))
         a3MoveAction;
     end
 
