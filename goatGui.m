@@ -9,6 +9,9 @@ function gedeGui
     zAxisFactor = 3.74;  % Initial value
     volUint8 = [];  % Initial value
     volDouble = [];  % Initial value
+    datasetIdentifier = '';  %Initial value
+    segmentImplant = [];  % Initial value
+    segmentBone = [];  % Initial value
 
     % used for the file log, see the documentation for atomicLogUpdate.m for details
     baseLogName = ['goat_gui_log_' datestr(now,'HH.MM.SS_dd-mm-yyyy')];
@@ -253,6 +256,22 @@ function gedeGui
             % postMessage(sprintf('Loaded double precision version of dataset %s', datasetIdentifier))
             postMessage(sprintf('Loaded scaled version of the dataset %s with size %d x %d x %d', datasetIdentifier, size(volUint8, 1), size(volUint8, 2), size(volUint8, 3)))
             updateView
+        end
+    end
+
+
+    function loadSegmentation
+        if strcmp(loadedSegmentation, datasetIdentifier)
+            postMessage(sprintf('Segmentation for %s allreaddy loaded, reusing data', datasetIdentifier))
+        else
+            postMessage(sprintf('Loading the segmentations for %s, please be patient, this will take quite a while', datasetIdentifier))
+            pause(0.01)
+            temp           = load(['segmentations/' datasetIdentifier '_double.mat']);
+            loadedSegmentation = datasetIdentifier;
+            segmentBone    = temp.savedBoneMasks;
+            segmentImplant = temp.savedImplantMasks;
+            postMessage(sprintf('Loaded full resolution segmentation tor the dataset %s with size %d x %d x %d', datasetIdentifier, ...
+                size(segmentBone, 1), size(segmentBone, 2), size(segmentBone, 3)))
         end
     end
 
