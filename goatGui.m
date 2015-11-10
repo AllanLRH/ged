@@ -26,7 +26,7 @@ function gedeGui
     xInitial = 256;
     xSliderHandle = uicontrol('style', 'slider', 'position', [35 180 10 385], 'min', xMin, 'max', xMax, 'value', xInitial, 'SliderStep', [1/(xMax-xMin+1), 10/(xMax-xMin+1)]);
     xLabelHandle =  uicontrol('style', 'text', 'position', [33 585-17 10 15], 'string', 'x', 'fontsize', 12, 'backgroundColor', backgroundColor);
-    xValueHandle =  uicontrol('style', 'edit', 'position', [20 155 35 20], 'string', xInitial...
+    xValueHandle =  uicontrol('style', 'edit', 'position', [20 155 35 20], 'string', xInitial,...
                                'fontsize', 10, 'backgroundColor', 'white', 'callback', @xSliderValueInput);
     xSliderHandle.UserData.lastValue = xMin;  % Initialize to some value
     addlistener(xSliderHandle, 'ContinuousValueChange', @moveXSlider);
@@ -237,6 +237,7 @@ function gedeGui
             updateView
         end
     end
+
 
     function loadDataset(obj, eventdata)
         [filename, filepath] = uigetfile('*.vol', 'Select a .vol-file from a dataset');
