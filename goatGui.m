@@ -388,6 +388,14 @@ function gedeGui
             colormap('gray');
             % axis('image')
         end
+        optimizeMe = true;
+        if (numel(histologyImage) > 0)
+            if (optimizeMe)
+                sigma = 10;
+                crop = [-11.9, 397.6, 92.0, 418.8];
+                alignImages(vol, histologyImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, true);
+            end
+        end
     end
 
     set(f, 'visible', 'on');
