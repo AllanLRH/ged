@@ -393,7 +393,8 @@ function gedeGui
             if (optimizeMe)
                 sigma = 10;
                 crop = [-11.9, 397.6, 92.0, 418.8];
-                alignImages(vol, histologyImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, true);
+                alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, true);
+                figure(1);
             end
         end
     end
