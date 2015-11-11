@@ -372,7 +372,7 @@ function gedeGui
         planeNormal(3) = cosd(angles(2));
         postMessage(sprintf('Normal vector components: %.2f, %.2f, %.2f', planeNormal(1), planeNormal(2), planeNormal(3)))
 
-        if not(isempty(volUint8)) && not(isempty(histologyImage))
+        if not(isempty(volUint8)) && not(isempty(histologyShowImage))
             imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), ...
                 max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor, angles);
             imshowpair(imslice, histologyShowImage, 'montage')
@@ -383,13 +383,13 @@ function gedeGui
             imagesc(imslice)
             colormap('gray');
             % axis('image')
-        elseif not(isempty(histologyImage))
-            imagesc(histologyImage)
+        elseif not(isempty(histologyShowImage))
+            imagesc(histologyShowImage)
             colormap('gray');
             % axis('image')
         end
-        optimizeMe = true;
-        if (numel(histologyImage) > 0)
+        optimizeMe = false;
+        if ~isempty(histologyShowImage)
             if (optimizeMe)
                 sigma = 10;
                 crop = [-11.9, 397.6, 92.0, 418.8];
