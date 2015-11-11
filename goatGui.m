@@ -199,6 +199,16 @@ function gedeGui
         a3MoveAction(newValue);
     end
 
+    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+    % The button and associated callback function which activates the entropy minimization function %
+    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+    magicButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Magic!', 'fontsize', 12, 'position', [30 95 215 50], 'callback', @useMagic);
+
+    function useMagic(obj, eventdata)
+        % STUB
+        postMessage('Using magic!')
+    end
+
 
     % % % % % % % % % % % % % % % % % % %
     % Relating to z-axis factor values  %
