@@ -6,7 +6,8 @@ function gedeGui
     planeNormal_original = [0 0 1];
     planeNormal = [0 0 1];
 
-    zAxisFactor = 3.74;  % Initial value
+    % zAxisFactor = 3.74;  % Initial value
+    zAxisFactor = 1.0;  % Initial value
     volUint8 = [];  % Initial value
     volDouble = [];  % Initial value
     datasetIdentifier = '';  %Initial value
@@ -45,8 +46,8 @@ function gedeGui
     addlistener(ySliderHandle, 'ContinuousValueChange', @moveYSlider);
 
     zMin = 1;
-    zMax = 1000;
-    zInitial = 500;
+    zMax = 250;
+    zInitial = 125;
     zSliderHandle = uicontrol('style', 'slider', 'position', [115 180 10 385], 'min', zMin, 'max', zMax, 'value', zInitial, 'SliderStep', [1/(zMax-zMin+1), 10/(zMax-zMin+1)]);
     zLabelHandle = uicontrol('style', 'text', 'position', [113 585-17 10 15], 'string', 'z', 'fontsize', 12, 'backgroundColor', backgroundColor);
     zValueHandle = uicontrol('style', 'edit', 'position', [10+90 155 35 20], 'string', zInitial,...
@@ -258,7 +259,7 @@ function gedeGui
             datasetIdentifier = filename(1:end-9);
             postMessage(sprintf('Loading the dataset %s, please be patient', datasetIdentifier))
             pause(0.01)
-            volUint8 = load(['smallData/' datasetIdentifier '_v7.3_uint8.mat']);
+            volUint8 = load(['smallData/' datasetIdentifier '_v6_uint8.mat']);
             volUint8 = volUint8.newVol;
             postMessage(sprintf('Loaded integer 8 version of dataset %s', datasetIdentifier))
             % volDouble = load(['smallData/' datasetIdentifier '_v7.3_double.mat']);
@@ -429,7 +430,7 @@ function gedeGui
             if (optimizeMe)
                 sigma = 10;
                 crop = [-11.9, 397.6, 92.0, 418.8];
-                alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, true);
+                alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, false);
                 figure(1);
             end
         end
