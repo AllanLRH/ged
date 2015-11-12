@@ -1,6 +1,6 @@
 function gedeGui
     backgroundColor = [0.92 0.92 0.92];  % backgroundcolor for GUI
-    f = figure('visible', 'off', 'color', backgroundColor, 'position', [15 95 955 730], 'toolbar', 'none', 'deleteFcn', @runAtGuiExit);
+    f = figure('visible', 'off', 'color', backgroundColor, 'position', [15 95 1200 730], 'toolbar', 'none', 'deleteFcn', @runAtGuiExit);
     set(f, 'name', 'Gedetands grafisk brugerflade 0.1');
 
     planeNormal_original = [0 0 1];
@@ -286,21 +286,16 @@ function gedeGui
     end
 
 
-    % % % % % % % % % % % % % % % % % % % % % % %
-    % Handle for image axes (image in the GUI)  %
-    % % % % % % % % % % % % % % % % % % % % % % %
-    imageAxesHandle = axes('units', 'pixels', 'position', [350 130 570 570]);
-
     % % % % % % % % % % % % % % %
     % This handles the logging  %
     % % % % % % % % % % % % % % %
     logCell = {'This is the log panel, new entries appear on top'};
-    logPanelHandle =  uicontrol('style', 'edit', 'position', [30 20 890 65], 'string', logCell, 'fontsize', 10, 'fontname', 'Courier New',...
+    logPanelHandle =  uicontrol('style', 'edit', 'position', [30 20 1130 65], 'string', logCell, 'fontsize', 10, 'fontname', 'Courier New',...
                                 'backgroundColor', 'white', 'enable', 'inactive', 'max', 999999, 'min', 1);
 
     function postMessage(message)
         % Handles logging. Writes message to log. Appends date to hte right, because Matlab doesn't allow any alignment but centered.
-        paddedMessage = padString(message, 124);
+        paddedMessage = padString(message, 162);
         logCell = cat(1, paddedMessage, logCell);
         set(logPanelHandle, 'string', logCell);
 
@@ -370,7 +365,7 @@ function gedeGui
         sliderLogCell{length(sliderLogCell)+1} = {{'a3', newValue}};
     end
 
-    function updateView
+    function [xyz, angles, planeNormal] = getParametersFromSliders
         xyz(1) = xSliderHandle.Value;
         xyz(2) = ySliderHandle.Value;
         xyz(3) = zSliderHandle.Value;
@@ -380,23 +375,54 @@ function gedeGui
         planeNormal(1) = cosd(angles(1))*sind(angles(2));
         planeNormal(2) = sind(angles(1))*sind(angles(2));
         planeNormal(3) = cosd(angles(2));
-        postMessage(sprintf('Normal vector components: %.2f, %.2f, %.2f', planeNormal(1), planeNormal(2), planeNormal(3)))
+    end
 
+    axisLeft = axes('units', 'pixels', 'position', [310 175 395 395]);
+    axisRight = axes('units', 'pixels', 'position', [773 175 395 395]);
+    function updateView
+        % if (isempty(volUint8) && ~isempty(histologyShowImage)) || (isempty(histologyShowImage) && ~isempty(volUint8))
+            % handles.axisSingle = axes('units', 'pixels', 'position', [350 130 570 570]);
+        % else
+            % handles.axisLeft = axes('units', 'pixels', 'position', [310 175 395 395]);
+            % handles.axisRight = axes('units', 'pixels', 'position', [773 175 395 395]);
+        % end
+
+        [xyz, angles, planeNormal] = getParametersFromSliders;
         if not(isempty(volUint8)) && not(isempty(histologyShowImage))
             imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), ...
                 max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor, angles);
-            imshowpair(imslice, histologyShowImage, 'montage')
+            % Plot in left axis
+            axes(axisLeft);
+            imagesc(imslice);
             colormap('gray');
+            set(axisLeft, 'xTick', []);
+            set(axisLeft, 'yTick', []);
+            % Plot in right axis
+            axes(axisRight);
+            imagesc(histologyShowImage);
+            colormap('gray');
+            set(axisRight, 'xTick', []);
+            set(axisRight, 'yTick', []);
         elseif not(isempty(volUint8))
             imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), ...
                 max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor, angles);
+            % axes(handles.axisSingle);
+            axes(axisLeft);
             imagesc(imslice)
             colormap('gray');
-            % axis('image')
+            set(axisLeft, 'xTick', []);
+            set(axisLeft, 'yTick', []);
+            % set(handles.axisSingle, 'xTick', []);
+            % set(handles.axisSingle, 'yTick', []);
         elseif not(isempty(histologyShowImage))
+            % axes(handles.axisSingle);
+            axes(axisRight);
             imagesc(histologyShowImage)
             colormap('gray');
-            % axis('image')
+            set(axisRight, 'xTick', []);
+            set(axisRight, 'yTick', []);
+            % set(handles.axisSingle, 'xTick', []);
+            % set(handles.axisSingle, 'yTick', []);
         end
         optimizeMe = false;
         if ~isempty(histologyShowImage)

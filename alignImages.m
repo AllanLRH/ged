@@ -9,8 +9,8 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
      tmp = interpn(histologyImage, r, c, 'linear', NaN);
      imDiff = imslice-tmp;
 
-     figure(2); imagesc(imDiff); title('Initial'); colormap(gray); drawnow;
-     figure(3); imshowpair(imslice, tmp); title('Initial'); colormap(gray); drawnow;
+     figure(3); imagesc(imDiff); title('Initial'); colormap(gray); drawnow;
+     figure(4); imshowpair(imslice, tmp); title('Initial'); colormap(gray); drawnow;
     end
 
     %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
@@ -51,8 +51,8 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
             [r, c]=ndgrid(linspace(crop(1), crop(2), size(imslice, 1)), linspace(crop(3), crop(4), size(imslice, 2)));
             tmp = interpn(double(histologyImage), r, c, 'linear', NaN);
             imDiff = imslice-tmp;
-            figure(2); imagesc(imDiff); title('Cropping'); colormap(gray); drawnow;
-            figure(3); imshowpair(imslice, tmp); title('Cropping'); colormap(gray); drawnow;
+            figure(3); imagesc(imDiff); title('Cropping'); colormap(gray); drawnow;
+            figure(4); imshowpair(imslice, tmp); title('Cropping'); colormap(gray); drawnow;
         end
 
         %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
@@ -65,7 +65,7 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
 
         for jj = 1:100
             % plane normal vector ORIGO adjustments
-            
+
             v1 = dImDifference(v, vol, histologyImage, crop, sigma, x+[1,0,0], n, zAxisFactor, angles);
             v2 = dImDifference(v, vol, histologyImage, crop, sigma, x+[0,1,0], n, zAxisFactor, angles);
             v3 = dImDifference(v, vol, histologyImage, crop, sigma, x+[0,0,1], n, zAxisFactor, angles);
@@ -87,7 +87,7 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
             vTest = imDifference(imsliceSmoothed, histologyImage, sigma, crop);
             while (vTest > v) && (d > 0.0000001)
                 d = d/10;
-                
+
                 xTest = x - d*[v1, v2, v3];
                 nTest = n - d*[v4, v5, v6];
                 aTest = angles - d*[0, 0, v7];
@@ -96,7 +96,7 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
                 vTest = imDifference(imsliceSmoothed, histologyImage, sigma, crop);
             end
             if(vTest < v)
-                
+
                 x = xTest;
                 n = nTest;
                 angles = aTest;
@@ -112,8 +112,8 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
             [r, c]=ndgrid(linspace(crop(1), crop(2), size(imslice, 1)), linspace(crop(3), crop(4), size(imslice, 2)));
             tmp = interpn(double(histologyImage), r, c, 'linear', NaN);
             imDiff = imslice-tmp;
-            figure(2); imagesc(imDiff); title('Slicing'); colormap(gray); drawnow;
-            figure(3); imshowpair(imslice, tmp); title('Slicing'); colormap(gray); drawnow;
+            figure(3); imagesc(imDiff); title('Slicing'); colormap(gray); drawnow;
+            figure(4); imshowpair(imslice, tmp); title('Slicing'); colormap(gray); drawnow;
         end
     end
 end
