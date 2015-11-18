@@ -206,7 +206,8 @@ function gedeGui
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
     automatchButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Automatch', 'fontsize', 12, 'position', [30 95 100 50], 'callback', @automatch);
 
-    makeFiguresCheckbox = uicontrol('Style', 'checkbox', 'Value', 0, 'position', [130 115 15 15]);
+    makeFiguresCheckboxText = uicontrol('style', 'text', 'string', 'Show figures during alignment', 'fontsize', 12, 'backgroundColor', backgroundColor, 'position', [130 110 150 30]);
+    makeFiguresCheckbox = uicontrol('style', 'checkbox', 'value', 0, 'position', [130 115 15 15]);
 
     function automatch(obj, eventdata)
         if isempty(histologyShowImage) || isempty(volUint8)
@@ -268,7 +269,7 @@ function gedeGui
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
     % The button and associated callback function which computes statistics for given slice from the segmentation %
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-    getStatsButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Get statistics', 'fontsize', 12, 'position', [150 95 100 50], 'callback', @getStats);
+    getStatsButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Get statistics', 'fontsize', 12, 'position', [510 95 100 50], 'callback', @getStats);
 
     function getStats(obj, eventdata)
         postMessage('Getting statistics for current slice')
