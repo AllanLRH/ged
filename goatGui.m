@@ -201,14 +201,66 @@ function gedeGui
         a3MoveAction(newValue);
     end
 
-    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-    % The button and associated callback function which activates the entropy minimization function %
-    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-    magicButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Magic!', 'fontsize', 12, 'position', [30 95 215 50], 'callback', @useMagic);
+    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+    % The button and associated callback function which activates the difference minimization function  %
+    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+    automatchButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Automatch', 'fontsize', 12, 'position', [30 95 100 50], 'callback', @automatch);
 
-    function useMagic(obj, eventdata)
-        % STUB
-        postMessage('Using magic!')
+    function automatch(obj, eventdata)
+        if isempty(histologyShowImage) || isempty(volUint8)
+            postMessage('Please load a histology image and a CT scan before attempting to automatch.')
+        else
+            [xyz, angles, planeNormal] = getParametersFromSliders;
+            postMessage(sprintf('Normal vector components with automatch cootdinates: %.2f, %.2f, %.2f', planeNormal(1), planeNormal(2), planeNormal(3)))
+            postMessage(sprintf('Attepting automatch at theese coordinates: x=%.2f, y=%.2f, z=%.2f, a1=%.2f, a2=%.2f, A3=%.2f',...
+                        xyz(1), xyz(2), xyz(3), angles(1), angles(2), angles(3)));
+            postMessage('Automatching will likely freeze the program for several minutes.')
+
+            sigma = 10;
+            crop = [-11.9, 397.6, 92.0, 418.8];
+            % crop = zeros(1, 4);
+            % [X,Y] = ginput(2);
+            % crop(1) = X(1); crop(3) = X(2); crop(2) = Y(1); crop(4) = Y(2)
+            postMessage(sprintf('Current crop is %.2f, %.2f, %.2f, %.2f', crop(1), crop(2), crop(3), crop(4)))
+            [xyz, crop, normalVector, angles] = alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, false);
+            postMessage(sprintf('xyz:  %s', num2str(xyz)))
+            postMessage(sprintf('crop:  %s', num2str(crop)))
+            postMessage(sprintf('normalVector:  %s', num2str(normalVector)))
+            postMessage(sprintf('angles:  %s', num2str(angles)))
+        end
+    end
+
+
+
+
+
+
+
+
+    crop = zeros(1, 4);
+    cropText   =  uicontrol('style', 'text', 'position', [828 705 70 20], 'string', 'Cropping', 'fontsize', 14);
+    cropXUpper =  uicontrol('style', 'edit', 'position', [800 680 55 20], 'string', 'Upper x', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @setXUpper);
+    commaUpper =  uicontrol('style', 'text', 'position', [858 675 10 20], 'string', ',', 'fontsize', 14);
+    cropYUpper =  uicontrol('style', 'edit', 'position', [870 680 55 20], 'string', 'Upper y', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @setYUpper);
+
+    cropXLower =  uicontrol('style', 'edit', 'position', [800 650 55 20], 'string', 'Lower x', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @setXLower);
+    commaLower =  uicontrol('style', 'text', 'position', [858 645 10 20], 'string', ',', 'fontsize', 14);
+    cropYLower =  uicontrol('style', 'edit', 'position', [870 650 55 20], 'string', 'Lower y', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @setYLower);
+
+    function setXUpper(obj, eventdata)
+        crop(1) = str2double(get(cropXUpper, 'string'));
+    end
+    function setYUpper(obj, eventdata)
+        crop(2) = str2double(get(cropYUpper, 'string'));
+    end
+    function setXLower(obj, eventdata)
+        crop(3) = str2double(get(cropXLower, 'string'));
+    end
+    function setYLower(obj, eventdata)
+        crop(4) = str2double(get(cropYLower, 'string'));
+    end
+
+
     end
 
 
