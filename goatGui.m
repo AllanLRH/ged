@@ -11,6 +11,7 @@ function gedeGui
     volUint8 = [];  % Initial value
     volDouble = [];  % Initial value
     datasetIdentifier = '';  %Initial value
+    loadedSegmentation = '';  %Initial value
     segmentImplant = [];  % Initial value
     segmentBone = [];  % Initial value
 
@@ -277,11 +278,11 @@ function gedeGui
         else
             postMessage(sprintf('Loading the segmentations for %s, please be patient, this will take quite a while', datasetIdentifier))
             pause(0.01)
-            temp           = load(['segmentations/' datasetIdentifier '_double.mat']);
+            temp = load(['smallSegmentations/' datasetIdentifier '_double.mat']);
             loadedSegmentation = datasetIdentifier;
-            segmentBone    = temp.savedBoneMasks;
+            segmentBone = temp.savedBoneMasks;
             segmentImplant = temp.savedImplantMasks;
-            postMessage(sprintf('Loaded full resolution segmentation tor the dataset %s with size %d x %d x %d', datasetIdentifier, ...
+            postMessage(sprintf('Loaded segmentation for the dataset %s with size %d x %d x %d', datasetIdentifier, ...
                 size(segmentBone, 1), size(segmentBone, 2), size(segmentBone, 3)))
         end
     end
