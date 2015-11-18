@@ -206,6 +206,8 @@ function gedeGui
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
     automatchButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Automatch', 'fontsize', 12, 'position', [30 95 100 50], 'callback', @automatch);
 
+    makeFiguresCheckbox = uicontrol('Style', 'checkbox', 'Value', 0, 'position', [130 115 15 15]);
+
     function automatch(obj, eventdata)
         if isempty(histologyShowImage) || isempty(volUint8)
             postMessage('Please load a histology image and a CT scan before attempting to automatch.')
@@ -222,7 +224,8 @@ function gedeGui
             % [X,Y] = ginput(2);
             % crop(1) = X(1); crop(3) = X(2); crop(2) = Y(1); crop(4) = Y(2)
             postMessage(sprintf('Current crop is %.2f, %.2f, %.2f, %.2f', crop(1), crop(2), crop(3), crop(4)))
-            [xyz, crop, normalVector, angles] = alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, false);
+            makeFigures = logical(get(makeFiguresCheckbox, 'Value'));
+            [xyz, crop, normalVector, angles] = alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, makeFigures);
             postMessage(sprintf('xyz:  %s', num2str(xyz)))
             postMessage(sprintf('crop:  %s', num2str(crop)))
             postMessage(sprintf('normalVector:  %s', num2str(normalVector)))
