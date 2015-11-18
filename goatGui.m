@@ -261,6 +261,29 @@ function gedeGui
     end
 
 
+
+    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+    % The button and associated callback function which computes statistics for given slice from the segmentation %
+    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+    getStatsButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Get statistics', 'fontsize', 12, 'position', [150 95 100 50], 'callback', @getStats);
+
+    function getStats(obj, eventdata)
+        postMessage('Getting statistics for current slice')
+        loadSegmentation;
+        [xyz, angles, planeNormal] = getParametersFromSliders;
+        impslice = extractSlice(segmentImplant, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
+                    planeNormal(3), max([size(segmentImplant, 1), size(segmentImplant, 2)])/2, zAxisFactor, angles);
+        boneslice = extractSlice(segmentBone, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
+                    planeNormal(3), max([size(segmentBone, 1), size(segmentBone, 2)])/2, zAxisFactor, angles);
+        dstMap = sgnDstFromImg(impslice);
+        [boneVolume, volume] = boneFractionFunction(boneslice, dstMap, 120);
+        csvwrite(sprintf('csvfiles/%s___x_%.2f_y_%.2f_z_%.2f___a1_%.2f_a2_%.2f_a3_%.2f.csv', datasetIdentifier, xyz(1), xyz(2), ...
+                          xyz(3), angles(1), angles(2), angles(3)), 'boneVolume', 'volume');
+%         figure(42)
+%         hold on
+%         plot(boneVolume)
+%         plot(volume)
+%         hold off
     end
 
 
