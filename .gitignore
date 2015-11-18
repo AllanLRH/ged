@@ -125,3 +125,5 @@ logfile_boneFraction.txt
 newSmallData
 boneCavityFraction.eps
 experimentationScripts/maximize.m
+oldSmallData
+smallSegmentations
