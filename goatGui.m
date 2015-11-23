@@ -237,33 +237,27 @@ function gedeGui
 
 
 
+    % % % % % % % % % % % % % % % % % % % % % % % % % % %
+    % Set crop button and associated callback function  %
+    % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
+    cropHistologyButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Set crop', 'fontsize', 12, 'position', [393 95 100 50], 'callback', @setCrop);
 
-
-
-    crop = zeros(1, 4);
-    cropText   =  uicontrol('style', 'text', 'position', [828 705 70 20], 'string', 'Cropping', 'fontsize', 14);
-    cropXUpper =  uicontrol('style', 'edit', 'position', [800 680 55 20], 'string', 'Upper x', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @setXUpper);
-    commaUpper =  uicontrol('style', 'text', 'position', [858 675 10 20], 'string', ',', 'fontsize', 14);
-    cropYUpper =  uicontrol('style', 'edit', 'position', [870 680 55 20], 'string', 'Upper y', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @setYUpper);
-
-    cropXLower =  uicontrol('style', 'edit', 'position', [800 650 55 20], 'string', 'Lower x', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @setXLower);
-    commaLower =  uicontrol('style', 'text', 'position', [858 645 10 20], 'string', ',', 'fontsize', 14);
-    cropYLower =  uicontrol('style', 'edit', 'position', [870 650 55 20], 'string', 'Lower y', 'fontsize', 10, 'backgroundColor', 'white', 'callback', @setYLower);
-
-    function setXUpper(obj, eventdata)
-        crop(1) = str2double(get(cropXUpper, 'string'));
+    function setCrop(obj, eventdata)
+        [X,Y] = ginput2(2, axisRight);
+        crop = zeros(1, 4);
+        crop(1) = X(1); crop(3) = X(2); crop(2) = Y(1); crop(4) = Y(2);
+        postMessage(sprintf('Current crop is %.2f, %.2f, %.2f, %.2f', crop(1), crop(2), crop(3), crop(4)))
+        axes(axisRight);
+        hold on
+        plot(crop(1), crop(2), 'ro')
+        plot(crop(3), crop(4), 'ro')
+        hold off
+        % cropMask = false(size(histologyShowImage));
+        % [X,Y] = ndgrid(1:size(histologyShowImage, 1), 1:size(histologyShowImage, 2));
+        % cropMask(X)
+        % shadeArea()
     end
-    function setYUpper(obj, eventdata)
-        crop(2) = str2double(get(cropYUpper, 'string'));
-    end
-    function setXLower(obj, eventdata)
-        crop(3) = str2double(get(cropXLower, 'string'));
-    end
-    function setYLower(obj, eventdata)
-        crop(4) = str2double(get(cropYLower, 'string'));
-    end
-
 
 
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
