@@ -5,12 +5,13 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
     imslice = extractSlice(vol, x(1), x(2), x(3), n(1), n(2), n(3), max([size(vol, 1), size(vol, 2)])/2, zAxisFactor, angles);
 
     if (makeFigures)
-     [r, c]=ndgrid(linspace(crop(1), crop(2), size(imslice, 1)), linspace(crop(3), crop(4), size(imslice, 2)));
-     tmp = interpn(histologyImage, r, c, 'linear', NaN);
-     imDiff = imslice-tmp;
+        [r, c]=ndgrid(linspace(crop(1), crop(2), size(imslice, 1)), linspace(crop(3), crop(4), size(imslice, 2)));
+        tmp = interpn(histologyImage, r, c, 'linear', NaN);
+        imDiff = imslice-tmp;
 
-     figure(3); imagesc(imDiff); title('Initial'); colormap(gray); drawnow;
-     figure(4); imshowpair(imslice, tmp); title('Initial'); colormap(gray); drawnow;
+        figure(3); imagesc(imDiff); title('Initial'); colormap(gray); drawnow;
+        figure(4); imshowpair(imslice, tmp); title('Initial'); colormap(gray); drawnow;
+        print('-dpng', ['camillaFigures/fig_' num2str(0) '.png'], '-r300');
     end
 
     %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
@@ -53,6 +54,7 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
             imDiff = imslice-tmp;
             figure(3); imagesc(imDiff); title('Cropping'); colormap(gray); drawnow;
             figure(4); imshowpair(imslice, tmp); title('Cropping'); colormap(gray); drawnow;
+            print('-dpng', ['camillaFigures/fig_' num2str(ii) '_A.png'], '-r300');
         end
 
         %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
@@ -114,6 +116,7 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
             imDiff = imslice-tmp;
             figure(3); imagesc(imDiff); title('Slicing'); colormap(gray); drawnow;
             figure(4); imshowpair(imslice, tmp); title('Slicing'); colormap(gray); drawnow;
+            print('-dpng', ['camillaFigures/fig_' num2str(ii) '_B.png'], '-r300');
         end
     end
 end
