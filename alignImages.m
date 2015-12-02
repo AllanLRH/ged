@@ -10,8 +10,9 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
         imDiff = imslice-tmp;
 
         figure(3); imagesc(imDiff); title('Initial'); colormap(gray); drawnow;
-        figure(4); imshowpair(imslice, tmp); title('Initial'); colormap(gray); drawnow;
-        print('-dpng', ['camillaFigures/fig_' num2str(0) '.png'], '-r300');
+        cfig = figure(4); imshowpair(imslice, tmp); title('Initial'); colormap(gray); drawnow;
+        saveas(cfig, ['camillaFigures/fig_' num2str(0) '.png'])
+        % print('-dpng', ['camillaFigures/fig_' num2str(0) '.png'], '-r300');
     end
 
     %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
@@ -53,8 +54,9 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
             tmp = interpn(double(histologyImage), r, c, 'linear', NaN);
             imDiff = imslice-tmp;
             figure(3); imagesc(imDiff); title('Cropping'); colormap(gray); drawnow;
-            figure(4); imshowpair(imslice, tmp); title('Cropping'); colormap(gray); drawnow;
-            print('-dpng', ['camillaFigures/fig_' num2str(ii) '_A.png'], '-r300');
+            cfig = figure(4); imshowpair(imslice, tmp); title('Cropping'); colormap(gray); drawnow;
+            saveas(cfig, ['camillaFigures/fig_' num2str(ii) '_A.png'])
+            % print('-dpng', ['camillaFigures/fig_' num2str(ii) '_A.png'], '-r300');
         end
 
         %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
@@ -115,8 +117,9 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
             tmp = interpn(double(histologyImage), r, c, 'linear', NaN);
             imDiff = imslice-tmp;
             figure(3); imagesc(imDiff); title('Slicing'); colormap(gray); drawnow;
-            figure(4); imshowpair(imslice, tmp); title('Slicing'); colormap(gray); drawnow;
-            print('-dpng', ['camillaFigures/fig_' num2str(ii) '_B.png'], '-r300');
+            cfig = figure(4); imshowpair(imslice, tmp); title('Slicing'); colormap(gray); drawnow;
+            saveas(cfig, ['camillaFigures/fig_' num2str(ii) '_B.png'])
+            % print('-dpng', ['camillaFigures/fig_' num2str(ii) '_B.png'], '-r300');
         end
     end
 end
