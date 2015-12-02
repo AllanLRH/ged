@@ -15,6 +15,7 @@ function gedeGui
     implantSegmentation       = [];  % Initial value
     boneSegmentation          = [];  % Initial value
     crop                      = [];  % Initial value
+    cropShadingMask           = [];  % Initial value
     xyzFromAutomatch          = [];  % Initial value
     cropFromAutomatch         = [];  % Initial value
     normalVectorFromAutomatch = [];  % Initial value
@@ -273,14 +274,15 @@ function gedeGui
 
     function setCrop(obj, eventdata)
         [X,Y] = ginput2(2, axisRight);
-        crop = zeros(1, 4);
-        crop(1) = X(1); crop(3) = X(2); crop(2) = Y(1); crop(4) = Y(2);
+        crop(1) = X(1);  crop(2) = Y(1);
+        crop(3) = X(2); crop(4) = Y(2);
         postMessage(sprintf('Current crop is %.2f, %.2f, %.2f, %.2f', crop(1), crop(2), crop(3), crop(4)))
+        [r, c] = ndgrid(1:size(histologyShowImage, 1), 1:size(histologyShowImage, 2));
+        rc = r <= crop(1) | r > crop(3);
+        cc = c <= crop(2) | c > crop(4);
+        cropShadingMask = rc|cc;
         axes(axisRight);
-        hold on
-        plot(crop(1), crop(2), 'ro')
-        plot(crop(3), crop(4), 'ro')
-        hold off
+        shadeArea(cropShadingMask, [0 0 0], 0.4)
     end
 
 
@@ -506,6 +508,9 @@ function gedeGui
             colormap('gray');
             set(axisRight, 'xTick', []);
             set(axisRight, 'yTick', []);
+            if not(isempty(cropShadingMask))
+                shadeArea(cropShadingMask, [0 0 0], 0.4)
+            end
         elseif not(isempty(volUint8))
             imslice = extractSlice(volUint8, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2), planeNormal(3), ...
                 max([size(volUint8, 1), size(volUint8, 2)])/2, zAxisFactor, angles);
@@ -524,6 +529,9 @@ function gedeGui
             colormap('gray');
             set(axisRight, 'xTick', []);
             set(axisRight, 'yTick', []);
+            if not(isempty(cropShadingMask))
+                shadeArea(cropShadingMask, [0 0 0], 0.4)
+            end
             % set(handles.axisSingle, 'xTick', []);
             % set(handles.axisSingle, 'yTick', []);
         end
