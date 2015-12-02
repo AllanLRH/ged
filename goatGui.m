@@ -6,14 +6,19 @@ function gedeGui
     planeNormal_original = [0 0 1];
     planeNormal = [0 0 1];
 
-    % zAxisFactor = 3.74;  % Initial value
-    zAxisFactor = 1.0;  % Initial value
-    volUint8 = [];  % Initial value
-    volDouble = [];  % Initial value
-    datasetIdentifier = '';  %Initial value
-    loadedSegmentation = '';  %Initial value
-    segmentImplant = [];  % Initial value
-    segmentBone = [];  % Initial value
+    % zAxisFactor             = 3.74;  % Initial value
+    zAxisFactor               = 1.0;  % Initial value
+    volUint8                  = [];  % Initial value
+    volDouble                 = [];  % Initial value
+    datasetIdentifier         = '';  % Initial value
+    loadedSegmentation        = '';  % Initial value
+    implantSegmentation       = [];  % Initial value
+    boneSegmentation          = [];  % Initial value
+    crop                      = [];  % Initial value
+    xyzFromAutomatch          = [];  % Initial value
+    cropFromAutomatch         = [];  % Initial value
+    normalVectorFromAutomatch = [];  % Initial value
+    anglesFromAutomatch       = [];  % Initial value
 
     % used for the file log, see the documentation for atomicLogUpdate.m for details
     baseLogName = ['goat_gui_log_' datestr(now,'HH.MM.SS_dd-mm-yyyy')];
@@ -212,6 +217,8 @@ function gedeGui
     function automatch(obj, eventdata)
         if isempty(histologyShowImage) || isempty(volUint8)
             postMessage('Please load a histology image and a CT scan before attempting to automatch.')
+        elseif isempty(crop)
+            postMessage('Please specify crop values using the crop button.')
         else
             [xyz, angles, planeNormal] = getParametersFromSliders;
             postMessage(sprintf('Normal vector components with automatch cootdinates: %.2f, %.2f, %.2f', planeNormal(1), planeNormal(2), planeNormal(3)))
@@ -220,28 +227,49 @@ function gedeGui
             postMessage('Automatching will likely freeze the program for several minutes.')
 
             sigma = 10;
-            crop = [-11.9, 397.6, 92.0, 418.8];
-            % crop = zeros(1, 4);
-            % [X,Y] = ginput(2);
-            % crop(1) = X(1); crop(3) = X(2); crop(2) = Y(1); crop(4) = Y(2)
-            postMessage(sprintf('Current crop is %.2f, %.2f, %.2f, %.2f', crop(1), crop(2), crop(3), crop(4)))
             makeFigures = logical(get(makeFiguresCheckbox, 'Value'));
-            [xyz, crop, normalVector, angles] = alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, makeFigures);
-            postMessage(sprintf('xyz:  %s', num2str(xyz)))
-            postMessage(sprintf('crop:  %s', num2str(crop)))
-            postMessage(sprintf('normalVector:  %s', num2str(normalVector)))
-            postMessage(sprintf('angles:  %s', num2str(angles)))
+            [xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch] = ...
+                alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, makeFigures);
+            postMessage(sprintf('xyz:  %s', num2str(xyzFromAutomatch)))
+            postMessage(sprintf('crop:  %s', num2str(cropFromAutomatch)))
+            postMessage(sprintf('normalVector:  %s', num2str(normalVectorFromAutomatch)))
+            postMessage(sprintf('angles:  %s', num2str(anglesFromAutomatch)))
         end
     end
 
+    matchCavitiesButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Match cavities', 'fontsize', 12, 'position', [275 95 100 50], 'callback', @matchCavities);
+    function matchCavities(obj, eventdata)
+        if isempty(histologyShowImage) || isempty(volUint8)
+            postMessage('Please load a histology image and a CT scan before attempting to automatch.')
+        elseif isempty(xyzFromAutomatch)
+            postMessage('Please run "Automatch" before running the cavity match.')
+        else
+            loadSegmentation;
+            volUint8NaNImplant = volUint8;
+            volUint8NaNImplant(implantSegmentation) = NaN;
+            postMessage(sprintf('Normal vector components with automatch cootdinates: %.2f, %.2f, %.2f', normalVectorFromAutomatch(1),...
+                normalVectorFromAutomatch(2), normalVectorFromAutomatch(3)))
+            postMessage(sprintf('Attepting automatch at theese coordinates: x=%.2f, y=%.2f, z=%.2f, a1=%.2f, a2=%.2f, A3=%.2f',...
+                        xyzFromAutomatch(1), xyzFromAutomatch(2), xyzFromAutomatch(3), anglesFromAutomatch(1), anglesFromAutomatch(2), anglesFromAutomatch(3)));
+            postMessage('Automatching will likely freeze the program for several minutes.')
 
+            postMessage(sprintf('Current crop is %.2f, %.2f, %.2f, %.2f', cropFromAutomatch(1), cropFromAutomatch(2), cropFromAutomatch(3), cropFromAutomatch(4)))
+            makeFigures = logical(get(makeFiguresCheckbox, 'Value'));
+            [xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch] = ...
+            alignImages(volUint8NaNImplant, histologyShowImage, zAxisFactor, sigma, xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch, makeFigures);
+            postMessage(sprintf('xyz:  %s', num2str(xyzFromAutomatch)))
+            postMessage(sprintf('crop:  %s', num2str(cropFromAutomatch)))
+            postMessage(sprintf('normalVector:  %s', num2str(normalVectorFromAutomatch)))
+            postMessage(sprintf('angles:  %s', num2str(anglesFromAutomatch)))
+        end
+    end
 
 
     % % % % % % % % % % % % % % % % % % % % % % % % % % %
     % Set crop button and associated callback function  %
     % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
-    cropHistologyButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Set crop', 'fontsize', 12, 'position', [393 95 100 50], 'callback', @setCrop);
+    cropHistologyButtonHandle = uicontrol('style', 'pushbutton', 'string', 'Set crop', 'fontsize', 12, 'position', [395 95 100 50], 'callback', @setCrop);
 
     function setCrop(obj, eventdata)
         [X,Y] = ginput2(2, axisRight);
@@ -253,10 +281,6 @@ function gedeGui
         plot(crop(1), crop(2), 'ro')
         plot(crop(3), crop(4), 'ro')
         hold off
-        % cropMask = false(size(histologyShowImage));
-        % [X,Y] = ndgrid(1:size(histologyShowImage, 1), 1:size(histologyShowImage, 2));
-        % cropMask(X)
-        % shadeArea()
     end
 
 
@@ -268,12 +292,16 @@ function gedeGui
     function getStats(obj, eventdata)
         postMessage('Getting statistics for current slice')
         loadSegmentation;
+        % STUB
+        % load('smallSegmentations/dm769.mat');  % dstMap
         [xyz, angles, planeNormal] = getParametersFromSliders;
-        impslice = extractSlice(segmentImplant, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
-                    planeNormal(3), max([size(segmentImplant, 1), size(segmentImplant, 2)])/2, zAxisFactor, angles);
-        boneslice = extractSlice(segmentBone, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
-                    planeNormal(3), max([size(segmentBone, 1), size(segmentBone, 2)])/2, zAxisFactor, angles);
+        impslice = extractSlice(double(implantSegmentation), xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
+                    planeNormal(3), max([size(implantSegmentation, 1), size(implantSegmentation, 2)])/2, zAxisFactor, angles);
+        boneslice = extractSlice(double(boneSegmentation), xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
+                    planeNormal(3), max([size(boneSegmentation, 1), size(boneSegmentation, 2)])/2, zAxisFactor, angles);
+
         dstMap = sgnDstFromImg(impslice);
+
         [boneVolume, volume] = boneFractionFunction(boneslice, dstMap, 120);
         csvwrite(sprintf('csvfiles/%s___x_%.2f_y_%.2f_z_%.2f___a1_%.2f_a2_%.2f_a3_%.2f.csv', datasetIdentifier, xyz(1), xyz(2), ...
                           xyz(3), angles(1), angles(2), angles(3)), 'boneVolume', 'volume');
@@ -353,10 +381,10 @@ function gedeGui
             pause(0.01)
             temp = load(['smallSegmentations/' datasetIdentifier '_double.mat']);
             loadedSegmentation = datasetIdentifier;
-            segmentBone = temp.savedBoneMasks;
-            segmentImplant = temp.savedImplantMasks;
+            boneSegmentation = temp.savedBoneMasks;
+            implantSegmentation = temp.savedImplantMasks;
             postMessage(sprintf('Loaded segmentation for the dataset %s with size %d x %d x %d', datasetIdentifier, ...
-                size(segmentBone, 1), size(segmentBone, 2), size(segmentBone, 3)))
+                size(boneSegmentation, 1), size(boneSegmentation, 2), size(boneSegmentation, 3)))
         end
     end
 
