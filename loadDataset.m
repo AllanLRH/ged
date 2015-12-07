@@ -5,14 +5,12 @@
 function out = loadDataset(datafile, slice)
     fileMap = ceil(slice/256);
     fileGroup = getFileGroup(datafile);
-    fileMapUnique = unique(fileMap);
-    out = zeros(2048, 2048, length(slice));
+    out = NaN(2048, 2048, length(slice));
     cnt = 1;
-    for ii = 1:length(fileMapUnique)
-        slicesInThisFile = slice(fileMap==ii) - 256*(ii-1);
-        nSlices = length(slicesInThisFile);
-        out(:, :, cnt:(cnt+nSlices-1)) = loadGed(fileGroup{ii}, slicesInThisFile);
-        cnt = cnt + nSlices;
+    for sl = slice
+        filename = fileGroup{fileMap};
+        out(:, :, cnt) = loadGed(filename, sl-((fileMap-1)*256));
+        cnt = cnt + 1;
     end
 end
 

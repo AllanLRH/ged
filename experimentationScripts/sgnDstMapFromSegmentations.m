@@ -12,7 +12,7 @@ for ii = 1:length(dirnames)
     disp(dirnames{ii})
 end
 
-for ii = 2:length(dirnames)
+for ii = 1:length(dirnames)
     name = dirnames{ii};
     fprintf('Loading segmentation file %s\n\n', name);
 
