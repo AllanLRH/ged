@@ -26,11 +26,11 @@ for fn = 1:length(fileCell)
     im1 = normImage(loadDataset(dataset, 1));
     s = size(im1, 1);  %  square image dimmensions
 
-    % Preallocate mask volumes
-    savedImplantMasks = false(s, s, stackSize);
-    savedBoneMasks = false(s, s, stackSize);
+    % Preallocate mask volumes -- logicals takes up 8 bits anyway, and initalizing to 2 makes error checking easier
+    savedImplantMasks = zeros(s, s, stackSize, 'uint8') + 2;
+    savedBoneMasks = zeros(s, s, stackSize, 'uint8') + 2;
 
-    implantMask  = segmentImplant(im1);
+    implantMask  = segmentImplant(im1, 1);
     savedImplantMasks(:, :, 1) = implantMask;
     interestMask = (circ & ~implantMask);
     bias         = biasCorrect(im1, interestMask);
@@ -97,7 +97,7 @@ for fn = 1:length(fileCell)
             fprintf(fid, msg)
         end
         im2 = normImage(loadDataset('5.05_ID1662_769_0001.vol', ii));
-        implantMask  = segmentImplant(im2);
+        implantMask  = segmentImplant(im2, ii);
         interestMask = (circ & ~implantMask);
         bias         = biasCorrect(im2, interestMask);
         im2          = im2 - bias;

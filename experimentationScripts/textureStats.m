@@ -56,7 +56,7 @@ legend('Light','Dark')
 % load('meanAndStdImages.mat')
 
 load('circ.mat')
-implantMask = segmentImplant(img);
+implantMask = segmentImplant(img, 1);
 interestMask = (circ | implantMask);
 
 stdImg = getVarImage(img, interestMask, 5);
