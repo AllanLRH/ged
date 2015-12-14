@@ -127,3 +127,6 @@ boneCavityFraction.eps
 experimentationScripts/maximize.m
 oldSmallData
 smallSegmentations
+segmentations2
+smallSegmentations2
+experimentationScripts/loadDataset.m
