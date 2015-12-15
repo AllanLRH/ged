@@ -99,20 +99,54 @@ for fn = 2:length(fileCell)
     savedImplantMasks = double(savedImplantMasks);
     save(['segmentations2/' datasetName '_double.mat'], 'savedImplantMasks', 'savedBoneMasks')
 
+    % Create signed distance map
+    try
+        dstMap = sgnDstFromImg(savedImplantMasks);
+        save(['segmentations2/' name(1:end-4) 'sgnDstMap.mat'], 'dstMap')
+    catch
+        exception = getReport(MException.last);
+        errorMessage = sprintf(['Exception thrown in filename %s during signed distance '...
+                                'map operation:\n%s'], fileCell{fn}, exception);
+        warning(errorMessage)
+        fprintf(fid, errorMessage);
+        continue;
+    end
 
     %% Create and save scaled down version of segmentations
-    [lx, ly, lz] = size(savedBoneMasks);
-    [xq, yq, zq] = ndgrid(linspace(1, size(savedBoneMasks, 3), lx/4), ...
-                          linspace(1, size(savedBoneMasks, 3), ly/4), ...
-                          linspace(1, size(savedBoneMasks, 3), lz/4));
-    savedBoneMasks = interpn(savedBoneMasks, xq, yq, zq);
-    savedImplantMasks = interpn(savedImplantMasks, xq, yq, zq);
-    clear('xq', 'yq', 'zq', 'lx', 'ly', 'lz')
-    save(['smallSegmentations2/' datasetName '_double.mat'], 'savedBoneMasks', 'savedImplantMasks')
-    savedBoneMasks    = logical(savedBoneMasks);
-    savedImplantMasks = logical(savedImplantMasks);
-    save(['smallSegmentations2/' datasetName '.mat'], 'savedBoneMasks', 'savedImplantMasks')
-    clear('savedBoneMasks')
-    clear('savedImplantMasks')
+    try
+        [lx, ly, lz] = size(savedBoneMasks);
+        [xq, yq, zq] = ndgrid(linspace(1, size(savedBoneMasks, 3), lx/4), ...
+                              linspace(1, size(savedBoneMasks, 3), ly/4), ...
+                              linspace(1, size(savedBoneMasks, 3), lz/4));
+        savedBoneMasks = interpn(savedBoneMasks, xq, yq, zq);
+        savedImplantMasks = interpn(savedImplantMasks, xq, yq, zq);
+        save(['smallSegmentations2/' datasetName '_double.mat'], 'savedBoneMasks', 'savedImplantMasks')
+        savedBoneMasks    = logical(savedBoneMasks);
+        savedImplantMasks = logical(savedImplantMasks);
+        save(['smallSegmentations2/' datasetName '.mat'], 'savedBoneMasks', 'savedImplantMasks')
+        clear('savedBoneMasks')
+        clear('savedImplantMasks')
+    catch
+        exception = getReport(MException.last);
+        errorMessage = sprintf(['Exception thrown in filename %s during dataset scaling '...
+                                'operation:\n%s'], fileCell{fn}, exception);
+        warning(errorMessage)
+        fprintf(fid, errorMessage);
+        continue;
+    end
 
+    % Scale signed distance map
+    try
+        dstMap = interpn(dstMap, xq, yq, zq);
+        save(['smallSegmentations2/' name(1:end-4) 'sgnDstMap.mat'], 'dstMap')
+        clear('xq', 'yq', 'zq', 'lx', 'ly', 'lz')
+        clear('dstmap')
+    catch
+        exception = getReport(MException.last);
+        errorMessage = sprintf(['Exception thrown in filename %s during signed distance '...
+                                'map scaling operation:\n%s'], fileCell{fn}, exception);
+        warning(errorMessage)
+        fprintf(fid, errorMessage);
+        continue;
+    end
 end
