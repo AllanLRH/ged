@@ -1,8 +1,10 @@
-function msk5 = segmentImplant(im, ii, makeDebugPlots)
+function msk5 = segmentImplant(im, ii, varargin)
 %% segmentImplant: Return a mask covering the implant
 
-    if nargin == 2 && makeDebugPlots ~= true
+    if nargin == 3 && varargin{1} ~= true
         makeDebugPlots = false;
+    else
+        makeDebugPlots = true;
     end
 
     imMed = medfilt2(im, [6 6]);
