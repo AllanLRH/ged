@@ -5,7 +5,7 @@
 function out = loadDataset(datafile, slice)
     fileMap = ceil(slice/256);
     fileGroup = getFileGroup(datafile);
-    out = NaN(2048, 2048, length(slice));
+    out = NaN(2048, 2048, length(slice)); % Defect 20151215: 2048x2048 skal ikke være hardcoded!!!! Lav en fkt som kan finde ud af det fra billedet selv.
     cnt = 1;
     for sl = slice
         filename = fileGroup{fileMap};
