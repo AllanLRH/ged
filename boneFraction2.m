@@ -74,19 +74,23 @@ for fn = 2:length(fileCell)
         msg = 'There are slices in savedBoneMasks which are not segmentet properly!\n';
         warning(msg)
         fprintf(fid, msg);
-        fprintf('The following indices are affected')
-        fprintf(fid, 'The following indices are affected')
-        [i, j, k] = ind2sub(size(savedBoneMasks), find(savedBoneMasks > 1))
+        msg = 'The following indices are affected';
+        fprintf(msg)
+        fprintf(fid, msg)
+        [i, j, k] = ind2sub(size(savedBoneMasks), find(savedBoneMasks > 1));
         msg = sprintf('%d, %d, %d\n', i, j, k);
+        fprintf(fid, msg)
     end
     if any(savedImplantMasks(:)) > 1
         msg = 'There are slices in savedImplantMasks which are not segmentet properly!\n';
         warning(msg)
         fprintf(fid, msg);
-        fprintf('The following indices are affected')
-        fprintf(fid, 'The following indices are affected')
-        [i, j, k] = ind2sub(size(savedImplantMasks), find(savedImplantMasks > 1))
+        msg = 'The following indices are affected';
+        fprintf(msg)
+        fprintf(fid, msg)
+        [i, j, k] = ind2sub(size(savedImplantMasks), find(savedImplantMasks > 1));
         msg = sprintf('%d, %d, %d\n', i, j, k);
+        fprintf(fid, msg)
     end
     datasetName = fileCell{fn};
     datasetName = datasetName(1:end-9);
