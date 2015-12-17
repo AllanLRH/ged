@@ -30,3 +30,5 @@ subplot(2,3,2); imagesc(mask(:,:,128)); title('Mask'); colormap(gray); axis imag
 subplot(2,3,3); imagesc(cavityMask(:,:,128)); title('Cavities'); colormap(gray); axis image tight
 subplot(2,3,4); imagesc(boneMask(:,:,128)); title('Bone'); colormap(gray); axis image tight
 subplot(2,3,5); imagesc(mask(:,:,128).*meanImg(:,:,128).*(~boneMask(:,:,128) & ~cavityMask(:,:,128))); title('Neither'); colormap(gray); axis image tight
+neitherMask = mask(:,:,128) & ~boneMask(:,:,128) & ~cavityMask(:,:,128);
+subplot(2,3,6); hist(meanImg(neitherMask),1000); title('Histogram of neither');
