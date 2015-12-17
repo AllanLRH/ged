@@ -10,3 +10,8 @@ numPixels = cellfun(@numel,CC.PixelIdxList);
 % the implant is everything but what surounds the implant
 mask = true(size(mask));
 mask(CC.PixelIdxList{idx}) = false;
+
+erodeSize = 2;
+[x1,x2,x3] = ndgrid(-ceil(erodeSize):ceil(erodeSize));
+structureElm = strel('arbitrary', x1.^2 + x2.^2 + x3.^2 < erodeSize.^2);
+mask = imopen(mask, structureElm);

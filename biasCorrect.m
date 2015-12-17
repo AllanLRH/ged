@@ -13,22 +13,25 @@ function J = biasCorrect(I,mask)
 %
 %  Example:
 %
-%  % Make a synthetic image I
-%  N = 512;
-%  [r,c] = ndgrid(linspace(0,1,N));
-%  Phi = [ones(numel(r),1), r(:), c(:), r(:).^2, r(:).*c(:), c(:).^2];
-%  a=randn(size(Phi,2),1);
-%  I = reshape(Phi*a,N,N);
-%  % Caclulate the bias field
-%  J = biasCorrect(I,true([N,N]));
-%  % Correct the image for the bias field.  The result should be 0 up to
-%  % numerical precision.
-%  I = I-J;
-%  disp(max(max(abs(I))));
+%    % Make a synthetic matrix I
+%    M = 30;
+%    N = 40;
+%    [r,c] = ndgrid(linspace(0,1,M),linspace(0,1,N));
+%    Phi = [ones(numel(r),1), r(:), c(:), r(:).^2, r(:).*c(:), c(:).^2];
+%    a=randn(size(Phi,2),1);
+%    I = reshape(Phi*a,M,N);
+%    % Caclulate the bias field
+%    J = biasCorrect(I,true([M,N]));
+%    % Correct the image for the bias field.  The result should be 0 up to
+%    % numerical precision.
+%    disp(max(max(abs(I-J))));
+%
+%  Corrected error for non-square matrices. Jon Sporring, December 2015
 %
 %                     Copyright, Jon Sporring, DIKU, October 2014.
 
-[r,c] = ndgrid(linspace(0,1,size(I,2)),linspace(0,1,size(I,1)));
+
+[r,c] = ndgrid(linspace(0,1,size(I,1)),linspace(0,1,size(I,2)));
 Phi = [ones(numel(r),1), r(:), c(:), r(:).^2, r(:).*c(:), c(:).^2];
 
 % Calculations are done on the smaller set specified by mask
