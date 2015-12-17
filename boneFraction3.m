@@ -1,6 +1,7 @@
 filename = '../gedData/smallData/5.05_ID1662_769_v7.3_double.mat';
 aBoneExample = [375,173,128];
 aCavityExample = [315,153,128];
+implantThreshold = 1.5;
 
 halfEdgeSize = 2;
 filterRadius = 2;
@@ -10,7 +11,7 @@ avoidEdgeDistance = 10;
 load(filename);
 
 % Make mask
-implant = segmentImplant3d(newVol);
+implant = segmentImplant3d(newVol, implantThreshold);
 [x1,x2] = ndgrid(1:size(newVol,1),1:size(newVol,2));
 circularRegionOfInterest = (x1-(1+size(newVol,1))/2).^2 + (x2-(1+size(newVol,2))/2).^2 <= (size(newVol,1)/2-1/2-avoidEdgeDistance).^2;
 mask = ~implant & repmat(circularRegionOfInterest,[1,1,size(newVol,3)]);

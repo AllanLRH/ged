@@ -1,8 +1,8 @@
-function mask = segmentImplant3d(im)
+function mask = segmentImplant3d(im, threshold)
 % segmentImplant: Return a mask covering the implant
 
 % We find everything but the implant
-mask = im < 1.5;
+mask = im < threshold;
 % the biggest component is what's surounds the implant
 CC = bwconncomp(mask);
 numPixels = cellfun(@numel,CC.PixelIdxList);
