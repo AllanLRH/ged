@@ -61,28 +61,32 @@ for i = 1:size(bone,2)
     neither(i) = sum(sum(sum(neitherMask & dstMask)));
     cavity(i) = sum(sum(sum(cavityMask & dstMask)));
 end
+distFct = (1:length(bone)-1)+1/2;
+bone = diff(bone)./diff(total);
+cavity = diff(cavity)./diff(total);
+neither = diff(neither)./diff(total);
 
-%{
+
 % Analyze the over and undershooting effects
-boneDst = sgnDstFromImg(~boneMask);
-cavityDst = sgnDstFromImg(~cavityMask);
-bands = 0:8;
+boneDst = sgnDstFromImg(boneMask);
+cavityDst = sgnDstFromImg(cavityMask);
+bands = -8:8;
 sumImgByBandsFromBone = zeros(1,length(bands)-1);
 sumFromBone = zeros(1,length(bands)-1);
 sumImgByBandsFromCavity = zeros(1,length(bands)-1);
 sumFromCavity = zeros(1,length(bands)-1);
-for i = 2:(length(bands)-1); 
-    band = bands(i) < boneDst & boneDst <= bands(i+1); 
+for i = 2:(length(bands)); 
+    band = bands(1) < boneDst & boneDst <= bands(i); 
     sumImgByBandsFromBone(i) = sum(meanImg(band));
     sumFromBone(i) = sum(band(:));
 
-    band = bands(i) < cavityDst & cavityDst <= bands(i+1); 
+    band = bands(1) < cavityDst & cavityDst <= bands(i); 
     sumImgByBandsFromCavity(i) = sum(meanImg(band));
     sumFromCavity(i) = sum(band(:));
 end
-sumImgByBandsFromBone = (sumImgByBandsFromBone-[0,sumImgByBandsFromBone(1:end-1)])./(sumFromBone-[0,sumFromBone(1:end-1)]);
-sumImgByBandsFromCavity = (sumImgByBandsFromCavity-[0,sumImgByBandsFromCavity(1:end-1)])./(sumFromCavity-[0,sumFromCavity(1:end-1)]);
-%}
+sumImgByBandsFromBone = diff(sumImgByBandsFromBone)./diff(sumFromBone);
+sumImgByBandsFromCavity = diff(sumImgByBandsFromCavity)./diff(sumFromCavity);
+bands = bands(2:end)-1/2;
 
 % Show result
 if SHOWRESULT
@@ -98,11 +102,9 @@ if SHOWRESULT
         drawnow;
     end
     figure(2);
-    subplot(1,3,1); plot((bone(2:end)-bone(1:end-1))./(total(2:end)-total(1:end-1))); title('differential bone fraction'); xlabel('distance/voxels'); ylabel('fraction');
-    subplot(1,3,2); plot((cavity(2:end)-cavity(1:end-1))./(total(2:end)-total(1:end-1))); title('differential cavity fraction'); xlabel('distance/voxels'); ylabel('fraction');
-    subplot(1,3,3); plot((neither(2:end)-neither(1:end-1))./(total(2:end)-total(1:end-1))); title('differential neither fraction'); xlabel('distance/voxels'); ylabel('fraction');
-%{
-    subplot(2,3,4); b = linspace(min(bands),max(bands)-1,100); plot(b,interp1(bands(1:end-1),sumImgByBandsFromBone,b,'pchip')); title('Overshooting from Bone'); xlabel('distance/voxels'); ylabel('intensity');
-    subplot(2,3,5); b = linspace(min(bands),max(bands)-1,100); plot(b,interp1(bands(1:end-1),sumImgByBandsFromCavity,b,'pchip')); title('Overshooting from Cavity'); xlabel('distance/voxels'); ylabel('intensity');
-%}
+    subplot(2,3,1); plot(distFct, bone); title('differential bone fraction'); xlabel('distance/voxels'); ylabel('fraction');
+    subplot(2,3,2); plot(distFct, cavity); title('differential cavity fraction'); xlabel('distance/voxels'); ylabel('fraction');
+    subplot(2,3,3); plot(distFct, neither); title('differential neither fraction'); xlabel('distance/voxels'); ylabel('fraction');
+    subplot(2,3,4); b = linspace(min(bands),max(bands),100); plot(b,interp1(bands,sumImgByBandsFromBone,b,'pchip')); title('Overshooting from Bone'); xlabel('distance/voxels'); ylabel('intensity');
+    subplot(2,3,5); b = linspace(min(bands),max(bands),100); plot(b,interp1(bands,sumImgByBandsFromCavity,b,'pchip')); title('Overshooting from Cavity'); xlabel('distance/voxels'); ylabel('intensity');
 end
