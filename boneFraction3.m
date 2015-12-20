@@ -7,14 +7,14 @@ avoidEdgeDistance = 10;
 minSlice = 1;
 maxSlice = 150;
 
-halfEdgeSize = 2;
+halfEdgeSize = 0;
 filterRadius = 2;
 
 maxIter = 3;
 
 maxDistance = 100;
 
-SHOWRESULT = false;
+SHOWRESULT = true;
 
 % loads newVol
 load(filename);
@@ -37,18 +37,16 @@ for i = 1:maxIter
     [boneMask, cavityMask] = getSegments3d(meanImg, mask, thresholdAfterBiasCorrection, halfEdgeSize);
 end
 
-% Look for a giant cavity, that will be regions outside the jaw, and we
-% remove it from cavityMask and mask.
-CC = bwconncomp(cavityMask);
-numPixels = cellfun(@numel,CC.PixelIdxList);
-[val,idx] = max(numPixels);
-if val > 100000
-    mask(CC.PixelIdxList{idx}) = false;
-    cavityMask(CC.PixelIdxList{idx}) = false;
-end
-
 % Doubtful volumes
 neitherMask = mask & ~boneMask & ~cavityMask;
+%{
+if any(neitherMask(:))
+    neitherThreshold = mean(newVol(neitherMask));
+    boneMask(neitherMask & (meanImg > neitherThreshold)) = true;
+    cavityMask(neitherMask & (meanImg <= neitherThreshold)) = true;
+    %      neitherMask = false(size(mask));
+end
+%}
 
 % Count the volume of bone, cavity and neither by distance from implant
 dstMap = sgnDstFromImg(implant);
@@ -57,12 +55,34 @@ cavity = zeros(size(bone));
 neither = zeros(size(bone));
 total = zeros(size(bone));
 for i = 1:size(bone,2)
-    dstMask = (dstMap > 0 & dstMap <= i);
+    dstMask = (dstMap > 0 & dstMap <= i) & x3RegionOfInterest;
     total(i) = sum(sum(sum(mask & dstMask)));
     bone(i) = sum(sum(sum(boneMask & dstMask)));
     neither(i) = sum(sum(sum(neitherMask & dstMask)));
     cavity(i) = sum(sum(sum(cavityMask & dstMask)));
 end
+
+%{
+% Analyze the over and undershooting effects
+boneDst = sgnDstFromImg(~boneMask);
+cavityDst = sgnDstFromImg(~cavityMask);
+bands = 0:8;
+sumImgByBandsFromBone = zeros(1,length(bands)-1);
+sumFromBone = zeros(1,length(bands)-1);
+sumImgByBandsFromCavity = zeros(1,length(bands)-1);
+sumFromCavity = zeros(1,length(bands)-1);
+for i = 2:(length(bands)-1); 
+    band = bands(i) < boneDst & boneDst <= bands(i+1); 
+    sumImgByBandsFromBone(i) = sum(meanImg(band));
+    sumFromBone(i) = sum(band(:));
+
+    band = bands(i) < cavityDst & cavityDst <= bands(i+1); 
+    sumImgByBandsFromCavity(i) = sum(meanImg(band));
+    sumFromCavity(i) = sum(band(:));
+end
+sumImgByBandsFromBone = (sumImgByBandsFromBone-[0,sumImgByBandsFromBone(1:end-1)])./(sumFromBone-[0,sumFromBone(1:end-1)]);
+sumImgByBandsFromCavity = (sumImgByBandsFromCavity-[0,sumImgByBandsFromCavity(1:end-1)])./(sumFromCavity-[0,sumFromCavity(1:end-1)]);
+%}
 
 % Show result
 if SHOWRESULT
@@ -81,4 +101,8 @@ if SHOWRESULT
     subplot(1,3,1); plot((bone(2:end)-bone(1:end-1))./(total(2:end)-total(1:end-1))); title('differential bone fraction'); xlabel('distance/voxels'); ylabel('fraction');
     subplot(1,3,2); plot((cavity(2:end)-cavity(1:end-1))./(total(2:end)-total(1:end-1))); title('differential cavity fraction'); xlabel('distance/voxels'); ylabel('fraction');
     subplot(1,3,3); plot((neither(2:end)-neither(1:end-1))./(total(2:end)-total(1:end-1))); title('differential neither fraction'); xlabel('distance/voxels'); ylabel('fraction');
+%{
+    subplot(2,3,4); b = linspace(min(bands),max(bands)-1,100); plot(b,interp1(bands(1:end-1),sumImgByBandsFromBone,b,'pchip')); title('Overshooting from Bone'); xlabel('distance/voxels'); ylabel('intensity');
+    subplot(2,3,5); b = linspace(min(bands),max(bands)-1,100); plot(b,interp1(bands(1:end-1),sumImgByBandsFromCavity,b,'pchip')); title('Overshooting from Cavity'); xlabel('distance/voxels'); ylabel('intensity');
+%}
 end
