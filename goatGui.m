@@ -12,6 +12,8 @@ function gedeGui
     volDouble                 = [];  % Initial value
     datasetIdentifier         = '';  % Initial value
     loadedSegmentation        = '';  % Initial value
+    loadedSgnDstMap           = '';  % Initial value
+    sgnDstMap                 = [];  % Initial value
     implantSegmentation       = [];  % Initial value
     boneSegmentation          = [];  % Initial value
     crop                      = [];  % Initial value
@@ -247,7 +249,7 @@ function gedeGui
         else
             loadSegmentation;
             volUint8NaNImplant = volUint8;
-            volUint8NaNImplant(implantSegmentation) = NaN;
+            volUint8NaNImplant(implantsegmentation) = NaN;
             postMessage(sprintf('Normal vector components with automatch cootdinates: %.2f, %.2f, %.2f', normalVectorFromAutomatch(1),...
                 normalVectorFromAutomatch(2), normalVectorFromAutomatch(3)))
             postMessage(sprintf('Attepting automatch at theese coordinates: x=%.2f, y=%.2f, z=%.2f, a1=%.2f, a2=%.2f, A3=%.2f',...
@@ -294,16 +296,13 @@ function gedeGui
     function getStats(obj, eventdata)
         postMessage('Getting statistics for current slice')
         loadSegmentation;
-        % STUB
-        % load('smallSegmentations/dm769.mat');  % dstMap
+        loadSgnDstMap;
         [xyz, angles, planeNormal] = getParametersFromSliders;
-        impslice = extractSlice(double(implantSegmentation), xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
-                    planeNormal(3), max([size(implantSegmentation, 1), size(implantSegmentation, 2)])/2, zAxisFactor, angles);
+        % NOTE: midpoints and 512^2 vs 513^2 area sizes are potential soruces of errors!
+        dstMap = extractSlice(sgnDstMap, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
+                    planeNormal(3), max([size(sgnDstMap, 1), size(sgnDstMap, 2)])/2, zAxisFactor, angles);
         boneslice = extractSlice(double(boneSegmentation), xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
                     planeNormal(3), max([size(boneSegmentation, 1), size(boneSegmentation, 2)])/2, zAxisFactor, angles);
-
-        dstMap = sgnDstFromImg(impslice);
-
         [boneVolume, volume] = boneFractionFunction(boneslice, dstMap, 120);
         csvwrite(sprintf('csvfiles/%s___x_%.2f_y_%.2f_z_%.2f___a1_%.2f_a2_%.2f_a3_%.2f.csv', datasetIdentifier, xyz(1), xyz(2), ...
                           xyz(3), angles(1), angles(2), angles(3)), 'boneVolume', 'volume');
@@ -387,6 +386,20 @@ function gedeGui
             implantSegmentation = temp.savedImplantMasks;
             postMessage(sprintf('Loaded segmentation for the dataset %s with size %d x %d x %d', datasetIdentifier, ...
                 size(boneSegmentation, 1), size(boneSegmentation, 2), size(boneSegmentation, 3)))
+        end
+    end
+
+    function loadSgnDstMap
+        if strcmp(loadedSgnDstMap, datasetIdentifier)
+            postMessage(sprintf('Signed distance map for %s allreaddy loaded, reusing data', datasetIdentifier))
+        else
+            postMessage(sprintf('Loading the signed distance map for %s, please be patient, this will take quite a while', datasetIdentifier))
+            pause(0.01)
+            temp = load(['smallSegmentations/' datasetIdentifier '_doublesgnDstMap.mat']);
+            loadedSgnDstMap = datasetIdentifier;
+            sgnDstMap = temp.dstMap;
+            postMessage(sprintf('Loaded signed distance map for the dataset %s with size %d x %d x %d', datasetIdentifier, ...
+                size(sgnDstMap, 1), size(sgnDstMap, 2), size(sgnDstMap, 3)))
         end
     end
 
