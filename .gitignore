@@ -130,3 +130,4 @@ smallSegmentations
 segmentations2
 smallSegmentations2
 experimentationScripts/loadDataset.m
+*.mat
