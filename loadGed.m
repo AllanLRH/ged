@@ -5,9 +5,14 @@ function imageData = loadGed(imageName, varargin)
 %   Optional argument 2 is data formatting string
 
 % Extract arguments
+fileInfo = parseVolInfo(imageName);
 idx = 1;
 if ~isempty(varargin) && isnumeric(varargin{1})
     idx = varargin{1};
+    if any(idx > fileInfo.NUM_Z)
+        pos = find(idx > fileInfo.NUM_Z);
+        error('Can''t load slice %d from file %s', pos, imageName)
+    end
 end
 
 formatString = 'float=>double';
@@ -21,17 +26,17 @@ end
 
 % Open image and preallocate
 fid = fopen(imageName, 'r');
-if fid < 1
+if fid < 3
     error(['File did not load correctly! ' imageName])
 end
-dims = [2048 2048];
-imageData = zeros([2048 2048 length(idx)]);
+dims = [fileInfo.NUM_X, fileInfo.NUM_Y length(idx)];
+imageData = zeros(dims);
 
 % Load image
 cnt = 1;
 for i = idx
-    fseek(fid, 4*(prod(dims))*(i-1), 'bof');
-    imageData(:, :, cnt) = reshape(fread(fid, prod(dims), formatString), dims);
+    fseek(fid, 4*(prod(dims(1:2)))*(i-1), 'bof');
+    imageData(:, :, cnt) = reshape(fread(fid, prod(dims(1:2)), formatString), dims(1:2));
     cnt = cnt + 1;
 end
 

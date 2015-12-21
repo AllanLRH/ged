@@ -12,7 +12,10 @@ function gedeGui
     volDouble                 = [];  % Initial value
     datasetIdentifier         = '';  % Initial value
     loadedSegmentation        = '';  % Initial value
+    loadedSgnDstMap           = '';  % Initial value
+    sgnDstMap                 = [];  % Initial value
     implantSegmentation       = [];  % Initial value
+    weightMask                = [];  % Initial value;
     boneSegmentation          = [];  % Initial value
     crop                      = [];  % Initial value
     cropShadingMask           = [];  % Initial value
@@ -229,8 +232,13 @@ function gedeGui
 
             sigma = 10;
             makeFigures = logical(get(makeFiguresCheckbox, 'Value'));
+            if logical(get(weightMaskCheckbox, 'Value'))
+                useMask = weightMask;
+            else
+                useMask = ones(size(volUint8, 1)+1, size(volUint8, 2)+1);
+            end
             [xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch] = ...
-                alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, makeFigures);
+                alignImages(volUint8, histologyShowImage, useMask, zAxisFactor, sigma, xyz, crop, planeNormal, angles, makeFigures);
             postMessage(sprintf('xyz:  %s', num2str(xyzFromAutomatch)))
             postMessage(sprintf('crop:  %s', num2str(cropFromAutomatch)))
             postMessage(sprintf('normalVector:  %s', num2str(normalVectorFromAutomatch)))
@@ -256,13 +264,31 @@ function gedeGui
 
             postMessage(sprintf('Current crop is %.2f, %.2f, %.2f, %.2f', cropFromAutomatch(1), cropFromAutomatch(2), cropFromAutomatch(3), cropFromAutomatch(4)))
             makeFigures = logical(get(makeFiguresCheckbox, 'Value'));
+            if logical(get(weightMaskCheckbox, 'Value'))
+                useMask = weightMask;
+            else
+                useMask = ones(size(volUint8, 1)+1, size(volUint8, 2)+1);
+            end
             [xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch] = ...
-            alignImages(volUint8NaNImplant, histologyShowImage, zAxisFactor, sigma, xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch, makeFigures);
+            alignImages(volUint8NaNImplant, histologyShowImage, useMask, zAxisFactor, sigma, xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch, makeFigures);;
             postMessage(sprintf('xyz:  %s', num2str(xyzFromAutomatch)))
             postMessage(sprintf('crop:  %s', num2str(cropFromAutomatch)))
             postMessage(sprintf('normalVector:  %s', num2str(normalVectorFromAutomatch)))
             postMessage(sprintf('angles:  %s', num2str(anglesFromAutomatch)))
         end
+    end
+
+
+    weightMaskCheckboxText = uicontrol('style', 'text', 'string', 'Sigma for Gaussian', 'fontsize', 12, 'backgroundColor', backgroundColor, 'position', [710 85 100 50], 'callback', @makeWeightMask);
+    weightMaskSigma        = uicontrol('style', 'edit', 'string', '0', 'fontsize', 12, 'backgroundColor', 'white', 'position', [655 105 65 30]);
+    weightMaskCheckbox     = uicontrol('style', 'checkbox', 'value', 0, 'position', [630 115 15 15]);
+    function makeWeightMask(obj, eventdata)
+        sigma = str2double(get(weightMaskSigma, 'string'));
+        postMessage(sprintf('Creating weightMask using sigma = %.3f', sigma));
+        if isempty(implantSegmentation)
+            loadSegmentation;
+        end
+        weightMask = imgaussfilt3(double(~implantSegmentation), sigma);;
     end
 
 
@@ -294,16 +320,13 @@ function gedeGui
     function getStats(obj, eventdata)
         postMessage('Getting statistics for current slice')
         loadSegmentation;
-        % STUB
-        % load('smallSegmentations/dm769.mat');  % dstMap
+        loadSgnDstMap;
         [xyz, angles, planeNormal] = getParametersFromSliders;
-        impslice = extractSlice(double(implantSegmentation), xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
-                    planeNormal(3), max([size(implantSegmentation, 1), size(implantSegmentation, 2)])/2, zAxisFactor, angles);
+        % NOTE: midpoints and 512^2 vs 513^2 area sizes are potential soruces of errors!
+        dstMap = extractSlice(sgnDstMap, xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
+                    planeNormal(3), max([size(sgnDstMap, 1), size(sgnDstMap, 2)])/2, zAxisFactor, angles);
         boneslice = extractSlice(double(boneSegmentation), xyz(1), xyz(2), xyz(3), planeNormal(1), planeNormal(2),...
                     planeNormal(3), max([size(boneSegmentation, 1), size(boneSegmentation, 2)])/2, zAxisFactor, angles);
-
-        dstMap = sgnDstFromImg(impslice);
-
         [boneVolume, volume] = boneFractionFunction(boneslice, dstMap, 120);
         csvwrite(sprintf('csvfiles/%s___x_%.2f_y_%.2f_z_%.2f___a1_%.2f_a2_%.2f_a3_%.2f.csv', datasetIdentifier, xyz(1), xyz(2), ...
                           xyz(3), angles(1), angles(2), angles(3)), 'boneVolume', 'volume');
@@ -369,6 +392,7 @@ function gedeGui
             % volDouble = load(['smallData/' datasetIdentifier '_v7.3_double.mat']);
             % volDouble = volDouble.newVol;
             % postMessage(sprintf('Loaded double precision version of dataset %s', datasetIdentifier))
+            weightMask = ones([size(volUint8, 1)+1, size(volUint8, 2)+1]);  % +1 because the extractSlice function adds 1 pixel in each dimmension;
             postMessage(sprintf('Loaded scaled version of the dataset %s with size %d x %d x %d', datasetIdentifier, size(volUint8, 1), size(volUint8, 2), size(volUint8, 3)))
             updateView
         end
@@ -387,6 +411,20 @@ function gedeGui
             implantSegmentation = temp.savedImplantMasks;
             postMessage(sprintf('Loaded segmentation for the dataset %s with size %d x %d x %d', datasetIdentifier, ...
                 size(boneSegmentation, 1), size(boneSegmentation, 2), size(boneSegmentation, 3)))
+        end
+    end
+
+    function loadSgnDstMap
+        if strcmp(loadedSgnDstMap, datasetIdentifier)
+            postMessage(sprintf('Signed distance map for %s allreaddy loaded, reusing data', datasetIdentifier))
+        else
+            postMessage(sprintf('Loading the signed distance map for %s, please be patient, this will take quite a while', datasetIdentifier))
+            pause(0.01)
+            temp = load(['smallSegmentations/' datasetIdentifier '_doublesgnDstMap.mat']);
+            loadedSgnDstMap = datasetIdentifier;
+            sgnDstMap = temp.dstMap;
+            postMessage(sprintf('Loaded signed distance map for the dataset %s with size %d x %d x %d', datasetIdentifier, ...
+                size(sgnDstMap, 1), size(sgnDstMap, 2), size(sgnDstMap, 3)))
         end
     end
 
@@ -540,7 +578,7 @@ function gedeGui
             if (optimizeMe)
                 sigma = 10;
                 crop = [-11.9, 397.6, 92.0, 418.8];
-                alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, false);
+                alignImages(volUint8, histologyShowImage, weightMask, zAxisFactor, sigma, xyz, crop, planeNormal, angles, false);;
                 figure(1);
             end
         end
