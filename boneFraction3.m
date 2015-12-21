@@ -1,28 +1,31 @@
-inPath = '../gedData/smallData/';
-outPath = '../gedData/smallData/';
-avoidEdgeDistance = 10;
-minSlice = 1;
-maxSlice = 150;
-halfEdgeSize = 0;
-filterRadius = 2;
-maxIter = 3;
-maxDistance = 100;
-SHOWRESULT = true;
-SAVERESULT = true;
-
-p = {'5.05_ID1662_769_v7.3_double', [375,173,128], [315,153,128], [301,204,128], [1, 164, 196, 150]; ...
-    '5.05_ID1662_770_v7.3_double', [365,286,128], [384,316,128], [333,285,128], [17, 164, 196, 229]; ...
-    '5.05_ID1662_771_v7.3_double', [171,294,128], [184,362,128], [318,201,128], [17, 164, 196, 229]; ...
-    '5.05_ID1662_772_v7.3_double', [298,130,128], [416,294,128], [328,262,128], [17, 164, 196, 229]; ...
-    '5.05_ID1662_773_v7.3_double', [224,387,128], [193,392,128], [319,237,128], [17, 164, 196, 229]; ...
-    '5.05_ID1684_806_v7.3_double', [375,173,128], [315,153,128], [301,204,128], [17, 164, 196, 229]; ...
-    '5.05_ID1684_809_v7.3_double', [375,173,128], [315,153,128], [301,204,128], [17, 164, 196, 229]; ...
-    '5.05_ID1689_805_v7.3_double', [375,173,128], [315,153,128], [301,204,128], [17, 164, 196, 229]; ...
-    '5.05_ID1689_807_v7.3_double', [375,173,128], [315,153,128], [301,204,128], [17, 164, 196, 229]; ...
-    '5.05_ID1689_808_v7.3_double', [375,173,128], [315,153,128], [301,204,128], [17, 164, 196, 229]};
+load ('../gedData/smallData/annotations.mat'); % load p
 
 %for i = 1:length(p)
-i = 5;
-    analyse3d([inPath,p{i,1},'.mat'], p{i,1}, p{i,1}, p{i,1}, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, [outPath,p{i,1}]);
+i = 7;
+inputFilename = p{i,1};
+aBoneExample = p{i,2};
+aCavityExample = p{i,3};
+anImplantExample = p{i,4};
+avoidEdgeDistance = p{i,5};
+minSlice = p{i,6};
+maxSlice = p{i,7};
+halfEdgeSize = p{i,8};
+filterRadius = p{i,9};
+maxIter = p{i,10};
+maxDistance = p{i,11};
+SHOWRESULT = p{i,12};
+SAVERESULT = p{i,13};
+outputFilename = p{i,14};
+origo = p{i,15};
+R = p{i,16};
+marks = p{i,17};
+analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilename);
 
 %end
+
+%{
+p{i,6}=100
+p{i,7}=200
+outPath = '../gedData/smallData/';
+save([outPath,'annotations.mat'],'p');
+%}
