@@ -26,7 +26,7 @@ segmentationInitPath = 'firstImageInStack';
 segmentationPath = 'segmentations2';
 segmentationSmallPath = 'smallSegmentations2';
 %%
-for fn = 2:length(fileCell)
+for fn = 1:length(fileCell)
     msg = sprintf('%sProcessing dataset containing file %s\n', timeRightNow(), fileCell{fn});
     fprintf(msg);
     fprintf(fid, msg);
