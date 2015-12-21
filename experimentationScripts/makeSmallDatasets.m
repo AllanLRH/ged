@@ -19,7 +19,7 @@ for ii = 1:length(fileGroups)
     [x1q, x2q, x3q] = ndgrid(linspace(1, size(vol, 1), size(vol, 1)/scaleFactor), linspace(1, size(vol, 2), size(vol, 2)/scaleFactor), linspace(1, size(vol, 3), size(vol, 3)/scaleFactor));
     newVol = interpn(vol, x1q, x2q, x3q);
 
-    save(['../halfSizeData/' name(9:end-9) '_v7.3_double.mat'], 'newVol', '-v7.3');
+    save(['../halfSizeData/' fname(9:end-9) '_v7.3_double.mat'], 'newVol', '-v7.3');
     newVol = uint8(256*newVol);
-    save(['../halfSizeData/' name(9:end-9) '_v7.3_uint8.mat'], 'newVol', '-v7.3');
+    save(['../halfSizeData/' fname(9:end-9) '_v7.3_uint8.mat'], 'newVol', '-v7.3');
 end
