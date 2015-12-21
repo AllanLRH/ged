@@ -1,7 +1,8 @@
-inputFilename = '../gedData/smallData/5.05_ID1662_769_v7.3_double.mat';
-aBoneExample = [375,173,128]; % voxels
-aCavityExample = [315,153,128]; % voxels
-anImplantExample = [301,204,128]; % voxels
+% filename = '../gedData/smallData/5.05_ID1662_769_v7.3_double.mat';
+filename = 'data/5.05_ID1662_769_0001.vol';
+aBoneExample = [375,173,128];
+aCavityExample = [315,153,128];
+implantThreshold = 1.5;
 
 avoidEdgeDistance = 10; % voxels
 minSlice = 1; % voxels
@@ -26,7 +27,12 @@ end
 n = 0;
 
 % loads newVol
-load(inputFilename);
+% load(filename);
+fileGroup = getFileGroup(filename);
+fileGroupInfo = cellfun(@parseVolInfo, fileGroup);
+maxSlice = sum(cell2mat({fileGroupInfo.NUM_Z}));
+newVol = loadDataset(filename, 1:maxSlice);
+size(newVol)
 
 % Make mask
 implantThreshold = (newVol(anImplantExample(1),anImplantExample(2),anImplantExample(3))+newVol(aBoneExample(1),aBoneExample(2),aBoneExample(3)))/2;
@@ -92,12 +98,12 @@ sumImgByBandsFromBone = zeros(1,length(bands)-1);
 sumFromBone = zeros(1,length(bands)-1);
 sumImgByBandsFromCavity = zeros(1,length(bands)-1);
 sumFromCavity = zeros(1,length(bands)-1);
-for i = 2:(length(bands)); 
-    band = bands(1) < boneDst & boneDst <= bands(i); 
+for i = 2:(length(bands));
+    band = bands(1) < boneDst & boneDst <= bands(i);
     sumImgByBandsFromBone(i) = sum(meanImg(band));
     sumFromBone(i) = sum(band(:));
 
-    band = bands(1) < cavityDst & cavityDst <= bands(i); 
+    band = bands(1) < cavityDst & cavityDst <= bands(i);
     sumImgByBandsFromCavity(i) = sum(meanImg(band));
     sumFromCavity(i) = sum(band(:));
 end
@@ -124,7 +130,7 @@ if SHOWRESULT
         subplot(2,3,6); hist(meanImg(neitherMask(:,:,showSlice)),1000); title('Histogram of neither');
         drawnow;
     end
-    
+
     n=n+1; figure(n);
     subplot(2,3,1); plot(distFct, bone); title('differential bone fraction'); xlabel('distance/voxels'); ylabel('fraction');
     subplot(2,3,2); plot(distFct, cavity); title('differential cavity fraction'); xlabel('distance/voxels'); ylabel('fraction');

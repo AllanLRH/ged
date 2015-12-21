@@ -15,6 +15,7 @@ function gedeGui
     loadedSgnDstMap           = '';  % Initial value
     sgnDstMap                 = [];  % Initial value
     implantSegmentation       = [];  % Initial value
+    weightMask                = [];  % Initial value;
     boneSegmentation          = [];  % Initial value
     crop                      = [];  % Initial value
     cropShadingMask           = [];  % Initial value
@@ -231,8 +232,13 @@ function gedeGui
 
             sigma = 10;
             makeFigures = logical(get(makeFiguresCheckbox, 'Value'));
+            if logical(get(weightMaskCheckbox, 'Value'))
+                useMask = weightMask;
+            else
+                useMask = ones(size(volUint8, 1)+1, size(volUint8, 2)+1);
+            end
             [xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch] = ...
-                alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, makeFigures);
+                alignImages(volUint8, histologyShowImage, useMask, zAxisFactor, sigma, xyz, crop, planeNormal, angles, makeFigures);
             postMessage(sprintf('xyz:  %s', num2str(xyzFromAutomatch)))
             postMessage(sprintf('crop:  %s', num2str(cropFromAutomatch)))
             postMessage(sprintf('normalVector:  %s', num2str(normalVectorFromAutomatch)))
@@ -249,7 +255,7 @@ function gedeGui
         else
             loadSegmentation;
             volUint8NaNImplant = volUint8;
-            volUint8NaNImplant(implantsegmentation) = NaN;
+            volUint8NaNImplant(implantSegmentation) = NaN;
             postMessage(sprintf('Normal vector components with automatch cootdinates: %.2f, %.2f, %.2f', normalVectorFromAutomatch(1),...
                 normalVectorFromAutomatch(2), normalVectorFromAutomatch(3)))
             postMessage(sprintf('Attepting automatch at theese coordinates: x=%.2f, y=%.2f, z=%.2f, a1=%.2f, a2=%.2f, A3=%.2f',...
@@ -258,13 +264,31 @@ function gedeGui
 
             postMessage(sprintf('Current crop is %.2f, %.2f, %.2f, %.2f', cropFromAutomatch(1), cropFromAutomatch(2), cropFromAutomatch(3), cropFromAutomatch(4)))
             makeFigures = logical(get(makeFiguresCheckbox, 'Value'));
+            if logical(get(weightMaskCheckbox, 'Value'))
+                useMask = weightMask;
+            else
+                useMask = ones(size(volUint8, 1)+1, size(volUint8, 2)+1);
+            end
             [xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch] = ...
-            alignImages(volUint8NaNImplant, histologyShowImage, zAxisFactor, sigma, xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch, makeFigures);
+            alignImages(volUint8NaNImplant, histologyShowImage, useMask, zAxisFactor, sigma, xyzFromAutomatch, cropFromAutomatch, normalVectorFromAutomatch, anglesFromAutomatch, makeFigures);;
             postMessage(sprintf('xyz:  %s', num2str(xyzFromAutomatch)))
             postMessage(sprintf('crop:  %s', num2str(cropFromAutomatch)))
             postMessage(sprintf('normalVector:  %s', num2str(normalVectorFromAutomatch)))
             postMessage(sprintf('angles:  %s', num2str(anglesFromAutomatch)))
         end
+    end
+
+
+    weightMaskCheckboxText = uicontrol('style', 'text', 'string', 'Sigma for Gaussian', 'fontsize', 12, 'backgroundColor', backgroundColor, 'position', [710 85 100 50], 'callback', @makeWeightMask);
+    weightMaskSigma        = uicontrol('style', 'edit', 'string', '0', 'fontsize', 12, 'backgroundColor', 'white', 'position', [655 105 65 30]);
+    weightMaskCheckbox     = uicontrol('style', 'checkbox', 'value', 0, 'position', [630 115 15 15]);
+    function makeWeightMask(obj, eventdata)
+        sigma = str2double(get(weightMaskSigma, 'string'));
+        postMessage(sprintf('Creating weightMask using sigma = %.3f', sigma));
+        if isempty(implantSegmentation)
+            loadSegmentation;
+        end
+        weightMask = imgaussfilt3(double(~implantSegmentation), sigma);;
     end
 
 
@@ -368,6 +392,7 @@ function gedeGui
             % volDouble = load(['smallData/' datasetIdentifier '_v7.3_double.mat']);
             % volDouble = volDouble.newVol;
             % postMessage(sprintf('Loaded double precision version of dataset %s', datasetIdentifier))
+            weightMask = ones([size(volUint8, 1)+1, size(volUint8, 2)+1]);  % +1 because the extractSlice function adds 1 pixel in each dimmension;
             postMessage(sprintf('Loaded scaled version of the dataset %s with size %d x %d x %d', datasetIdentifier, size(volUint8, 1), size(volUint8, 2), size(volUint8, 3)))
             updateView
         end
@@ -553,7 +578,7 @@ function gedeGui
             if (optimizeMe)
                 sigma = 10;
                 crop = [-11.9, 397.6, 92.0, 418.8];
-                alignImages(volUint8, histologyShowImage, zAxisFactor, sigma, xyz, crop, planeNormal, angles, false);
+                alignImages(volUint8, histologyShowImage, weightMask, zAxisFactor, sigma, xyz, crop, planeNormal, angles, false);;
                 figure(1);
             end
         end

@@ -1,4 +1,4 @@
-function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, sigma, x, crop, n, angles, makeFigures)
+function [x, crop, n, angles] = alignImages(vol, histologyImage, weightMask, zAxisFactor, sigma, x, crop, n, angles, makeFigures)
     % sigma = 10;
     % crop = [-11.8688, 397.5750, 91.9780, 418.7880];
 
@@ -26,21 +26,21 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
         %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
         imsliceSmoothed = -imgaussfilt(normImage(imslice), sigma);
         d = 1000;  % Step size for minimization function
-        v = imDifference(imsliceSmoothed, histologyImage, sigma, crop)
+        v = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, crop)
         for jj = 1:100  % This is the cropping part
             % Gradient components
             dv = [];
-            dv(1) = imDifference(imsliceSmoothed, histologyImage, sigma, crop+[1, 0, 0, 0]) - v;
-            dv(2) = imDifference(imsliceSmoothed, histologyImage, sigma, crop+[0, 1, 0, 0]) - v;
-            dv(3) = imDifference(imsliceSmoothed, histologyImage, sigma, crop+[0, 0, 1, 0]) - v;
-            dv(4) = imDifference(imsliceSmoothed, histologyImage, sigma, crop+[0, 0, 0, 1]) - v;
+            dv(1) = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, crop+[1, 0, 0, 0]) - v;
+            dv(2) = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, crop+[0, 1, 0, 0]) - v;
+            dv(3) = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, crop+[0, 0, 1, 0]) - v;
+            dv(4) = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, crop+[0, 0, 0, 1]) - v;
 
             cropTest = crop - d*dv;
-            vTest = imDifference(imsliceSmoothed, histologyImage, sigma, cropTest);
+            vTest = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, cropTest);
             while (vTest > v) && (d > 0.0000001)
                 d = d/10;
                 cropTest = crop-d*dv;
-                vTest = imDifference(imsliceSmoothed, histologyImage, sigma, cropTest);
+                vTest = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, cropTest);
             end
             if vTest < v
                 crop = cropTest;
@@ -65,7 +65,7 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
         d = 10;
         % The current value of v is that which correspond to the current
         % value of crop, so we don't need to recalculate v.
-        %    v = imDifference(imsliceSmoothed, histologyImage, sigma, crop)
+        %    v = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, crop)
 
         for jj = 1:100
             % plane normal vector ORIGO adjustments
@@ -88,7 +88,7 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
 
             imslice = extractSlice(vol, xTest(1), xTest(2), xTest(3), nTest(1), nTest(2), nTest(3), max([size(vol, 1), size(vol, 2)])/2, zAxisFactor, aTest);
             imsliceSmoothed = -imgaussfilt(normImage(imslice), sigma);
-            vTest = imDifference(imsliceSmoothed, histologyImage, sigma, crop);
+            vTest = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, crop);
             while (vTest > v) && (d > 0.0000001)
                 d = d/10;
 
@@ -97,7 +97,7 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
                 aTest = angles - d*[0, 0, v7];
                 imslice = extractSlice(vol, xTest(1), xTest(2), xTest(3), nTest(1), nTest(2), nTest(3), max([size(vol, 1), size(vol, 2)])/2, zAxisFactor, aTest);
                 imsliceSmoothed = -imgaussfilt(normImage(imslice), sigma);
-                vTest = imDifference(imsliceSmoothed, histologyImage, sigma, crop);
+                vTest = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, crop);
             end
             if(vTest < v)
 
@@ -110,7 +110,7 @@ function [x, crop, n, angles] = alignImages(vol, histologyImage, zAxisFactor, si
             end
         end
 
-        %param = fminunc(@(p) imDifference(imsliceSmoothed, histologyImage, sigma, p), param);
+        %param = fminunc(@(p) imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, p), param);
         imslice = extractSlice(vol, x(1), x(2), x(3), n(1), n(2), n(3), max([size(vol, 1), size(vol, 2)])/2, zAxisFactor, angles);
         if (makeFigures)
             [r, c]=ndgrid(linspace(crop(1), crop(2), size(imslice, 1)), linspace(crop(3), crop(4), size(imslice, 2)));
@@ -127,5 +127,5 @@ end
 function dv = dImDifference(v, vol, histologyImage, crop, sigma, x, n, zAxisFactor, angles)
     imslice = extractSlice(vol, x(1), x(2), x(3), n(1), n(2), n(3), max([size(vol, 1), size(vol, 2)])/2, zAxisFactor, angles);
     imsliceSmoothed = -imgaussfilt(normImage(imslice), sigma);
-    dv = imDifference(imsliceSmoothed, histologyImage, sigma, crop) - v;
+    dv = imDifference(imsliceSmoothed, histologyImage, weightMask, sigma, crop) - v;
 end
