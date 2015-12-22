@@ -21,10 +21,6 @@ end
 % Make mask
 implantThreshold = (newVol(anImplantExample(1),anImplantExample(2),anImplantExample(3))+newVol(aBoneExample(1),aBoneExample(2),aBoneExample(3)))/2;
 implant = segmentImplant3d(newVol, implantThreshold);
-%minSlice = 1; % initially we'll only look at the middle slices
-%maxSlice = 150;
-%minSlice = 150; % initially we'll only look at the middle slices
-%maxSlice = 220;
 circularRegionOfInterest = circularRegionOfInterst3d(newVol, avoidEdgeDistance);
 x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
 mask = ~implant & circularRegionOfInterest;
