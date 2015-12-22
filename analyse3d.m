@@ -1,4 +1,4 @@
-function analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilenamePrefix)
+function analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilenamePrefix)
 
 if SAVERESULT
     save([outputFilenamePrefix,'params.mat'],'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
@@ -23,15 +23,15 @@ implantThreshold = (newVol(anImplantExample(1),anImplantExample(2),anImplantExam
 implant = segmentImplant3d(newVol, implantThreshold);
 %minSlice = 1; % initially we'll only look at the middle slices
 %maxSlice = 150;
-minSlice = 150; % initially we'll only look at the middle slices
-maxSlice = 220;
+%minSlice = 150; % initially we'll only look at the middle slices
+%maxSlice = 220;
 circularRegionOfInterest = circularRegionOfInterst3d(newVol, avoidEdgeDistance);
 x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
 mask = ~implant & circularRegionOfInterest;
 if SAVERESULT
     save([outputFilenamePrefix,'masks.mat'],'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
 end
-if SHOWRESULT
+if false %SHOWRESULT
     n=n+1; figure(n); clf;
     isosurface(implant,0.5); title('Implant segment'); xlabel('x'); ylabel('y'); zlabel('z'); axis equal tight
     drawnow;
@@ -39,6 +39,21 @@ end
 
 % We bias correct on bone, but first we need to find the bone, so we
 % iterate a couple of times
+%{
+boneMask = false(size(mask));
+n=n+1; figure(n); clf;
+for i = [50,100,150,200]
+    imagesc(newVol(:,:,i).*mask(:,:,i)); title('Saggital slice'); colormap(gray); axis image tight;
+    hold on; 
+    for j = 1:5
+        x = ginput(1);
+        plot(x(1),x(2),'g+');
+        boneMask(round(x(2)),round(x(1)),i) = true;
+    end
+     hold off
+end
+[newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(1, boneMask, newVol, mask, filterRadius, aBoneExample, aCavityExample, halfEdgeSize);
+%}
 boneMask = mask & x3RegionOfInterest;
 [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample, aCavityExample, halfEdgeSize);
 

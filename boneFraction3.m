@@ -1,7 +1,7 @@
 load ('../gedData/smallData/annotations.mat'); % load p
 
 %for i = 1:length(p)
-i = 7;
+i = 10;
 inputFilename = p{i,1};
 aBoneExample = p{i,2};
 aCavityExample = p{i,3};
@@ -19,13 +19,13 @@ outputFilename = p{i,14};
 origo = p{i,15};
 R = p{i,16};
 marks = p{i,17};
-analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilename);
+analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilename);
 
 %end
 
 %{
-p{i,6}=100
-p{i,7}=200
+p{i,6}=150
+p{i,7}=250
 outPath = '../gedData/smallData/';
 save([outPath,'annotations.mat'],'p');
 %}
