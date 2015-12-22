@@ -1,4 +1,4 @@
-load ('../gedData/smallData/annotations.mat'); % load p
+load ('annotations.mat'); % load p
 
 for i = 1:length(p)
     inputFilename = p{i,1};
@@ -12,14 +12,13 @@ for i = 1:length(p)
     filterRadius = p{i,9};
     maxIter = p{i,10};
     maxDistance = p{i,11};
-    SHOWRESULT = p{i,12};
-    SAVERESULT = p{i,13};
+    SHOWRESULT = false;
+    SAVERESULT = true;
     outputFilename = p{i,14};
     origo = p{i,15};
     R = p{i,16};
     marks = p{i,17};
     analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilename);
-    
 end
 
 %{
