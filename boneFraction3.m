@@ -1,6 +1,6 @@
 load ('annotations.mat'); % load p
 
-for i = 1:length(p)
+for i = 1:size(p,1)
     inputFilename = p{i,1};
     aBoneExample = p{i,2};
     aCavityExample = p{i,3};

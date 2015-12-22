@@ -129,6 +129,8 @@ if SHOWRESULT
         bone = fractions{i}{3};
         cavity = fractions{i}{4};
         neither = fractions{i}{5};
+        distances = fractions{i}{6};
+
         
         m0 = (i-1)*length(fractions);
         subplot(length(fractions),3,m0+1); plot(distances, bone); title(sprintf('Bone fraction %d:%d',i,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
