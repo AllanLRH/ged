@@ -1,4 +1,4 @@
-function J = biasCorrect3d(I,mask)
+function J = biasCorrect3d(I, mask, degree)
 %BIASCORRECT Calculate the quadratic bias field on I(mask)
 %
 %  J = biasCorrect3d(I,mask)
@@ -29,25 +29,35 @@ function J = biasCorrect3d(I,mask)
 %
 %                     Copyright, Jon Sporring, DIKU, December 2015.
 
-[x1,x2,x3] = ndgrid(linspace(0,1,size(I,1)),linspace(0,1,size(I,2)),linspace(0,1,size(I,3)));
+[x1,x2,x3] = ndgrid(linspace(-1,1,size(I,1)),linspace(-1,1,size(I,2)),linspace(-1,1,size(I,3)));
 
 % Calculations are done on the smaller set specified by mask
-ind = find(mask ~= 0);
-N = floor(min(sum(mask(:)),max(0.1*numel(ind),10000)));
-ind = ind(randi(length(ind),[N,1]));
-Phi = [ones(numel(ind),1), x1(ind), x2(ind), x3(ind), x1(ind).^2, x1(ind).*x2(ind), x1(ind).*x3(ind), x2(ind).^2, x2(ind).*x3(ind), x3(ind).^2];
+ind = find(mask);
+N = floor(min(sum(mask(:)),max(0.01*numel(ind),10000)));
+ind = ind(randperm(length(ind),N));
+Phi = [ones(numel(ind),1)];
+if degree > 0
+    Phi = [Phi, x1(ind), x2(ind), x3(ind)];
+end
+if degree > 1
+    Phi = [Phi, x1(ind).^2, x1(ind).*x2(ind), x1(ind).*x3(ind), x2(ind).^2, x2(ind).*x3(ind), x3(ind).^2];
+end
 a = (Phi'*Phi)\(Phi'*I(ind));
 
 % The result is returned on the full image.
 J = a(1)*ones(size(I));
-J = J+a(2)*x1;
-J = J+a(3)*x2;
-J = J+a(4)*x3;
-J = J+a(5)*x1.^2;
-J = J+a(6)*x1.*x2;
-J = J+a(7)*x1.*x3;
-J = J+a(8)*x2.^2;
-J = J+a(9)*x2.*x3;
-J = J+a(10)*x3.^2;
+if degree > 0
+    J = J+a(2)*x1;
+    J = J+a(3)*x2;
+    J = J+a(4)*x3;
+end
+if degree > 1
+    J = J+a(5)*x1.^2;
+    J = J+a(6)*x1.*x2;
+    J = J+a(7)*x1.*x3;
+    J = J+a(8)*x2.^2;
+    J = J+a(9)*x2.*x3;
+    J = J+a(10)*x3.^2;
+end
 %J = reshape(Phi*a,size(I,1),size(I,2),size(I,3));
-disp(max(abs(a)));
+disp([max(abs(a)),a']);
