@@ -1,3 +1,4 @@
+
 function imageData = loadGed(imageName, varargin)
 %LOADGED Loads image
 %   imageName is the data file
@@ -26,7 +27,7 @@ end
 
 % Open image and preallocate
 fid = fopen(imageName, 'r');
-if fid < 3
+if fid == -1
     error(['File did not load correctly! ' imageName])
 end
 dims = [fileInfo.NUM_X, fileInfo.NUM_Y length(idx)];
