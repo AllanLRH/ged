@@ -1,6 +1,9 @@
-set(0,'DefaultAxesFontSize',18)
-linewidth=3;
-set(0,'defaultlinelinewidth',linewidth)
+FONTSIZE = 18;
+MARKERSIZE = 15;
+LINEWIDTH=3;
+
+set(0,'DefaultAxesFontSize',FONTSIZE)
+set(0,'defaultlinelinewidth',LINEWIDTH)
 set(0,'DefaultLineMarkerSize',15)
 
 printPrefixName = '../tex/figures/';
@@ -28,7 +31,7 @@ for j = 1:size(p,1)
     R = p{j,16};
     marks = p{j,17};
     %    analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilename);
-
+    
     [pathstr, filename, ext] = fileparts(inputFilename);
     
     load(inputFilename);
@@ -48,22 +51,39 @@ for j = 1:size(p,1)
     isosurface(implant,0.5); xlabel('x/voxels'); ylabel('y/voxels'); zlabel('z/voxels'); axis equal tight
     export_fig(sprintf('%s%s_%s.png',printPrefixName,filename,'implant'),'-m2');
     
+    xMax = round(size(newVol)/2);
+    x1 = 0;
+    x2 = -(xMax(2)-1):xMax(2);
+    x3 = -(xMax(3)-1):xMax(3);
+    textDir = sign(dot(marks(end,:)-marks(1,:),[0,0,1]));
+    slice = squeeze(sample3d(newVol,origo,R,x1,x2,x3));
+    imagesc(slice); colormap(gray); axis image; axis image tight; xlabel('x/voxels'); ylabel('y/voxels');
+    hold on;
+    for i = 1:size(marks,1)
+        plot(marks(i,3)*ones(i,2),[1,size(slice,1)],'r-');
+        if (i < size(marks,1))
+            text(marks(i,3)+textDir*1.5*FONTSIZE/2,1,sprintf('Zone %d ',i),'HorizontalAlignment','right','FontSize',FONTSIZE,'Color','r','Rotation',90)
+        end
+    end
+    hold off
+    export_fig(sprintf('%s%s_%s.pdf',printPrefixName,filename,'zones'));
+    
     load([outputFilenamePrefix,'segments.mat']);%,'meanImg','boneMask','cavityMask','neitherMask');
     for i = slices
         clf; set(gcf,'color',[1,1,1]);
         showSlice = i;
         imagesc(meanImg(:,:,showSlice)); colormap(gray); axis image tight; xlabel('x/voxels'); ylabel('y/voxels');
-        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'bias_corrected_slice',showSlice)); 
+        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'bias_corrected_slice',showSlice));
         imagesc(mask(:,:,showSlice)); colormap(gray); axis image tight; xlabel('x/voxels'); ylabel('y/voxels');
-        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'mask_slice',showSlice)); 
+        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'mask_slice',showSlice));
         imagesc(cavityMask(:,:,showSlice)); colormap(gray); axis image tight; xlabel('x/voxels'); ylabel('y/voxels');
-        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'cavities_slice',showSlice)); 
+        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'cavities_slice',showSlice));
         imagesc(boneMask(:,:,showSlice)); colormap(gray); axis image tight; xlabel('x/voxels'); ylabel('y/voxels');
-        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'bone_slice',showSlice)); 
+        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'bone_slice',showSlice));
         imagesc(neitherMask(:,:,showSlice).*meanImg(:,:,showSlice)); colormap(gray); axis image tight; xlabel('x/voxels'); ylabel('y/voxels');
-        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'neither_slice',showSlice)); 
+        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'neither_slice',showSlice));
         hist(meanImg(neitherMask(:,:,showSlice)),1000); axis tight; xlabel('x/voxels'); ylabel('y/voxels');
-        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'neither_histogram_slice',showSlice)); 
+        export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'neither_histogram_slice',showSlice));
     end
     
     load([outputFilenamePrefix,'edgeEffect.mat']);%,'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
@@ -82,7 +102,7 @@ for j = 1:size(p,1)
         cavity = fractions{i}{4};
         neither = fractions{i}{5};
         distances = fractions{i}{6};
-       
+        
         plot(distances, bone); xlabel('distance/voxels'); ylabel('fraction');
         export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'bone_fraction',i));
         plot(distances, cavity); xlabel('distance/voxels'); ylabel('fraction');
