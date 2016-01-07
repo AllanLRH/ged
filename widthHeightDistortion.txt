@@ -1,0 +1,18 @@
+Histology 669
+------------------------
+h = 701 + 697 = 1398
+w = 318 + 312 = 630
+
+rh = w/h = 1398/630 = 2.219047619047619
+
+CT 669 side slice
+------------------------
+h = 261.68/2 + 263.68/2 = 262.68
+w = (56.27 + 57.89 + 58.13 + 63.26)/2 = 117.77
+
+rx = w/h = 262.68/117.77 = 2.2304491806062665
+
+rh/rx = 2.2190/2.2304= 0.9949
+
+
+Note that the implant wasn't aligned aling the z-axis (vertical) in the CT, and only by eye in the histology image. The CT seemd quite well aligned by default.
