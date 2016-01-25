@@ -1,4 +1,7 @@
-load ('annotations.mat'); % load p
+inPath = '';
+
+load([inPath,'annotations.mat']); % load p
+%load ('annotations.mat'); % load p
 
 for i = 1:size(p,1)
     inputFilename = p{i,1};
@@ -18,6 +21,7 @@ for i = 1:size(p,1)
     origo = p{i,15};
     R = p{i,16};
     marks = p{i,17};
+    disp(inputFilename);
     analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilename);
 end
 
