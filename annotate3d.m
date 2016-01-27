@@ -1,5 +1,5 @@
 inPath = '../gedData/smallData/';
-outPath = '../gedData/smallData/';
+outPath = '';
 avoidEdgeDistance = 10;
 minSlice = 1;
 maxSlice = 150;
