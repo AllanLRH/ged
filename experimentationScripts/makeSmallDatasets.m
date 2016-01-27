@@ -4,7 +4,13 @@ volDir = fullfile('..', 'volfloat');
 dirCell = dir(fullfile(volDir, '*0001.vol'));
 nameCell = {dirCell.name}; % Cell with all *001.vol files
 fileGroups = cellfun(@getFileGroup, fullfile(volDir, nameCell), 'uniformOutput', false);
-scaleFactorMat = [2 4];
+
+halfSizeStruct.factor = 2;
+halfSizeStruct.savePath = fullfile('..', 'halfSizeData');
+quarterSizeStruct.factor = 4;
+quarterSizeStruct.savePath = fullfile('..', 'smallData');
+scaleCell = {halfSizeStruct, quarterSizeStruct};
+
 pathSep = strtrim(fullfile(' ', ' '));  % '/' on Unix, '\' on Windows
 
 for ii = 1:length(fileGroups)
@@ -19,18 +25,18 @@ for ii = 1:length(fileGroups)
     % Example: nameIdPart of "volfloat/5.05_ID1662_769_pag0001.vol" is "5.05_ID1662_769_pag".
     nameIdPart = regexpi(fname(10:end), pathSep, 'split'); nameIdPart = nameIdPart{end};
     nameIdPart = regexpi(nameIdPart, '([\d.]+_)?ID\d+_\d+_[a-zA-Z]*', 'match');
-    for sf = scaleFactorMat
-        fprintf('\tScaling dataset with scale factor %d\n', sf)
-        [x1q, x2q, x3q] = ndgrid(linspace(1, size(vol, 1), size(vol, 1)/sf), ...
-                                 linspace(1, size(vol, 2), size(vol, 2)/sf), ...
-                                 linspace(1, size(vol, 3), size(vol, 3)/sf));
+    nameIdPart = nameIdPart{1};
+    for sf = 1:length(scaleCell)
+        scaleStruct = scaleCell{sf};
+        fprintf('\tScaling dataset with scale factor %d\n', scaleStruct.factor)
+        [x1q, x2q, x3q] = ndgrid(linspace(1, size(vol, 1), size(vol, 1)/scaleStruct.factor), ...
+                                 linspace(1, size(vol, 2), size(vol, 2)/scaleStruct.factor), ...
+                                 linspace(1, size(vol, 3), size(vol, 3)/scaleStruct.factor));
         newVol = interpn(vol, x1q, x2q, x3q);
         fprintf('\tSaving dataset\n')
-        if sf == 4
-            save(char(fullfile('..', 'smallData', [nameIdPart '_v7.3_double.mat'])), 'newVol', '-v7.3');
-        elseif sf == 2
-            save(char(fullfile('..', 'halfSizeData', [nameIdPart '_v7.3_double.mat'])), 'newVol', '-v7.3');
-        end
+        save(char(fullfile(scaleStruct.savePath, [nameIdPart '_v7.3_double.mat'])), 'newVol', '-v7.3');
+        clear('newVol', 'x1q', 'x2q', 'x3q')
     end  % for scaleFactor
+    clear('vol')
     toc
 end
