@@ -15,8 +15,8 @@ pathSep = strtrim(fullfile(' ', ' '));  % '/' on Unix, '\' on Windows
 
 for ii = 1:length(fileGroups)
     tic;
-    fprintf('\nProcessing dataset %d of %d\n', ii, length(fileGroups))
     group = fileGroups{ii};
+    fprintf('\nProcessing dataset %d of %d\nDataset name:\t%s\n', ii, length(fileGroups), group{1})
     groupInfo = cellfun(@parseVolInfo, group);
     numZ = sum(cell2mat({groupInfo.NUM_Z}));  % Number of slices in dataset
     fname = group{1};
