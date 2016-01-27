@@ -24,9 +24,9 @@ for ii = 1:length(fileGroups)
                                  linspace(1, size(vol, 3), size(vol, 3)/sf));
         newVol = interpn(vol, x1q, x2q, x3q);
         if sf == 4
-            save(fullfile('..', 'smallData', nameIdPart, '_v7.3_double.mat'), 'newVol', '-v7.3');
+            save(char(fullfile('..', 'smallData', nameIdPart, '_v7.3_double.mat')), 'newVol', '-v7.3');
         elseif sf == 2
-            save(fullfile('..', 'halfSizeData', nameIdPart, '_v7.3_double.mat'), 'newVol', '-v7.3');
+            save(char(fullfile('..', 'halfSizeData', nameIdPart, '_v7.3_double.mat')), 'newVol', '-v7.3');
         end
     end  % for scaleFactor
     toc
