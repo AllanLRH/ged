@@ -1,8 +1,7 @@
 clear; home; close all;
 
 volDir = fullfile('..', 'volfloat');
-DirCell = dir(fullfile(volDir, '*0001.vol'));
-bytesMat = cell2mat({dirCell.bytes});
+dirCell = dir(fullfile(volDir, '*0001.vol'));
 nameCell = {dirCell.name}; % Cell with all *001.vol files
 fileGroups = cellfun(@getFileGroup, fullfile(volDir, nameCell), 'uniformOutput', false);
 scaleFactorMat = [2 4];
