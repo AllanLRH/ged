@@ -1,34 +1,38 @@
 load ('annotations.mat'); % load p
-halfSizedDataPaht = 'halfSizeData';
+halfSizedDataPath = 'halfSizeData';
 pathseperator = '/';
 
-for i = 2:size(p,1)
-    inputFilename     = p{i,1};
+for itr = 1:size(p,1)
+    pItr = scaleBoneFractionParameters({p{itr, :}}, 2.0);
+    inputFilename     = pItr{1};
     [~, fn, fe]       = fileparts(inputFilename);
-    inputFilename     = [halfSizedDataPaht pathseperator fn fe];
-    aBoneExample      = p{i,2};
-    aCavityExample    = p{i,3};
-    anImplantExample  = p{i,4};
-    avoidEdgeDistance = p{i,5};
-    minSlice          = p{i,6};
-    maxSlice          = p{i,7};
-    halfEdgeSize      = p{i,8};
-    filterRadius      = p{i,9};
-    maxIter           = p{i,10};
-    maxDistance       = p{i,11};
+    inputFilename     = [halfSizedDataPath pathseperator fn fe];
+    aBoneExample      = pItr{2};
+    aCavityExample    = pItr{3};
+    anImplantExample  = pItr{4};
+    avoidEdgeDistance = pItr{5};
+    minSlice          = pItr{6};
+    maxSlice          = pItr{7};
+    halfEdgeSize      = pItr{8};
+    filterRadius      = pItr{9};
+    maxIter           = p{itr,10};
+    maxDistance       = pItr{11};
     SHOWRESULT        = false;
     SAVERESULT        = true;
-    % outputFilename    = p{i,14};
-    outputFilename    = [halfSizedDataPaht pathseperator fn '_'];
-    origo             = p{i,15};
-    R                 = p{i,16};
-    marks             = p{i,17};
-    analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilename);
+    % outputFilename    = p{itr,14};
+    outputFilename    = [halfSizedDataPath pathseperator fn '_'];
+    origo             = pItr{15};
+    R                 = pitr{16};
+    marks             = pItr{17};
+    analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, ...
+              avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, ...
+              filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, ...
+              origo, R, marks, outputFilename);
 end
 
 %{
-p{i,6}=150
-p{i,7}=250
+p{itr,6}=150
+p{itr,7}=250
 outPath = '../gedData/smallData/';
 save([outPath,'annotations.mat'],'p');
 %}
