@@ -1,25 +1,34 @@
 clear; home; close all;
 
-fileGroups = {{'../data/5.05_ID1662_769_0001.vol', '../data/5.05_ID1662_769_0002.vol', '../data/5.05_ID1662_769_0003.vol', '../data/5.05_ID1662_769_0004.vol'}, {'../data/5.05_ID1662_770_0001.vol', '../data/5.05_ID1662_770_0002.vol', '../data/5.05_ID1662_770_0003.vol', '../data/5.05_ID1662_770_0004.vol'}, {'../data/5.05_ID1662_771_0001.vol', '../data/5.05_ID1662_771_0002.vol', '../data/5.05_ID1662_771_0003.vol', '../data/5.05_ID1662_771_0004.vol'}, {'../data/5.05_ID1662_772_0001.vol', '../data/5.05_ID1662_772_0002.vol', '../data/5.05_ID1662_772_0003.vol', '../data/5.05_ID1662_772_0004.vol'}, {'../data/5.05_ID1662_773_0001.vol', '../data/5.05_ID1662_773_0002.vol', '../data/5.05_ID1662_773_0003.vol', '../data/5.05_ID1662_773_0004.vol'}, {'../data/5.05_ID1684_806_0001.vol', '../data/5.05_ID1684_806_0002.vol', '../data/5.05_ID1684_806_0003.vol', '../data/5.05_ID1684_806_0004.vol'}, {'../data/5.05_ID1684_809_0001.vol', '../data/5.05_ID1684_809_0002.vol', '../data/5.05_ID1684_809_0003.vol', '../data/5.05_ID1684_809_0004.vol'}, {'../data/5.05_ID1689_805_0001.vol', '../data/5.05_ID1689_805_0002.vol', '../data/5.05_ID1689_805_0003.vol', '../data/5.05_ID1689_805_0004.vol'}, {'../data/5.05_ID1689_807_0001.vol', '../data/5.05_ID1689_807_0002.vol', '../data/5.05_ID1689_807_0003.vol', '../data/5.05_ID1689_807_0004.vol'}, {'../data/5.05_ID1689_808_0001.vol', '../data/5.05_ID1689_808_0002.vol', '../data/5.05_ID1689_808_0003.vol', '../data/5.05_ID1689_808_0004.vol'}};
-scaleFactor = 2;
+volDir = fullfile('..', 'volfloat');
+DirCell = dir(fullfile(volDir, '*0001.vol'));
+bytesMat = cell2mat({dirCell.bytes});
+nameCell = {dirCell.name}; % Cell with all *001.vol files
+fileGroups = cellfun(@getFileGroup, fullfile(volDir, nameCell), 'uniformOutput', false);
+scaleFactorMat = [2 4];
+pathSep = strtrim(fullfile(' ', ' '));  % '/' on Unix, '\' on Windows
 
 for ii = 1:length(fileGroups)
-    fprintf('\nii: %d\n', ii)
+    tic;
+    fprintf('\nProcessing dataset %d of %d\n', ii, length(fileGroups))
     group = fileGroups{ii};
-    endData = parseVolInfo(group{end});
-    numZ = endData.NUM_Z;
-    % vol = NaN*ones(2048, 2048, 256*3+numZ);
     groupInfo = cellfun(@parseVolInfo, group);
-    numZ = sum(cell2mat({groupInfo.NUM_Z}));
+    numZ = sum(cell2mat({groupInfo.NUM_Z}));  % Number of slices in dataset
     fname = group{1};
-    vol = loadDataset(fname, 1:numZ);
-    if any(isnan(vol))
-        error('vol contains %d NaNs\n', sum(isnan(vol(:))))
-    end
-    [x1q, x2q, x3q] = ndgrid(linspace(1, size(vol, 1), size(vol, 1)/scaleFactor), linspace(1, size(vol, 2), size(vol, 2)/scaleFactor), linspace(1, size(vol, 3), size(vol, 3)/scaleFactor));
-    newVol = interpn(vol, x1q, x2q, x3q);
-
-    save(['../halfSizeData/' fname(9:end-9) '_v7.3_double.mat'], 'newVol', '-v7.3');
-    newVol = uint8(256*newVol);
-    save(['../halfSizeData/' fname(9:end-9) '_v7.3_uint8.mat'], 'newVol', '-v7.3');
+    vol = loadDataset(fullfile(volDir, fname), 1:numZ);
+    % Example: nameIdPart of "volfloat/5.05_ID1662_769_pag0001.vol" is "5.05_ID1662_769_pag".
+    nameIdPart = regexpi(fn(10:end), pathSep, 'split'); nameIdPart = nameIdPart{end};
+    nameIdPart = regexpi(nameIdPart, '([\d.]+_)?ID\d+_\d+_[a-zA-Z]*', 'match');
+    for sf = scaleFactorMat
+        [x1q, x2q, x3q] = ndgrid(linspace(1, size(vol, 1), size(vol, 1)/sf), ...
+                                 linspace(1, size(vol, 2), size(vol, 2)/sf), ...
+                                 linspace(1, size(vol, 3), size(vol, 3)/sf));
+        newVol = interpn(vol, x1q, x2q, x3q);
+        if sf == 4
+            save(fullfile('..', 'smallData', nameIdPart, '_v7.3_double.mat'), 'newVol', '-v7.3');
+        elseif sf == 2
+            save(fullfile('..', 'halfSizeData', nameIdPart, '_v7.3_double.mat'), 'newVol', '-v7.3');
+        end
+    end  % for scaleFactor
+    toc
 end
