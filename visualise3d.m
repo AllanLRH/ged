@@ -6,38 +6,47 @@ set(0,'DefaultAxesFontSize',FONTSIZE)
 set(0,'defaultlinelinewidth',LINEWIDTH)
 set(0,'DefaultLineMarkerSize',15)
 
-printPrefixName = '../tex/figures/';
+% printPrefixName = '../tex/figures/';
+pathseperator = '/';
+printPrefixName = ['figExport' pathseperator];
 N = 3;
+scale = 2;
 
 load ('annotations.mat'); % load p
-for j = 1:size(p,1)
+% for j = 1:size(p,1)
+for j = 1
     n = 0;
-    
-    inputFilename = p{j,1};
-    aBoneExample = p{j,2};
-    aCavityExample = p{j,3};
-    anImplantExample = p{j,4};
-    avoidEdgeDistance = p{j,5};
-    minSlice = p{j,6};
-    maxSlice = p{j,7};
-    halfEdgeSize = p{j,8};
-    filterRadius = p{j,9};
-    maxIter = p{j,10};
-    maxDistance = p{j,11};
+    pJ = scaleBoneFractionParameters({p{j,:}}, scale);
+    inputFilename     = pJ{1};
+    [~, fn, fe]       = fileparts(inputFilename);
+    % inputFilename     = ['halfSizeData_error' pathseperator fn fe];
+    inputFilename     = ['halfSizeData_error' printPrefixName '5.05_ID1662_769_v7.3_uint8.mat'];
+    aBoneExample      = pJ{2};
+    aCavityExample    = pJ{3};
+    anImplantExample  = pJ{4};
+    avoidEdgeDistance = pJ{5};
+    minSlice          = pJ{6};
+    maxSlice          = pJ{7};
+    halfEdgeSize      = pJ{8};
+    filterRadius      = pJ{9};
+    maxIter           = pJ{10};
+    maxDistance       = pJ{11};
+
     SHOWRESULT = false;
     SAVERESULT = true;
-    outputFilenamePrefix = p{j,14};
-    origo = p{j,15};
-    R = p{j,16};
-    marks = p{j,17};
+    % outputFilenamePrefix = pJ{14};
+    outputFilenamePrefix = 'halfSizeData_error/5.05_ID1662_769_v7.3_double_';
+    origo = pJ{15};
+    R = pJ{16};
+    marks = pJ{17};
     %    analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilename);
-    
+
     [pathstr, filename, ext] = fileparts(inputFilename);
-    
+
     load(inputFilename);
     slices = round(linspace(1,size(newVol,3),N+2));
     slices = slices(2:end-1);
-    
+
     load([outputFilenamePrefix,'params.mat']);%'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
     for i = slices
         clf; set(gcf,'color',[1,1,1]);
@@ -45,12 +54,12 @@ for j = 1:size(p,1)
         imagesc(newVol(:,:,showSlice)); colormap(gray); axis image tight; xlabel('x/voxels'); ylabel('y/voxels');
         export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'original_slice',showSlice));
     end
-    
+
     load([outputFilenamePrefix,'masks.mat']);%,'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
     clf; set(gcf,'color',[1,1,1]);
     isosurface(implant,0.5); xlabel('x/voxels'); ylabel('y/voxels'); zlabel('z/voxels'); axis equal tight
     export_fig(sprintf('%s%s_%s.png',printPrefixName,filename,'implant'),'-m2');
-    
+
     xMax = round(size(newVol)/2);
     x1 = 0;
     x2 = -(xMax(2)-1):xMax(2);
@@ -67,7 +76,7 @@ for j = 1:size(p,1)
     end
     hold off
     export_fig(sprintf('%s%s_%s.pdf',printPrefixName,filename,'zones'));
-    
+
     load([outputFilenamePrefix,'segments.mat']);%,'meanImg','boneMask','cavityMask','neitherMask');
     for i = slices
         clf; set(gcf,'color',[1,1,1]);
@@ -85,14 +94,14 @@ for j = 1:size(p,1)
         hist(meanImg(neitherMask(:,:,showSlice)),1000); axis tight; xlabel('x/voxels'); ylabel('y/voxels');
         export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'neither_histogram_slice',showSlice));
     end
-    
+
     load([outputFilenamePrefix,'edgeEffect.mat']);%,'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
     clf; set(gcf,'color',[1,1,1]);
     b = linspace(min(bands),max(bands),100); plot(b,interp1(bands,sumImgByBandsFromBone,b,'pchip')); axis tight; xlabel('distance/voxels'); ylabel('intensity');
     export_fig(sprintf('%s%s_%s.pdf',printPrefixName,filename,'edge_effect_bone'));
     b = linspace(min(bands),max(bands),100); plot(b,interp1(bands,sumImgByBandsFromCavity,b,'pchip')); axis tight; xlabel('distance/voxels'); ylabel('intensity');
     export_fig(sprintf('%s%s_%s.pdf',printPrefixName,filename,'edge_effect_cavity'));
-    
+
     load([outputFilenamePrefix,'fractions.mat']);%,'fractions');
     for i = 1:size(fractions,1)
         clf; set(gcf,'color',[1,1,1]);
@@ -102,7 +111,7 @@ for j = 1:size(p,1)
         cavity = fractions{i}{4};
         neither = fractions{i}{5};
         distances = fractions{i}{6};
-        
+
         plot(distances, bone); xlabel('distance/voxels'); ylabel('fraction');
         export_fig(sprintf('%s%s_%s_%d.pdf',printPrefixName,filename,'bone_fraction',i));
         plot(distances, cavity); xlabel('distance/voxels'); ylabel('fraction');
