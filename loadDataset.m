@@ -21,6 +21,10 @@ function out = loadDataset(datafile, slice)
         out(:, :, cnt) = loadGed(filename, sl);
         cnt = cnt + 1;
     end
+    if any(isnan(out(:)))
+        error('out contains %d NaNs\n', sum(isnan(out(:))))
+    end
+
 end
 
 
