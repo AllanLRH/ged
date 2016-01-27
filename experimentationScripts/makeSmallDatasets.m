@@ -16,7 +16,7 @@ for ii = 1:length(fileGroups)
     fname = group{1};
     vol = loadDataset(fullfile(volDir, fname), 1:numZ);
     % Example: nameIdPart of "volfloat/5.05_ID1662_769_pag0001.vol" is "5.05_ID1662_769_pag".
-    nameIdPart = regexpi(fn(10:end), pathSep, 'split'); nameIdPart = nameIdPart{end};
+    nameIdPart = regexpi(fname(10:end), pathSep, 'split'); nameIdPart = nameIdPart{end};
     nameIdPart = regexpi(nameIdPart, '([\d.]+_)?ID\d+_\d+_[a-zA-Z]*', 'match');
     for sf = scaleFactorMat
         [x1q, x2q, x3q] = ndgrid(linspace(1, size(vol, 1), size(vol, 1)/sf), ...
