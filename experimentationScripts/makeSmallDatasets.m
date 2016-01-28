@@ -23,8 +23,8 @@ for ii = 1:length(fileGroups)
     fprintf('\tLoading dataset\n')
     vol = loadDataset(fullfile(volDir, fname), 1:numZ);
     % Example: nameIdPart of "volfloat/5.05_ID1662_769_pag0001.vol" is "5.05_ID1662_769_pag".
-    nameIdPart = regexpi(fname(10:end), pathSep, 'split'); nameIdPart = nameIdPart{end};
-    nameIdPart = regexpi(nameIdPart, '([\d.]+_)?ID\d+_\d+_[a-zA-Z]*', 'match');
+    nameIdPart = regexpi(fname, pathSep, 'split'); nameIdPart = nameIdPart{end};
+    nameIdPart = regexpi(nameIdPart, '([\d.]+_)?ID\d+_[\da-zA-Z]+_[a-zA-Z]*', 'match');
     nameIdPart = nameIdPart{1};
     for sf = 1:length(scaleCell)
         scaleStruct = scaleCell{sf};
