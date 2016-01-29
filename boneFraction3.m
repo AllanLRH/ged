@@ -2,27 +2,15 @@ inPath = '';
 
 load([inPath,'annotations.mat']); % load p
 %load ('annotations.mat'); % load p
+datasets = fieldnames(p);
 
-for i = 1:size(p,1)
-    inputFilename = p{i,1};
-    aBoneExample = p{i,2};
-    aCavityExample = p{i,3};
-    anImplantExample = p{i,4};
-    avoidEdgeDistance = p{i,5};
-    minSlice = p{i,6};
-    maxSlice = p{i,7};
-    halfEdgeSize = p{i,8};
-    filterRadius = p{i,9};
-    maxIter = p{i,10};
-    maxDistance = p{i,11};
-    SHOWRESULT = false;
-    SAVERESULT = true;
-    outputFilename = p{i,14};
-    origo = p{i,15};
-    R = p{i,16};
-    marks = p{i,17};
-    disp(inputFilename);
-    analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilename);
+for i = 1:length(datasets)
+    s = p.(char(datasets(i)));  % struct for current dataset
+    disp(s.inputFilename);
+    analyse3d(s.inputFilename, s.aBoneExample, s.aCavityExample, ...
+    s.anImplantExample, s.avoidEdgeDistance, s.minSlice, s.maxSlice, ...
+    s.halfEdgeSize, s.filterRadius, s.maxIter, s.maxDistance, s.SHOWRESULT, ...
+    s.SAVERESULT, s.origo, s.R, s.marks, s.outputFilename);
 end
 
 %{

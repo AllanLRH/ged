@@ -1,4 +1,4 @@
-clear; home; close all
+% clear; home; close all
 
 load('../annotations.mat')
 
