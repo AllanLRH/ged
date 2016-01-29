@@ -1,4 +1,4 @@
-clear; home; close all;
+% clear; home; close all;
 
 volDir = fullfile('..', 'volfloat');
 dirCell = dir(fullfile(volDir, '*0001.vol'));
@@ -12,8 +12,8 @@ quarterSizeStruct.savePath = fullfile('..', 'smallData');
 scaleCell = {halfSizeStruct, quarterSizeStruct};
 
 pathSep = strtrim(fullfile(' ', ' '));  % '/' on Unix, '\' on Windows
-
-for ii = 1:length(fileGroups)
+try
+% for ii = 1:length(fileGroups)
     tic;
     group = fileGroups{ii};
     fprintf('\nProcessing dataset %d of %d\nDataset name:\t%s\n', ii, length(fileGroups), group{1})
@@ -39,4 +39,8 @@ for ii = 1:length(fileGroups)
     end  % for scaleFactor
     clear('vol')
     toc
-end
+catch me
+    fprintf('There was an error:\n%s\n\n', me.message)
+end  % try
+quit
+% end  % for length(fileGroups)
