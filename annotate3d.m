@@ -21,42 +21,33 @@ SAVERESULT = true;
 %     '5.05_ID1689_807_v7.3_double', ...
 %     '5.05_ID1689_808_v7.3_double'};
 
-filenames = {'5.05_ID1798_776_pag_v7.3_double.mat', ...
-'5.05_ID1798_777_pag_v7.3_double.mat', '5.05_ID1798_778_pag_v7.3_double.mat', ...
-'5.05_ID1886_810b_pag_v7.3_double.mat', '5.05_ID1886_811b_pag_v7.3_double.mat', ...
-'5.05_ID1886_813_pag_v7.3_double.mat', '5.05_ID1886_814b_pag_v7.3_double.mat', ...
-'5.05_ID5597_780_pag_v7.3_double.mat', '5.05_ID5597_781_pag_v7.3_double.mat', ...
-'5.05_ID5597_783_pag_v7.3_double.mat', '5.05_ID5598_784_pag_v7.3_double.mat', ...
-'5.05_ID5598_785_pag_v7.3_double.mat', '5.05_ID5598_786_pag_v7.3_double.mat', ...
-'5.05_ID5598_787_pag_v7.3_double.mat', '5.05_ID5598_788_pag_v7.3_double.mat'}
+filenames = {'5.05_ID1689_805_pag_v7.3_double.mat', '5.05_ID1662_773_pag_v7.3_double.mat', '5.05_ID1689_807_pag_v7.3_double.mat', ...
+'5.05_ID1662_771_pag_v7.3_double.mat', '5.05_ID1684_809_pag_v7.3_double.mat', '5.05_ID1689_808_pag_v7.3_double.mat', '5.05_ID1662_769_pag_v7.3_double.mat', ...
+'5.05_ID1662_770_pag_v7.3_double.mat', '5.05_ID1662_772_pag_v7.3_double.mat', '5.05_ID1684_806_pag_v7.3_double.mat'};
 
-
-p = cell(length(filenames),17);
 figure(1); clf;
-% load('annotations.mat')
-for i = 9:length(filenames)
-    nameID = regexpi(filenames{i}, 'ID.+?(?=_v[\d.]+)', 'match');
+load('annotations.mat')
+for i = 1:length(filenames)
+    nameID = regexpi(filenames{i}, 'ID.+?(?=_v[\d.]+)', 'match'); nameID = nameID{1};
     disp(filenames{i});
-    p.(nameID).inputFilename = [inPath gfilenames{i}];
-    load(p.(nameID).inputFilename);
+    inputFilename = [inPath filenames{i}];
+    load(inputFilename);
     showSlice = round(size(newVol,3)/2);
     imagesc(newVol(:,:,showSlice)); title(sprintf('Bias corrected slice %d', showSlice)); colormap(gray); axis image tight;
 
     title('Select Bone');
     x = ginput(1);
-    p.(nameID).aBoneExample = round([x(2),x(1),showSlice]);
+    aBoneExample = round([x(2),x(1),showSlice]);
     title('Select Cavity');
     x = ginput(1);
-    p.(nameID).aCavityExample = round([x(2),x(1),showSlice]);
+    aCavityExample = round([x(2),x(1),showSlice]);
     title('Select Implant');
     x = ginput(1);
-    p.(nameID).anImplantExample = round([x(2),x(1),showSlice]);
+    anImplantExample = round([x(2),x(1),showSlice]);
 
-    implantThreshold = (newVol(p.(nameID).anImplantExample(1), ...
-                        p.(nameID).anImplantExample(2), ...
-                        p.(nameID).anImplantExample(3)) + newVol(p.(nameID).aBoneExample(1), ...
-                        p.(nameID).aBoneExample(2), ...
-                        p.(nameID).aBoneExample(3)))/2;
+    implantThreshold = (newVol(anImplantExample(1), anImplantExample(2), ...
+                        anImplantExample(3)) + newVol(aBoneExample(1), ...
+                        aBoneExample(2), aBoneExample(3)))/2;
     implant = segmentImplant3d(newVol, implantThreshold);
 
     xMax = round(size(implant)/2);
@@ -64,18 +55,17 @@ for i = 9:length(filenames)
     x2 = -(xMax(2)-1):xMax(2);
     x3 = -(xMax(3)-1):xMax(3);
     accepted = false;
-    [p.(nameID).origo, p.(nameID).R, ~] = getAxes3d(implant);
+    [origo, R, ~] = getAxes3d(implant);
     while ~accepted
-        slice = squeeze(sample3d(newVol,origo,R,x1,x2,x3));
+        slice = squeeze(sample3d(newVol, origo, R, x1, x2, x3));
 
         imagesc(slice); title('Saggital slice'); colormap(gray); axis image tight;
-        marks = zeros(4,3);
-        for j = 1:size(marks,1)
-            title(sprintf('Select mark %d',j));
+        marks = zeros(4, 3);
+        for j = 1:size(marks, 1)
+            title(sprintf('Select mark %d', j));
             x = ginput(1);
-            marks(j,:) = [x(2),showSlice,x(1)];
+            marks(j,:) = [x(2), showSlice, x(1)];
         end
-        p.(nameID).marks = marks;
         v = marks(end,:)-marks(1,:);
         v = v'/sqrt(sum(v.^2));
         %disp(abs(dot(v,[0,0,1])));
@@ -91,16 +81,23 @@ for i = 9:length(filenames)
             R(:,1) = R(:,1)/sqrt(sum(R(:,1).^2));
         end
     end
+    p.(nameID).marks = marks;
+    p.(nameID).inputFilename = inputFilename;
+    p.(nameID).origo = origo;
+    p.(nameID).aBoneExample = aBoneExample;
+    p.(nameID).aCavityExample = aCavityExample;
+    p.(nameID).anImplantExample = anImplantExample;
+    p.(nameID).R = R;
     p.(nameID).size = size(newVol);
-    p.(nameID).avoidEdgeDistance;
-    p.(nameID).minSlice;
-    p.(nameID).maxSlice;
-    p.(nameID).halfEdgeSize;
-    p.(nameID).filterRadius;
-    p.(nameID).maxIter;
-    p.(nameID).maxDistance;
-    p.(nameID).SHOWRESULT;
-    p.(nameID).SAVERESULT;
+    p.(nameID).avoidEdgeDistance = avoidEdgeDistance;
+    p.(nameID).minSlice = minSlice;
+    p.(nameID).maxSlice = maxSlice;
+    p.(nameID).halfEdgeSize = halfEdgeSize;
+    p.(nameID).filterRadius = filterRadius;
+    p.(nameID).maxIter = maxIter;
+    p.(nameID).maxDistance = maxDistance;
+    p.(nameID).SHOWRESULT = SHOWRESULT;
+    p.(nameID).SAVERESULT = SAVERESULT;
 end
 
-save([outPath,'annotations3.mat'], 'p');
+save([outPath,'annotations.mat'], 'p');
