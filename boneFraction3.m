@@ -19,7 +19,7 @@ for i = 1:length(datasets)
     s = p.(char(datasets(i)));  % struct for current dataset
     disp(s.inputFilename);
     [~, fn, fe] = fileparts(s.inputFilename);
-    s.outputFilename = [smallDataPath pathseperator fn fe];
+    s.outputFilename = [smallDataPath pathseperator fn '_'];
     s.SHOWRESULT = false;
     analyse3d(s.inputFilename, s.aBoneExample, s.aCavityExample, ...
     s.anImplantExample, s.avoidEdgeDistance, s.minSlice, s.maxSlice, ...
