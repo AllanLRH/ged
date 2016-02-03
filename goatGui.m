@@ -386,7 +386,7 @@ function gedeGui
             datasetIdentifier = filename(1:end-9);
             postMessage(sprintf('Loading the dataset %s, please be patient', datasetIdentifier))
             pause(0.01)
-            volUint8 = load(['smallData/' datasetIdentifier '_v6_uint8.mat']);
+            volUint8 = load(['smallData/' datasetIdentifier '_v7.3_uint8.mat']);
             volUint8 = volUint8.newVol;
             postMessage(sprintf('Loaded integer 8 version of dataset %s', datasetIdentifier))
             % volDouble = load(['smallData/' datasetIdentifier '_v7.3_double.mat']);
