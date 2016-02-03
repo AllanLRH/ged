@@ -2,7 +2,7 @@ function J = sample3d(I,x,R,U,V,W)
 
 % Gram schmidt
 w = R(:,3);
-u = R(:,2);
+u = R(:,2); % interchange u and v?
 v = R(:,1);
 
 % Create grid

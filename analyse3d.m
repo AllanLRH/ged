@@ -110,7 +110,7 @@ if SHOWRESULT
 end
 
 % Count the volume of bone, cavity and neither by distance from implant
-fractions = cell(size(marks,1)-1,1);
+fractions = cell(size(marks,1),1);
 for i = 1:size(marks,1)-1
     minSlice = min(marks(i,3), marks(i+1,3));
     maxSlice = max(marks(i,3), marks(i+1,3));
@@ -118,6 +118,12 @@ for i = 1:size(marks,1)-1
     [bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedMask, x3RegionOfInterest, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
     fractions{i} = {minSlice, maxSlice, bone, cavity, neither, distances};
 end
+minSlice = min(marks(1,3), marks(end,3));
+maxSlice = max(marks(1,3), marks(end,3));
+x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
+[bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedMask, x3RegionOfInterest, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
+fractions{end} = {minSlice, maxSlice, bone, cavity, neither, distances};
+
 if SAVERESULT
     save([outputFilenamePrefix,'fractions.mat'],'fractions');
 end
