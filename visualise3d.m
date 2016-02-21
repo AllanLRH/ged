@@ -223,7 +223,7 @@ for j = 1:length(names)
             end
             
             clf; set(gcf,'color',[1,1,1]);
-            isosurface(rotatedImplant && x3RegionOfInterest,0.5);
+            isosurface(rotatedImplant | x3RegionOfInterest,0.5);
             axis equal tight
             convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
             convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
@@ -237,9 +237,9 @@ for j = 1:length(names)
             camlight('left')
             camlight('right')
             if(i==size(fractions,1))
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'implantNfraction')));
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.png',fn,'implantNfraction')));
             else
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'implantNfraction',i)));
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.png',fn,'implantNfraction',i)));
             end
         end
         if PROGRESSOUTPUT
