@@ -9,20 +9,25 @@ n = 0;
 
 % loads newVol
 load(inputFilename);
+minNewVol = min(min(min(newVol)));
+maxNewVol = max(max(max(newVol)));
 if SHOWRESULT
     n=n+1; figure(n); clf;
     for i = [1:size(newVol,3),128]
         showSlice = i;
-        imagesc(newVol(:,:,showSlice)); title(sprintf('Original slice %d',showSlice)); colormap(gray); axis image tight;
+        imshow((newVol(:,:,showSlice)-minNewVol)/(maxNewVol-minNewVol)); title(sprintf('Original slice %d',showSlice)); colormap(gray); axis image tight;
         drawnow;
     end
 end
 
 % Make mask
-implantThreshold = (newVol(anImplantExample(1),anImplantExample(2),anImplantExample(3))+newVol(aBoneExample(1),aBoneExample(2),aBoneExample(3)))/2;
+implantThreshold = (newVol(anImplantExample(1),anImplantExample(2),anImplantExample(3))+newVol(aBoneExample(1,1),aBoneExample(1,2),aBoneExample(1,3)))/2;
 implant = segmentImplant3d(newVol, implantThreshold);
 circularRegionOfInterest = circularRegionOfInterst3d(newVol, avoidEdgeDistance);
-x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
+%x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
+x3RegionOfInterest = false(size(newVol));
+ind = sub2ind(size(newVol),aBoneExample(:,1),aBoneExample(:,2),aBoneExample(:,3));
+x3RegionOfInterest(ind) = true;
 mask = ~implant & circularRegionOfInterest;
 if SAVERESULT
     save([outputFilenamePrefix,'masks.mat'],'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
@@ -51,7 +56,7 @@ end
 [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(1, boneMask, newVol, mask, filterRadius, aBoneExample, aCavityExample, halfEdgeSize);
 %}
 boneMask = mask & x3RegionOfInterest;
-[newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample, aCavityExample, halfEdgeSize);
+[newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample(1,:), aCavityExample, halfEdgeSize);
 
 neitherMask = mask & ~boneMask & ~cavityMask;
 if SAVERESULT
@@ -116,13 +121,13 @@ for i = 1:size(marks,1)-1
     maxSlice = max(marks(i,3), marks(i+1,3));
     x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
     [bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedMask, x3RegionOfInterest, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
-    fractions{i} = {minSlice, maxSlice, bone, cavity, neither, distances};
+    fractions{i} = {x3RegionOfInterest,minSlice, maxSlice, bone, cavity, neither, distances};
 end
 minSlice = min(marks(1,3), marks(end,3));
 maxSlice = max(marks(1,3), marks(end,3));
 x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
 [bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedMask, x3RegionOfInterest, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
-fractions{end} = {minSlice, maxSlice, bone, cavity, neither, distances};
+fractions{end} = {x3RegionOfInterest, minSlice, maxSlice, bone, cavity, neither, distances};
 
 if SAVERESULT
     save([outputFilenamePrefix,'fractions.mat'],'fractions');
@@ -136,9 +141,8 @@ if SHOWRESULT
         cavity = fractions{i}{4};
         neither = fractions{i}{5};
         distances = fractions{i}{6};
-
         
-        m0 = (i-1)*length(fractions);
+        m0 = (i-1)*3;
         subplot(length(fractions),3,m0+1); plot(distances, bone); title(sprintf('Bone fraction %d:%d',i,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
         subplot(length(fractions),3,m0+2); plot(distances, cavity); title(sprintf('Cavity fraction %d:%d',i,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
         subplot(length(fractions),3,m0+3); plot(distances, neither); title(sprintf('Neither fraction %d:%d',i,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');

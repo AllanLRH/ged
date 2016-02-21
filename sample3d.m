@@ -1,11 +1,11 @@
-function J = sample3d(I,x,R,U,V,W)
+function J = sample3d(I,o,R,U1,U2,U3)
 
 % Gram schmidt
-w = R(:,3);
-u = R(:,2); % interchange u and v?
-v = R(:,1);
+u1 = R(:,1);
+u2 = R(:,2);
+u3 = R(:,3);
 
 % Create grid
-[U, V, W] = ndgrid(U, V, W);
-C = u*U(:)' + v*V(:)' + w*W(:)';
-J = reshape(interpn(I, C(1, :)+x(1), C(2, :)+x(2), C(3, :)+x(3), 'linear', 0), size(U));
+[U1, U2, U3] = ndgrid(U1, U2, U3);
+C = u1*U1(:)' + u2*U2(:)' + u3*U3(:)';
+J = reshape(interpn(I, C(1, :)+o(1), C(2, :)+o(2), C(3, :)+o(3), 'linear', NaN), size(U1));

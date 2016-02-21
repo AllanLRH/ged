@@ -9,15 +9,20 @@ SMALLDATA = true;
 numberSlicesToShow = 3; % The number of exemplar slices generated
 
 % Prefixes for the data files
-annotationsPrefix = fullfile('~','AKIRA','ged'); % Annotation file prefix (input)
+%annotationsPrefix = fullfile('~','AKIRA','ged'); % Annotation file prefix (input)
+annotationsPrefix = fullfile('.'); % Annotation file prefix (input)
 if SMALLDATA
     scaleFactor = 1; % scaling factor used in the analysis fase w.r.t. annotation file
-    analysisPrefix = fullfile('~','AKIRA','ged','smallData'); % Analysis files prefix (input)
-    pdfPrefix = fullfile('~','AKIRA','gedTex','figuresSmall'); % pdf filename prefix (output)
+    %    analysisPrefix = fullfile('~','AKIRA','ged','smallData'); % Analysis files prefix (input)
+    %    pdfPrefix = fullfile('~','AKIRA','gedTex','figuresSmall'); % pdf filename prefix (output)
+    analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
+    pdfPrefix = fullfile('..','gedTex','figuresSmall'); % pdf filename prefix (output)
 else
     scaleFactor = 2; % scaling factor used in the analysis fase w.r.t. annotation file
-    analysisPrefix = fullfile('~','AKIRA','ged','halfSizeData'); % Analysis files prefix (input)
-    pdfPrefix = fullfile('~','AKIRA','gedTex','figuresMedium'); % pdf filename prefix (output)
+    %    analysisPrefix = fullfile('~','AKIRA','ged','halfSizeData'); % Analysis files prefix (input)
+    %    pdfPrefix = fullfile('~','AKIRA','gedTex','figuresMedium'); % pdf filename prefix (output)
+    analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
+    pdfPrefix = fullfile('..','gedTex','figuresMedium'); % pdf filename prefix (output)
 end
 MicroMeterPerPixel = 5*4/scaleFactor;
 
@@ -28,7 +33,7 @@ set(0,'DefaultLineMarkerSize',15)
 
 load(fullfile(annotationsPrefix,'annotations.mat')); % load p
 names = fieldnames(p);
-for j = 13:13%length(names)
+for j = 1:length(names)
     if PROGRESSOUTPUT
         fprintf('%d: %s\n',j,names{j})
         tic;
@@ -99,17 +104,29 @@ for j = 13:13%length(names)
         textDir = sign(dot(pJ.marks(end,:)-pJ.marks(1,:),[0,0,1]));
         slice = squeeze(sample3d(newVol,pJ.origo,pJ.R,x1,x2,x3));
         imagesc(slice); colormap(gray); axis image tight;
-        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('z/\mum');
+        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('x/\mum');
         hold on;
         for i = 1:size(pJ.marks,1)
             plot(pJ.marks(i,3)*ones(i,2),[1,size(slice,1)],'r-');
             if (i < size(pJ.marks,1))
-                text(pJ.marks(i,3)+textDir*1.5*FONTSIZE/2,1,sprintf('Zone %d ',i),'HorizontalAlignment','right','FontSize',FONTSIZE,'Color','r','Rotation',90)
+                text(pJ.marks(i,3)+textDir*2*FONTSIZE/2,1,sprintf('Zone %d ',i),'HorizontalAlignment','right','FontSize',FONTSIZE,'Color','r','Rotation',90)
             end
         end
         hold off
         export_fig(fullfile(pdfPrefix,sprintf('%s_%s.pdf',fn,'zones')));
+        imagesc(fliplr(slice')); colormap(gray); axis image tight;
+        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('z/\mum');
+        hold on;
+        for i = 1:size(pJ.marks,1)
+            plot([1,size(slice,1)],pJ.marks(i,3)*ones(i,2),'r-');
+            if (i < size(pJ.marks,1))
+                text(1,pJ.marks(i,3)+textDir*2*FONTSIZE/2,sprintf('Zone %d ',i),'FontSize',FONTSIZE,'Color','r')
+            end
+        end
+        hold off
+        export_fig(fullfile(pdfPrefix,sprintf('%s_%s_rotated.pdf',fn,'zones')));
         if PROGRESSOUTPUT
             fprintf('  zones printed (%gs)\n',toc);
             tic;
@@ -168,12 +185,13 @@ for j = 13:13%length(names)
         load(fullfile(analysisPrefix,[fn,'_fractions.mat']));%,'fractions');
         for i = 1:size(fractions,1)
             clf; set(gcf,'color',[1,1,1]);
-            minSlice = round(fractions{i}{1});
-            maxSlice = round(fractions{i}{2});
-            bone = fractions{i}{3};
-            cavity = fractions{i}{4};
-            neither = fractions{i}{5};
-            distances = fractions{i}{6};
+            x3RegionOfInterest = round(fractions{i}{1});
+            minSlice = round(fractions{i}{2});
+            maxSlice = round(fractions{i}{3});
+            bone = fractions{i}{4};
+            cavity = fractions{i}{5};
+            neither = fractions{i}{6};
+            distances = fractions{i}{7};
             
             distances = distances*MicroMeterPerPixel;
             ind = find(distances<1000);
@@ -181,15 +199,48 @@ for j = 13:13%length(names)
             plot(distances(1:ind), bone(1:ind));
             xlabel('distance/\mum');
             ylabel('fraction');
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'bone_fraction',i)));
+            if(i==size(fractions,1))
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'bone_fraction')));
+            else
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'bone_fraction',i)));
+            end
             plot(distances(1:ind), cavity(1:ind));
             xlabel('distance/\mum');
             ylabel('fraction');
+            if(i==size(fractions,1))
+            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'cavity_fraction')));
+            else
             export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'cavity_fraction',i)));
+            end
             plot(distances(1:ind), neither(1:ind));
             xlabel('distance/\mum');
             ylabel('fraction');
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'neither_fraction',i)));
+            plot(distances(1:ind), cavity(1:ind));
+            if(i==size(fractions,1))
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'neither_fraction')));
+            else
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'neither_fraction',i)));
+            end
+            
+            clf; set(gcf,'color',[1,1,1]);
+            isosurface(rotatedImplant && x3RegionOfInterest,0.5);
+            axis equal tight
+            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+            convertUnit('ztick','zticklabel',MicroMeterPerPixel); zlabel('z/\mum');
+            v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
+            w = cross(rand(3,1)-0.5,v); w = w/norm(w);
+            set(gca,'CameraUpVector',v)
+            set(gca,'CameraTarget',origo)
+            set(gca,'CameraPosition',marks(1,:)+2*size(newVol,1)*w')
+            delete(findall(gcf,'Type','light'))
+            camlight('left')
+            camlight('right')
+            if(i==size(fractions,1))
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'implantNfraction')));
+            else
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'implantNfraction',i)));
+            end
         end
         if PROGRESSOUTPUT
             fprintf('  _fractions.mat file read and printed (%gs)\n',toc);

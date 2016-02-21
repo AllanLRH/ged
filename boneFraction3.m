@@ -1,13 +1,20 @@
 SMALLDATA = true;
+SHOWRESULT = false;
+SAVERESULT = true;
 
 % Prefixes for the data files
-annotationsPrefix = fullfile('~','AKIRA','ged'); % Annotation file prefix (input)
+%annotationsPrefix = fullfile('~','akiraMount','ged'); % Annotation file prefix (input)
+annotationsPrefix = fullfile('.'); % Annotation file prefix (input)
 if SMALLDATA
-    inputPrefix = fullfile('~','AKIRA','ged','smallData'); % Analysis files prefix (input)
-    analysisPrefix = fullfile('~','AKIRA','ged','smallData'); % Analysis files prefix (input)
+    %    inputPrefix = fullfile('~','akiraMount','ged','smallData'); % Analysis files prefix (input)
+    %    analysisPrefix = fullfile('~','akiraMount','ged','smallData'); % Analysis files prefix (input)
+    inputPrefix = fullfile('smallData'); % Analysis files prefix (input)
+    analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
 else
-    inputPrefix = fullfile('~','AKIRA','ged','halfSizeData'); % Analysis files prefix (input)
-    analysisPrefix = fullfile('~','AKIRA','ged','halfSizeData'); % Analysis files prefix (input)
+    %    inputPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
+    %    analysisPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
+    inputPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
+    analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
 end
 
 load(fullfile(annotationsPrefix,'annotations.mat')); % load p
@@ -24,18 +31,17 @@ datasets = {...
     'ID1689_807_pag'};
 %}
 
-for i = 13:13%length(datasets)
+for i = 1:length(datasets)
     s = p.(datasets{i});  % struct for current dataset
     
     [~, fn, fe] = fileparts(s.inputFilename);
     s.inputFilename=fullfile(inputPrefix,[fn,fe]); % load p
-    disp(s.inputFilename);
+    fprintf('%d/%d: %s\n',i,length(datasets),s.inputFilename);
     s.outputFilenamePrefix = fullfile(analysisPrefix,[fn, '_']);
-    s.SHOWRESULT = false;
     analyse3d(s.inputFilename, s.aBoneExample, s.aCavityExample, ...
         s.anImplantExample, s.avoidEdgeDistance, s.minSlice, s.maxSlice, ...
-        s.halfEdgeSize, s.filterRadius, s.maxIter, s.maxDistance, s.SHOWRESULT, ...
-        s.SAVERESULT, s.origo, s.R, s.marks, s.outputFilenamePrefix);
+        s.halfEdgeSize, s.filterRadius, s.maxIter, s.maxDistance, SHOWRESULT, ...
+        SAVERESULT, s.origo, s.R, s.marks, s.outputFilenamePrefix);
 end
 
 %{

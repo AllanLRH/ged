@@ -60,4 +60,4 @@ if degree > 1
     J = J+a(10)*x3.^2;
 end
 %J = reshape(Phi*a,size(I,1),size(I,2),size(I,3));
-fprintf('%g\n',max(abs(a)));
+disp([max(abs(a)),a']);
