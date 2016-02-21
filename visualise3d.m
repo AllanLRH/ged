@@ -78,16 +78,16 @@ for j = 1:length(names)
         x2 = -(xMax(2)-1):xMax(2);
         x3 = -(xMax(3)-1):xMax(3);
         rotatedImplant = sample3d(single(implant),origo,R,x1,x2,x3)>.5;
-        isosurface(rotatedImplant,0.5);
+        isosurface(rotatedImplant(1:2:size(rotatedImplant,1),1:2:size(rotatedImplant,2),1:2:size(rotatedImplant,3)),0.5);
         axis equal tight
-        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
-        convertUnit('ztick','zticklabel',MicroMeterPerPixel); zlabel('z/\mum');
+        convertUnit('xtick','xticklabel',2*MicroMeterPerPixel); xlabel('x/\mum');
+        convertUnit('ytick','yticklabel',2*MicroMeterPerPixel); ylabel('y/\mum');
+        convertUnit('ztick','zticklabel',2*MicroMeterPerPixel); zlabel('z/\mum');
         v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
         w = cross(rand(3,1)-0.5,v); w = w/norm(w);
         set(gca,'CameraUpVector',v)
-        set(gca,'CameraTarget',origo)
-        set(gca,'CameraPosition',marks(1,:)+2*size(newVol,1)*w')
+        set(gca,'CameraTarget',origo/2)
+        set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
         delete(findall(gcf,'Type','light'))
         camlight('left')
         camlight('right')
@@ -185,7 +185,7 @@ for j = 1:length(names)
         load(fullfile(analysisPrefix,[fn,'_fractions.mat']));%,'fractions');
         for i = 1:size(fractions,1)
             clf; set(gcf,'color',[1,1,1]);
-            x3RegionOfInterest = round(fractions{i}{1});
+            x3RegionOfInterest = fractions{i}{1};
             minSlice = round(fractions{i}{2});
             maxSlice = round(fractions{i}{3});
             bone = fractions{i}{4};
@@ -215,7 +215,6 @@ for j = 1:length(names)
             plot(distances(1:ind), neither(1:ind));
             xlabel('distance/\mum');
             ylabel('fraction');
-            plot(distances(1:ind), cavity(1:ind));
             if(i==size(fractions,1))
                 export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'neither_fraction')));
             else
@@ -223,16 +222,17 @@ for j = 1:length(names)
             end
             
             clf; set(gcf,'color',[1,1,1]);
-            isosurface(rotatedImplant | x3RegionOfInterest,0.5);
+            isosurface(rotatedImplant(1:2:size(rotatedImplant,1),1:2:size(rotatedImplant,2),1:2:size(rotatedImplant,3)),0.5);
+            isosurface(x3RegionOfInterest(1:2:size(x3RegionOfInterest,1),1:2:size(x3RegionOfInterest,2),1:2:size(x3RegionOfInterest,3)),0.5);
             axis equal tight
-            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
-            convertUnit('ztick','zticklabel',MicroMeterPerPixel); zlabel('z/\mum');
+            convertUnit('xtick','xticklabel',2*MicroMeterPerPixel); xlabel('x/\mum');
+            convertUnit('ytick','yticklabel',2*MicroMeterPerPixel); ylabel('y/\mum');
+            convertUnit('ztick','zticklabel',2*MicroMeterPerPixel); zlabel('z/\mum');
             v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
             w = cross(rand(3,1)-0.5,v); w = w/norm(w);
             set(gca,'CameraUpVector',v)
-            set(gca,'CameraTarget',origo)
-            set(gca,'CameraPosition',marks(1,:)+2*size(newVol,1)*w')
+            set(gca,'CameraTarget',origo/2)
+            set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
             delete(findall(gcf,'Type','light'))
             camlight('left')
             camlight('right')
