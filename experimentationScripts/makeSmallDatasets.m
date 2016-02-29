@@ -3,7 +3,12 @@
 volDir = fullfile('..', 'volfloat');
 dirCell = dir(fullfile(volDir, '*0001.vol'));
 nameCell = {dirCell.name}; % Cell with all *001.vol files
-fileGroups = cellfun(@getFileGroup, fullfile(volDir, nameCell), 'uniformOutput', false);
+fileGroups = cellfun(@getFileGroup, {'../volfloat/5.05_ID5597_782_pag0001.vol', ...
+'../volfloat/5.05_ID1937_817pag0001.vol', '../volfloat/5.05_ID1937_818pag0001.vol', ...
+'../volfloat/5.05_ID1798_779_pag0001.vol', '../volfloat/5.05_ID1937_816pag0001.vol', ...
+'../volfloat/5.05_ID1798_775_pag0001.vol', '../volfloat/5.05_ID1798_774_pag0001.vol', ...
+'../volfloat/5.05_ID1937_815pag0001.vol', '../volfloat/5.05_ID1886_812pag0001.vol', ...
+'../volfloat/5.05_ID1937_819pag0001.vol'}, 'uniformOutput', false);
 
 halfSizeStruct.factor = 2;
 halfSizeStruct.savePath = fullfile('..', 'halfSizeData');
@@ -24,7 +29,7 @@ try
     vol = loadDataset(fullfile(volDir, fname), 1:numZ);
     % Example: nameIdPart of "volfloat/5.05_ID1662_769_pag0001.vol" is "5.05_ID1662_769_pag".
     nameIdPart = regexpi(fname, pathSep, 'split'); nameIdPart = nameIdPart{end};
-    nameIdPart = regexpi(nameIdPart, '([\d.]+_)?ID\d+_[\da-zA-Z]+_[a-zA-Z]*', 'match');
+    nameIdPart = regexpi(nameIdPart, '(.+?ID.+?)(?=\d{4}\.vol)', 'match');
     nameIdPart = nameIdPart{1};
     for sf = 1:length(scaleCell)
         scaleStruct = scaleCell{sf};
@@ -41,6 +46,7 @@ try
     toc
 catch me
     fprintf('There was an error:\n%s\n\n', me.message)
+    disp(me.stack)
 end  % try
 quit
 % end  % for length(fileGroups)
