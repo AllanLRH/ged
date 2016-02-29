@@ -31,6 +31,8 @@ datasets = {...
     'ID1689_807_pag'};
 %}
 
+%datasets = {'ID1798_774_pag', 'ID1798_775_pag', 'ID1798_779_pag', 'ID1886_812pag', 'ID1937_815pag', 'ID1937_816pag', 'ID1937_817pag', 'ID1937_818pag', 'ID1937_819pag', 'ID5597_782_pag'};
+
 for i = 1:length(datasets)
     s = p.(datasets{i});  % struct for current dataset
     
