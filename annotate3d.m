@@ -43,6 +43,7 @@ if APPEND
 else
     p = [];
 end
+skipAll = false;
 for i = 1:length(filenames)
     clf;
     fprintf('%d/%d: %s\n', i,length(filenames),filenames{i});
@@ -50,8 +51,13 @@ for i = 1:length(filenames)
     nameID = regexpi(filenames{i}, 'ID.+?(?=_v[\d.]+)', 'match');
     nameID = nameID{1};
     if(isfield(p,nameID))
-        fprintf(' Updating %s\n', nameID);
-        choice = questdlg(sprintf('Annotations on "%s" already exists.',nameID), 'Question', 'Overwrite','Skip','Skip');
+        if ~skipAll
+            choice = questdlg(sprintf('Annotations on "%s" already exists.',nameID), 'Question', 'Overwrite','Skip','Skip All','Skip');
+            skipAll = strcmp(choice,'Skip All');
+            if(~strcmp(choice,'Overwrite'))
+                fprintf(' Updating %s\n', nameID);
+            end
+        end
     else
         fprintf(' Creating %s\n', nameID);
         choice = 'Overwrite';
@@ -78,7 +84,7 @@ for i = 1:length(filenames)
         cavitySamples = round([x,showSlice]);
         
         fprintf('  We need at least 10 examples of bone spread out over the volume for 2. degree polynomial bias correction in 3D\n')
-        title('Select a bone samples near cavity');
+        title('Select a bone samples near implant');
         x = fliplr(ginput(1));
         boneSamples = round([x,showSlice]);
         
