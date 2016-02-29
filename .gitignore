@@ -102,3 +102,4 @@ figExport
 experimentationScripts/scaleLog.txt
 bonefractionHalfSizeLog.txt
 bonefractionLog.txt
+scaleLog*.txt
