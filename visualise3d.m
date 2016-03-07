@@ -33,6 +33,8 @@ set(0,'DefaultLineMarkerSize',15)
 
 load(fullfile(annotationsPrefix,'annotations.mat')); % load p
 names = fieldnames(p);
+names = {'ID1798_774_pag', 'ID1798_775_pag', 'ID1798_779_pag', 'ID1886_812pag', 'ID1937_815pag', 'ID1937_816pag', 'ID1937_817pag', 'ID1937_818pag', 'ID1937_819pag', 'ID5597_782_pag'};
+names = {'ID1937_817pag', 'ID1937_818pag', 'ID1937_819pag', 'ID5597_782_pag'};
 for j = 1:length(names)
     if PROGRESSOUTPUT
         fprintf('%d: %s\n',j,names{j})
