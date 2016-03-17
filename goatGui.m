@@ -25,8 +25,9 @@ function gedeGui
     c.anglesFromAutomatch       = [];    % Initial value
 
     % used for the file log, see the documentation for atomicLogUpdate.m for details
-    c.baseLogName = ['goat_gui_log_' datestr(now,'HH.MM.SS_dd-mm-yyyy')];
-    c.templogFid = fopen([c.baseLogName '_temp.txt'], 'a');
+    c.logFolder     = 'goat_gui_log_folder'
+    c.baseLogPath   = fullfile(c.logFolder, ['goat_gui_log_' datestr(now,'HH.MM.SS_dd-mm-yyyy')]);
+    c.templogFid    = fopen([c.baseLogPath '_temp.txt'], 'a');
     c.sliderLogCell = cell(0);
 
     % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
@@ -456,7 +457,7 @@ function gedeGui
         c.logCell = cat(1, paddedMessage, c.logCell);
         set(h.logPanelHandle, 'string', c.logCell);
 
-        atomicLogUpdate(c.templogFid, c.baseLogName, paddedMessage)
+        atomicLogUpdate(c.templogFid, c.baseLogPath, paddedMessage)
 
         function padded = padString(inString, len)
             % Pads inString with spaces and a datetime to the right
@@ -476,7 +477,7 @@ function gedeGui
         % Close the filehandle for the logfile, and delete the temporary log if sucessful
         closeStatus = fclose(c.templogFid);  % Close logfile on exit
         if closeStatus == 0  % if closed sucessfully...
-            delete([c.baseLogName '_temp.txt'])  % ...remove the temporary logfile
+            delete([c.baseLogPath '_temp.txt'])  % ...remove the temporary logfile
         end
     end
 
