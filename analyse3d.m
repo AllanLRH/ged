@@ -1,4 +1,4 @@
-function analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, regionBorders, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilenamePrefix)
+function analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, radiiRegionBorders, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilenamePrefix)
 
 if SAVERESULT
     save([outputFilenamePrefix,'params.mat'],'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
@@ -23,11 +23,11 @@ end
 % Make mask
 implantThreshold = (newVol(anImplantExample(1),anImplantExample(2),anImplantExample(3))+newVol(aBoneExample(1,1),aBoneExample(1,2),aBoneExample(1,3)))/2;
 implant = segmentImplant3d(newVol, implantThreshold);
-circularRegionOfInterest = circularRegionOfInterst3d(newVol, implant, avoidEdgeDistance, regionBorders);
-x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
+circularRegionOfInterestMulti = circularRegionOfInterst3d(newVol, implant, avoidEdgeDistance, radiiRegionBorders);
+x3RegionOfInterestMulti = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
 % x3RegionOfInterest = false(size(newVol));
 ind = sub2ind(size(newVol),aBoneExample(:,1),aBoneExample(:,2),aBoneExample(:,3));
-x3RegionOfInterest(ind) = true;
+x3RegionOfInterestMulti(ind) = true;
 
 % Set number of regions, used in loop below
 if ndims(circularRegionOfInterest) == 4
@@ -36,7 +36,9 @@ else
     nRegions = 1
 end
 for nR = 1:nRegions
-    mask = ~implant & circularRegionOfInterest(:,:,:,nR);
+    circularRegionOfInterest = circularRegionOfInterestMulti(:,:,:,nR);
+    x3RegionOfInterest = x3RegionOfInterestMulti(:,:,:,nR);
+    mask = ~implant & circularRegionOfInterest;
     if SAVERESULT
         save([outputFilenamePrefix,'masks_region_' num2str(nR) '.mat'],'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
     end
