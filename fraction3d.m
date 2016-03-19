@@ -1,4 +1,4 @@
-function [bone, cavity, neither, distFct] = fraction3d(implant, mask, x3RegionOfInterest, boneMask, cavityMask, neitherMask, maxDistance)
+function [bone, cavity, neither, distFct] = fraction3d(implant, x3RegionOfInterest, boneMask, circularRegionOfInterest, cavityMask, neitherMask, maxDistance)
 
 dstMap = sgnDstFromImg(implant);
 bone = zeros(1,maxDistance);
@@ -6,7 +6,7 @@ cavity = zeros(size(bone));
 neither = zeros(size(bone));
 total = zeros(size(bone));
 for i = 1:size(bone,2)
-    dstMask = (dstMap > 0 & dstMap <= i) & x3RegionOfInterest;
+    dstMask = (dstMap > 0 & dstMap <= i) & x3RegionOfInterest & circularRegionOfInterest;
     bone(i) = sum(sum(sum(boneMask & dstMask)));
     neither(i) = sum(sum(sum(neitherMask & dstMask)));
     cavity(i) = sum(sum(sum(cavityMask & dstMask)));
