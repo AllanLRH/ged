@@ -30,8 +30,8 @@ ind = sub2ind(size(newVol),aBoneExample(:,1),aBoneExample(:,2),aBoneExample(:,3)
 x3RegionOfInterestMulti(ind) = true;
 
 % Set number of regions, used in loop below
-if ndims(circularRegionOfInterest) == 4
-    nRegions = size(circularRegionOfInterest, 4);
+if ndims(circularRegionOfInterestMulti) == 4
+    nRegions = size(circularRegionOfInterestMulti, 4);
 else
     nRegions = 1
 end
@@ -55,7 +55,7 @@ for nR = 1:nRegions
     n=n+1; figure(n); clf;
     for i = [50,100,150,200]
         imagesc(newVol(:,:,i).*mask(:,:,i)); title('Saggital slice'); colormap(gray); axis image tight;
-        hold on; 
+        hold on;
         for j = 1:5
             x = ginput(1);
             plot(x(1),x(2),'g+');
@@ -151,7 +151,7 @@ for nR = 1:nRegions
             cavity = fractions{i}{4};
             neither = fractions{i}{5};
             distances = fractions{i}{6};
-            
+
             m0 = (i-1)*3;
             subplot(length(fractions),3,m0+1); plot(distances, bone); title(sprintf('Bone fraction %d:%d',i,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
             subplot(length(fractions),3,m0+2); plot(distances, cavity); title(sprintf('Cavity fraction %d:%d',i,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
