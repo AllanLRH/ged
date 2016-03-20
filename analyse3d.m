@@ -23,18 +23,12 @@ end
 % Make mask
 implantThreshold         = (newVol(anImplantExample(1), anImplantExample(2), anImplantExample(3))+newVol(aBoneExample(1,1), aBoneExample(1,2), aBoneExample(1,3)))/2;
 implant                  = segmentImplant3d(newVol, implantThreshold);
-circularRegionOfInterest = circularRegionOfInterst3d(newVol, implant, avoidEdgeDistance);
+circularRegionOfInterest = circularRegionOfInterst3d(newVol, implant, avoidEdgeDistance, []);
 x3RegionOfInterest       = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
 % x3RegionOfInterest       = false(size(newVol));
 ind                      = sub2ind(size(newVol), aBoneExample(:,1), aBoneExample(:,2), aBoneExample(:,3));
 x3RegionOfInterest(ind)  = true;
 
-% Set number of regions, used in loop below
-if ndims(circularRegionOfInterest) == 4
-    nRegions = size(circularRegionOfInterest, 4);
-else
-    nRegions = 1;
-end
 mask = ~implant & circularRegionOfInterest;
 if SAVERESULT
     save([outputFilenamePrefix,'masks.mat'],'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
@@ -124,6 +118,12 @@ end
 % Count the volume of bone, cavity and neither by distance from implant
 fractions                     = cell(size(marks,1), nRegions);
 circularRegionOfInterestMulti = circularRegionOfInterst3d(newVol, rotatedImplant, avoidEdgeDistance, radiiRegionBorders);
+% Set number of regions, used in loop below
+if ndims(circularRegionOfInterest) == 4
+    nRegions = size(circularRegionOfInterest, 4);
+else
+    nRegions = 1;
+end
 for nR = 1:nRegions
     for ii = 1:size(marks,1)-1
         minSlice                           = min(marks(ii,3), marks(ii+1,3));
