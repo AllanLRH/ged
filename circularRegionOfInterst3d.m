@@ -2,7 +2,7 @@ function mask = circularRegionOfInterst3d(newVol, implant, avoidEdgeDistance, ra
     [x1, x2, ~] = ndgrid(1:size(newVol, 1), 1:size(newVol, 2), 1:size(newVol, 3));
     implantDistanceMap = sgnDstFromImg(implant);
     maxDst = (size(newVol,1)/2 - 1/2 - avoidEdgeDistance);  % max distance from x3 (axis through implant)
-    if nargin == 2 || isempty(radiiRegionBorders)
+    if isempty(radiiRegionBorders)
         mask = implantDistanceMap <= maxDst;
     else
         radiiRegionBorders(length(radiiRegionBorders) + 1) = maxDst;  % make the perimeter of the implant the last region boundary

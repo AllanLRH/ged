@@ -1,6 +1,6 @@
 function mask = x3RegionOfInterst3d(newVol, minSlice, maxSlice, x3RegionBorders)
     [~, ~, x3] = ndgrid(1:size(newVol, 1), 1:size(newVol, 2), 1:size(newVol, 3));
-    if nargin == 3 || isempty(x3RegionBorders)
+    if isempty(x3RegionBorders)
         mask = (minSlice <= x3) & (x3 <= maxSlice);
     else
         x3RegionBorders(length(x3RegionBorders) + 1) = maxSlice;
