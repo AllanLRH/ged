@@ -6,10 +6,10 @@ distances = innerBorder:voxelPointSpacing:outerBorder;  % "x-axis" in fraction-d
 dstMask      = (dstMap >= innerBorder) & (dstMap < outerBorder) & x3RegionOfInterest;
 
 % Preallocate
-total   = nan(1, length(distances));
-bone    = nan(1, length(distances));
-cavity  = nan(1, length(distances));
-neither = nan(1, length(distances));
+total   =  ones(1, length(distances));
+bone    = zeros(1, length(distances));
+cavity  = zeros(1, length(distances));
+neither = zeros(1, length(distances));
 
 % Fill fraction arrays
 for ii = 1:length(distances)
@@ -24,7 +24,6 @@ for ii = 1:length(distances)
     neither(ii) = sumf(neitherMask(itrDstMask));
     total(ii)   = bone(ii) + cavity(ii) + neither(ii);
 end
-
 bone = bone./total;
 cavity = cavity./total;
 neither = neither./total;
