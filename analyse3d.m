@@ -1,4 +1,4 @@
-function analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, radiiRegionBorders, x3RegionBorders, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilenamePrefix)
+function analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, radiiRegionBorders, x3RegionBorders, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilenamePrefix, muSpacing)
 
 % if SAVERESULT
 %     save([outputFilenamePrefix,'params.mat'],'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
@@ -127,25 +127,30 @@ function analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample
 % fractions                     = cell(size(marks,1), nRegions);
 % maxDst = (size(newVol,1)/2 - 1/2 - avoidEdgeDistance);
 % radiiRegionBorders = [radiiRegionBorders maxDst];
+fprintf('INFO::\t\tStarted loading of workspace\n');
 load('debugFractions.mat')
+fprintf('INFO::\t\tCompleted loading of workspace\n');
+fprintf('INFO::\t\tradiiRegionBorders:  %.3f\n', radiiRegionBorders);
+dstMap = sgnDstFromImg(rotatedImplant);
+innerRadiiBorder = 0;
 for nR = 1:nRegions
+    outerRadiiBorder = radiiRegionBorders(nR);
     for ii = 1:size(marks,1)-1
         fprintf('INFO::\t\tnR:  %d\tii:  %d\n', nR, ii);
         minSlice                           = min(marks(ii,3), marks(ii+1,3));
         maxSlice                           = max(marks(ii,3), marks(ii+1,3));
         circularRegionOfInterest           = circularRegionOfInterestMulti(:,:,:,nR);
         x3RegionOfInterest                 = x3RegionOfInterst3d(newVol, minSlice, maxSlice, []);
-                                           % fraction3d(implant,        x3RegionOfInterest, boneMask,        radiiBorder,            circularRegionOfInterest, cavityMask,        neitherMask,        maxDistance)
-        radiiBorder                        = radiiRegionBorders(nR);
-        [bone, cavity, neither, distances] = fraction3d(rotatedImplant, x3RegionOfInterest, rotatedBoneMask, radiiBorder, circularRegionOfInterest, rotatedCavityMask, rotatedNeitherMask, maxDistance);
+        [bone, cavity, neither, distances] = fraction3d(dstMap, x3RegionOfInterest, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance, muSpacing, innerRadiiBorder, outerRadiiBorder);
         fractions{ii, nR}                  = {x3RegionOfInterest, minSlice, maxSlice, bone, cavity, neither, distances};
     end
     minSlice                           = min(marks(1,3), marks(end,3));
     maxSlice                           = max(marks(1,3), marks(end,3));
     x3RegionOfInterest                 = x3RegionOfInterst3d(newVol, minSlice, maxSlice, []);
                                        % fraction3d(implant,        x3RegionOfInterest, boneMask,        radiiBorder,            circularRegionOfInterest, cavityMask,        neitherMask,        maxDistance)
-    [bone, cavity, neither, distances] = fraction3d(rotatedImplant, x3RegionOfInterest, rotatedBoneMask, radiiBorder, circularRegionOfInterest, rotatedCavityMask, rotatedNeitherMask, maxDistance);
+    [bone, cavity, neither, distances] = fraction3d(dstMap, x3RegionOfInterest, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance, muSpacing, innerRadiiBorder, outerRadiiBorder);
     fractions{end, nR}                 = {x3RegionOfInterest, minSlice, maxSlice, bone, cavity, neither, distances};
+    innerRadiiBorder                   = outerRadiiBorder;
 
     if SHOWRESULT
         n=n+1; figure(n); clf;
@@ -158,8 +163,8 @@ for nR = 1:nRegions
             distances = fractions{ii, nR}{6};
 
             m0 = (ii-1)*3;
-            subplot(length(fractions),3,m0+1); plot(distances, bone); title(sprintf('Bone fraction %d:%d',ii,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
-            subplot(length(fractions),3,m0+2); plot(distances, cavity); title(sprintf('Cavity fraction %d:%d',ii,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
+            subplot(length(fractions),3,m0+1); plot(distances, bone);    title(sprintf('Bone fraction %d:%d',   ii,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
+            subplot(length(fractions),3,m0+2); plot(distances, cavity);  title(sprintf('Cavity fraction %d:%d', ii,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
             subplot(length(fractions),3,m0+3); plot(distances, neither); title(sprintf('Neither fraction %d:%d',ii,maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
         end  % for length(fractions)
         drawnow;

@@ -2,6 +2,7 @@ clear; close all; clc
 SMALLDATA = true;
 SHOWRESULT = false;
 SAVERESULT = true;
+muSpacing = 10;
 radiiRegionBorders = [50, 150, 250, 350, 900, 1000];  %% Check units
 x3RegionBorders = [];    %% Check units
 
@@ -15,12 +16,14 @@ if SMALLDATA
     % analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
     analysisPrefix = fullfile('smallDataTryout'); % Analysis files prefix (input)
     radiiRegionBorders = radiiRegionBorders/(5*4);  % mu/voxel * scalefactor
+    muSpacing = muSpacing/(5*4);
 else
     %    inputPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
     %    analysisPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
     inputPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
     analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
     radiiRegionBorders = radiiRegionBorders/(5*2);  % mu/voxel * scalefactor
+    muSpacing = muSpacing/(5*2);
 end
 
 load(fullfile(annotationsPrefix,'annotations.mat')); % load p
@@ -51,7 +54,7 @@ for i = 1:length(datasets)
         s.anImplantExample, s.avoidEdgeDistance, s.minSlice, s.maxSlice, ...
         radiiRegionBorders, x3RegionBorders, s.halfEdgeSize, s.filterRadius, s.maxIter, ...
         s.maxDistance, SHOWRESULT, SAVERESULT, s.origo, s.R, s.marks, ...
-        s.outputFilenamePrefix);
+        s.outputFilenamePrefix, muSpacing);
 end
 
 %{
