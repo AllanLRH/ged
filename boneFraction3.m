@@ -2,9 +2,14 @@ clear; close all; clc
 SMALLDATA = true;
 SHOWRESULT = false;
 SAVERESULT = true;
-muSpacing = 10;
-radiiRegionBorders = [50, 150, 250, 350, 900, 1000];  %% Check units
-x3RegionBorders = [];    %% Check units
+nRadiiRegionPoints = 25;
+% radiiRegionBorders = [50, 150, 250, 350, 900, 1000];  %% Check units
+radiiRegionBorders = [0 50;
+                      50 150;
+                      150 250;
+                      250 350;
+                      350 900;
+                      900 1000];
 
 % Prefixes for the data files
 %annotationsPrefix = fullfile('~','akiraMount','ged'); % Annotation file prefix (input)
@@ -16,45 +21,34 @@ if SMALLDATA
     % analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
     analysisPrefix = fullfile('smallDataTryout'); % Analysis files prefix (input)
     radiiRegionBorders = radiiRegionBorders/(5*4);  % mu/voxel * scalefactor
-    muSpacing = muSpacing/(5*4);
 else
     %    inputPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
     %    analysisPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
     inputPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
     analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
     radiiRegionBorders = radiiRegionBorders/(5*2);  % mu/voxel * scalefactor
-    muSpacing = muSpacing/(5*2);
 end
 
 load(fullfile(annotationsPrefix,'annotations.mat')); % load p
-datasets = fieldnames(p);
-datasets = {datasets{1}};
+% datasets = fieldnames(p);
 
-%{
-datasets = {...
-    'ID1662_771_pag', 'ID5598_784_pag', 'ID5598_788_pag', 'ID5598_787_pag', ...
-    'ID1886_811b_pag', 'ID1684_809_pag', 'ID5597_780_pag', 'ID1662_769_pag', ...
-    'ID1798_778_pag', 'ID1689_808_pag', 'ID1689_805_pag', 'ID5597_783_pag', ...
-    'ID1886_810b_pag', 'ID5597_781_pag', 'ID5598_786_pag', 'ID1886_813_pag', ...
-    'ID1886_814b_pag', 'ID1798_776_pag', 'ID1662_773_pag', 'ID1684_806_pag', ...
-    'ID1662_772_pag', 'ID5598_785_pag', 'ID1662_770_pag', 'ID1798_777_pag', ...
-    'ID1689_807_pag'};
-%}
-
-%datasets = {'ID1798_774_pag', 'ID1798_775_pag', 'ID1798_779_pag', 'ID1886_812pag', 'ID1937_815pag', 'ID1937_816pag', 'ID1937_817pag', 'ID1937_818pag', 'ID1937_819pag', 'ID5597_782_pag'};
+datasets = {'ID1662_772', 'ID1886_812pag', 'ID1937_817pag', 'ID1798_775_pag', ...
+'ID5597_782_pag', 'ID1689_807', 'ID1662_773', 'ID1937_816pag', 'ID1937_819pag', ...
+'ID1689_805', 'ID1662_769', 'ID1684_806', 'ID1798_774_pag', 'ID1798_779_pag', ...
+'ID1684_809', 'ID1662_771', 'ID1662_770', 'ID1689_808', 'ID1937_815pag', ...
+'ID1937_818pag'};
 
 for i = 1:length(datasets)
     s = p.(datasets{i});  % struct for current dataset
-
     [~, fn, fe] = fileparts(s.inputFilename);
     s.inputFilename=fullfile(inputPrefix,[fn,fe]); % load p
     fprintf('%d/%d: %s\n',i,length(datasets),s.inputFilename);
     s.outputFilenamePrefix = fullfile(analysisPrefix,[fn, '_']);
     analyse3d(s.inputFilename, s.aBoneExample, s.aCavityExample, ...
         s.anImplantExample, s.avoidEdgeDistance, s.minSlice, s.maxSlice, ...
-        radiiRegionBorders, x3RegionBorders, s.halfEdgeSize, s.filterRadius, s.maxIter, ...
+        radiiRegionBorders, s.halfEdgeSize, s.filterRadius, s.maxIter, ...
         s.maxDistance, SHOWRESULT, SAVERESULT, s.origo, s.R, s.marks, ...
-        s.outputFilenamePrefix, muSpacing);
+        s.outputFilenamePrefix, nRadiiRegionPoints);
 end
 
 %{

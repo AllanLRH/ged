@@ -15,8 +15,9 @@ if SMALLDATA
     scaleFactor = 1; % scaling factor used in the analysis fase w.r.t. annotation file
     %    analysisPrefix = fullfile('~','AKIRA','ged','smallData'); % Analysis files prefix (input)
     %    pdfPrefix = fullfile('~','AKIRA','gedTex','figuresSmall'); % pdf filename prefix (output)
-    analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
-    pdfPrefix = fullfile('..','gedTex','figuresSmall'); % pdf filename prefix (output)
+    analysisPrefix = fullfile('smallDataTryout'); % Analysis files prefix (input)
+    % pdfPrefix = fullfile('..','gedTex','figuresSmall'); % pdf filename prefix (output)
+    pdfPrefix = fullfile('..','gedTex_tryout','figuresSmall'); % pdf filename prefix (output)
 else
     scaleFactor = 2; % scaling factor used in the analysis fase w.r.t. annotation file
     %    analysisPrefix = fullfile('~','AKIRA','ged','halfSizeData'); % Analysis files prefix (input)
@@ -27,6 +28,11 @@ end
 MicroMeterPerPixel = 5*4/scaleFactor;
 
 %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
+
+% Set figure size when running through SSH
+if isunix && strcmp(getenv('USER'), 'alrh')
+    figure('units','pixels','position',[30 30 660 660])
+end
 set(0,'DefaultAxesFontSize',FONTSIZE)
 set(0,'defaultlinelinewidth',LINEWIDTH)
 set(0,'DefaultLineMarkerSize',15)
@@ -35,6 +41,7 @@ load(fullfile(annotationsPrefix,'annotations.mat')); % load p
 names = fieldnames(p);
 names = {'ID1798_774_pag', 'ID1798_775_pag', 'ID1798_779_pag', 'ID1886_812pag', 'ID1937_815pag', 'ID1937_816pag', 'ID1937_817pag', 'ID1937_818pag', 'ID1937_819pag', 'ID5597_782_pag'};
 names = {'ID1937_817pag', 'ID1937_818pag', 'ID1937_819pag', 'ID5597_782_pag'};
+names = {'ID1662_769_pag'};
 for j = 1:length(names)
     if PROGRESSOUTPUT
         fprintf('%d: %s\n',j,names{j})
@@ -49,10 +56,10 @@ for j = 1:length(names)
         fprintf('  annotation file read (%gs)\n',toc);
         tic;
     end
-    
+
     slices = round(linspace(1,size(newVol,3),numberSlicesToShow+2));
     slices = slices(2:end-1);
-    
+
     if ~exist(fullfile(analysisPrefix,[fn,'_params.mat']),'file')
         if PROGRESSOUTPUT
             fprintf('  file does not exist, moving on to next (%gs)\n',toc);
@@ -72,7 +79,7 @@ for j = 1:length(names)
             fprintf('  _params.mat file read and printed (%gs)\n',toc);
             tic;
         end
-        
+
         load(fullfile(analysisPrefix,[fn,'_masks.mat']));%,'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
         clf; set(gcf,'color',[1,1,1]);
         xMax = round(size(newVol)/2);
@@ -98,7 +105,7 @@ for j = 1:length(names)
             fprintf('  _masks file read and printed (%gs)\n',toc);
             tic;
         end
-        
+
         xMax = round(size(newVol)/2);
         x1 = 0;
         x2 = -(xMax(2)-1):xMax(2);
@@ -133,7 +140,7 @@ for j = 1:length(names)
             fprintf('  zones printed (%gs)\n',toc);
             tic;
         end
-        
+
         load(fullfile(analysisPrefix,[fn,'_segments.mat']));%,'meanImg','boneMask','cavityMask','neitherMask');
         for i = slices
             clf; set(gcf,'color',[1,1,1]);
@@ -167,7 +174,7 @@ for j = 1:length(names)
             fprintf('  _segments.mat file read and printed (%gs)\n',toc);
             tic;
         end
-        
+
         load(fullfile(analysisPrefix,[fn,'_edgeEffect.mat']));%,'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
         clf; set(gcf,'color',[1,1,1]);
         b = MicroMeterPerPixel*linspace(min(bands),max(bands),100);
@@ -183,67 +190,70 @@ for j = 1:length(names)
             fprintf('  _edgeEffect.mat file read and printed (%gs)\n',toc);
             tic;
         end
-        
+
+        % fractions-part
         load(fullfile(analysisPrefix,[fn,'_fractions.mat']));%,'fractions');
-        for i = 1:size(fractions,1)
-            clf; set(gcf,'color',[1,1,1]);
-            x3RegionOfInterest = fractions{i}{1};
-            minSlice = round(fractions{i}{2});
-            maxSlice = round(fractions{i}{3});
-            bone = fractions{i}{4};
-            cavity = fractions{i}{5};
-            neither = fractions{i}{6};
-            distances = fractions{i}{7};
-            
-            distances = distances*MicroMeterPerPixel;
-            ind = find(distances<1000);
-            ind = ind(end);
-            plot(distances(1:ind), bone(1:ind));
-            xlabel('distance/\mum');
-            ylabel('fraction');
-            if(i==size(fractions,1))
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'bone_fraction')));
-            else
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'bone_fraction',i)));
-            end
-            plot(distances(1:ind), cavity(1:ind));
-            xlabel('distance/\mum');
-            ylabel('fraction');
-            if(i==size(fractions,1))
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'cavity_fraction')));
-            else
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'cavity_fraction',i)));
-            end
-            plot(distances(1:ind), neither(1:ind));
-            xlabel('distance/\mum');
-            ylabel('fraction');
-            if(i==size(fractions,1))
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'neither_fraction')));
-            else
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'neither_fraction',i)));
-            end
-            
-            clf; set(gcf,'color',[1,1,1]);
-            isosurface(rotatedImplant(1:2:size(rotatedImplant,1),1:2:size(rotatedImplant,2),1:2:size(rotatedImplant,3)),0.5);
-            isosurface(x3RegionOfInterest(1:2:size(x3RegionOfInterest,1),1:2:size(x3RegionOfInterest,2),1:2:size(x3RegionOfInterest,3)),0.5);
-            axis equal tight
-            convertUnit('xtick','xticklabel',2*MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',2*MicroMeterPerPixel); ylabel('y/\mum');
-            convertUnit('ztick','zticklabel',2*MicroMeterPerPixel); zlabel('z/\mum');
-            v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
-            w = cross(rand(3,1)-0.5,v); w = w/norm(w);
-            set(gca,'CameraUpVector',v)
-            set(gca,'CameraTarget',origo/2)
-            set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
-            delete(findall(gcf,'Type','light'))
-            camlight('left')
-            camlight('right')
-            if(i==size(fractions,1))
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.png',fn,'implantNfraction')));
-            else
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.png',fn,'implantNfraction',i)));
-            end
-        end
+        for i = 1:size(fractions,1)  % vertical regions
+            for j = 1:(size(fractions, 2)-1)  % radial regions, ignore last region (r > 1000)
+                clf; set(gcf,'color',[1,1,1]);
+                x3RegionOfInterest = fractions{i, j}{1};
+                minSlice = round(fractions{i, j}{2});
+                maxSlice = round(fractions{i, j}{3});
+                bone      = cumsum(fractions{i, j}{4});  % fractions are no longer summed cumultatively
+                cavity    = cumsum(fractions{i, j}{5});  % fractions are no longer summed cumultatively
+                neither   = cumsum(fractions{i, j}{6});  % fractions are no longer summed cumultatively
+                distances = fractions{i, j}{7};
+
+                distances = distances*MicroMeterPerPixel;
+                ind = find(distances<1000);
+                ind = ind(end);
+                plot(distances(1:ind), bone(1:ind));
+                xlabel('distance/\mum');
+                ylabel('fraction');
+                if(i==size(fractions,1))
+                    export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'bone_fraction')));
+                else
+                    export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d_%d.pdf',fn,'bone_fraction',i,j)));
+                end
+                plot(distances(1:ind), cavity(1:ind));
+                xlabel('distance/\mum');
+                ylabel('fraction');
+                if(i==size(fractions,1))
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'cavity_fraction')));
+                else
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d_%d.pdf',fn,'cavity_fraction',i,j)));
+                end
+                plot(distances(1:ind), neither(1:ind));
+                xlabel('distance/\mum');
+                ylabel('fraction');
+                if(i==size(fractions,1))
+                    export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'neither_fraction')));
+                else
+                    export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d_%d.pdf',fn,'neither_fraction',i,j)));
+                end
+
+                clf; set(gcf,'color',[1,1,1]);
+                isosurface(rotatedImplant(1:2:size(rotatedImplant,1),1:2:size(rotatedImplant,2),1:2:size(rotatedImplant,3)),0.5);
+                isosurface(x3RegionOfInterest(1:2:size(x3RegionOfInterest,1),1:2:size(x3RegionOfInterest,2),1:2:size(x3RegionOfInterest,3)),0.5);
+                axis equal tight
+                convertUnit('xtick','xticklabel',2*MicroMeterPerPixel); xlabel('x/\mum');
+                convertUnit('ytick','yticklabel',2*MicroMeterPerPixel); ylabel('y/\mum');
+                convertUnit('ztick','zticklabel',2*MicroMeterPerPixel); zlabel('z/\mum');
+                v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
+                w = cross(rand(3,1)-0.5,v); w = w/norm(w);
+                set(gca,'CameraUpVector',v)
+                set(gca,'CameraTarget',origo/2)
+                set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
+                delete(findall(gcf,'Type','light'))
+                camlight('left')
+                camlight('right')
+                if(i==size(fractions,1))
+                    export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.png',fn,'implantNfraction')));
+                else
+                    export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d_%d.png',fn,'implantNfraction',i,j)));
+                end
+            end  % radial regions
+        end  % vertical regions
         if PROGRESSOUTPUT
             fprintf('  _fractions.mat file read and printed (%gs)\n',toc);
             tic;
