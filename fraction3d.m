@@ -4,11 +4,15 @@ function [bone, cavity, neither, distances] = fraction3d(dstMap, x3RegionOfInter
 
     % "x-axis" in fraction-distance plot. Ignore nRadiiRegionPoints if interpoint distance is below 1.
     if (radiiRegion(2) - radiiRegion(1)) < (nRadiiRegionPoints+1)
-        distances = (radiiRegion(1), radiiRegion(2), 1 + floor((radiiRegion(2) - radiiRegion(1))/nRadiiRegionPoints));
+        distances = linspace(radiiRegion(1), radiiRegion(2), floor((radiiRegion(2) - radiiRegion(1))/nRadiiRegionPoints)+1);
     else
         distances = linspace(radiiRegion(1), radiiRegion(2), 1 + nRadiiRegionPoints);
     end
+    if any(distances > maxDistance)
+        error('Distance exceeds maxDistance')
+    end
     dstMask = (dstMap >= radiiRegion(1)) & (dstMap < radiiRegion(2)) & x3RegionOfInterest;
+
 
     % Preallocate using nans. A bit more work needs to be done, but it's easier to spot errors in the debugger.
     % Function output is cleaned of nans, see function at the end of this file.
