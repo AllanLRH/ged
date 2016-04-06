@@ -98,3 +98,4 @@ volfloat/
 figExport
 *.txt
 printLargeFiles.py
+experimentationScripts/fractionPart.m
