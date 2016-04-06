@@ -75,7 +75,6 @@ minivol.mat
 minvol.mat
 *.diff
 smallData
-goat_gui_log*.txt
 experimentationScripts/getFileGroup.m
 experimentationScripts/getSlice.m
 experimentationScripts/glob.m
@@ -86,7 +85,6 @@ experimentationScripts/.DS_Store
 csvfiles
 stats
 segmentations
-logfile_boneFraction.txt
 newSmallData
 boneCavityFraction.eps
 experimentationScripts/maximize.m
@@ -97,11 +95,5 @@ smallSegmentations2
 experimentationScripts/loadDataset.m
 *.mat
 volfloat/
-datalisting.txt
 figExport
-experimentationScripts/scaleLog.txt
-bonefractionHalfSizeLog.txt
-bonefractionLog.txt
-scaleLog*.txt
-allansNoter.txt
-bonefractionLog_regions.txt
+*.txt
