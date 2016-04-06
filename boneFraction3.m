@@ -30,13 +30,7 @@ else
 end
 
 load(fullfile(annotationsPrefix,'annotations.mat')); % load p
-% datasets = fieldnames(p);
-
-datasets = {'ID1662_772', 'ID1886_812pag', 'ID1937_817pag', 'ID1798_775_pag', ...
-'ID5597_782_pag', 'ID1689_807', 'ID1662_773', 'ID1937_816pag', 'ID1937_819pag', ...
-'ID1689_805', 'ID1662_769', 'ID1684_806', 'ID1798_774_pag', 'ID1798_779_pag', ...
-'ID1684_809', 'ID1662_771', 'ID1662_770', 'ID1689_808', 'ID1937_815pag', ...
-'ID1937_818pag'};
+datasets = fieldnames(p);
 
 for i = 1:length(datasets)
     s = p.(datasets{i});  % struct for current dataset
@@ -50,10 +44,3 @@ for i = 1:length(datasets)
         s.maxDistance, SHOWRESULT, SAVERESULT, s.origo, s.R, s.marks, ...
         s.outputFilenamePrefix, nRadiiRegionPoints);
 end
-
-%{
-p{i,6}=150
-p{i,7}=250
-outPath = '../gedData/smallData/';
-save([outPath,'annotations.mat'],'p');
-%}
