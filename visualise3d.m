@@ -14,16 +14,16 @@ numberSlicesToShow = 3; % The number of exemplar slices generated
 annotationsPrefix = fullfile('.'); % Annotation file prefix (input)
 if SMALLDATA
     scaleFactor = 1; % scaling factor used in the analysis fase w.r.t. annotation file
-    %    analysisPrefix = fullfile('~','AKIRA','ged','smallData'); % Analysis files prefix (input)
-    %    pdfPrefix = fullfile('~','AKIRA','gedTex','figuresSmall'); % pdf filename prefix (output)
-    analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
-    pdfPrefix = fullfile('..','gedTex','figuresSmall'); % pdf filename prefix (output)
+    analysisPrefix = fullfile('~','akiraMount','ged','smallData'); % Analysis files prefix (input)
+    pdfPrefix = fullfile('~','akiraMount','gedTex','figuresSmall'); % pdf filename prefix (output)
+    %analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
+    %pdfPrefix = fullfile('..','gedTex','figuresSmall'); % pdf filename prefix (output)
 else
     scaleFactor = 2; % scaling factor used in the analysis fase w.r.t. annotation file
-    %    analysisPrefix = fullfile('~','AKIRA','ged','halfSizeData'); % Analysis files prefix (input)
-    %    pdfPrefix = fullfile('~','AKIRA','gedTex','figuresMedium'); % pdf filename prefix (output)
-    analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
-    pdfPrefix = fullfile('..','gedTex','figuresMedium'); % pdf filename prefix (output)
+    analysisPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
+    pdfPrefix = fullfile('~','akiraMount','gedTex','figuresMedium'); % pdf filename prefix (output)
+    %analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
+    %pdfPrefix = fullfile('..','gedTex','figuresMedium'); % pdf filename prefix (output)
 end
 MicroMeterPerPixel = 5*4/scaleFactor;
 
@@ -34,7 +34,7 @@ set(0,'DefaultLineMarkerSize',15)
 
 load(fullfile(annotationsPrefix,'annotations.mat')); % load p
 names = fieldnames(p);
-for j = 1:length(names)
+for j = 2:2%length(names)
     if PROGRESSOUTPUT
         fprintf('%d: %s\n',j,names{j})
         tic;
@@ -91,6 +91,7 @@ for j = 1:length(names)
         set(gca,'CameraTarget',origo/2)
         set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
         set(gca,'FONTSIZE',SMALLFONTSIZE)
+        set(gca,'Position', get(gca,'Position') - [0.05,0,0,0])
         delete(findall(gcf,'Type','light'))
         camlight('left')
         camlight('right')
@@ -99,7 +100,7 @@ for j = 1:length(names)
             fprintf('  _masks file read and printed (%gs)\n',toc);
             tic;
         end
-
+        
         for i = 1:size(pJ.marks,1)-1
             xMax = round(size(newVol)/2);
             x1 = -(xMax(1)-1):xMax(1);
@@ -109,6 +110,7 @@ for j = 1:length(names)
             x3 = x3(t);
             %slice = squeeze(sample3d(newVol,pJ.origo,pJ.R,x1,x2,x3));
             slice = squeeze(sample3d(newVol.*mask,pJ.origo,pJ.R,x1,x2,x3));
+            slice(isnan(slice))=0;
             imagesc(slice); colormap(gray); axis image tight;
             convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
             convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
@@ -116,7 +118,7 @@ for j = 1:length(names)
             %pause;
             export_fig(fullfile(pdfPrefix,sprintf('%s_%s%d_%s.pdf',fn,'zone',i,'example')));
         end
-
+        
         xMax = round(size(newVol)/2);
         x1 = 0;
         x2 = -(xMax(2)-1):xMax(2);
@@ -228,9 +230,9 @@ for j = 1:length(names)
             xlabel('distance/\mum');
             ylabel('fraction');
             if(i==size(fractions,1))
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'cavity_fraction')));
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'cavity_fraction')));
             else
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'cavity_fraction',i)));
+                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'cavity_fraction',i)));
             end
             plot(distances(1:ind), neither(1:ind));
             xlabel('distance/\mum');
@@ -249,10 +251,13 @@ for j = 1:length(names)
             convertUnit('ytick','yticklabel',2*MicroMeterPerPixel); ylabel('y/\mum');
             convertUnit('ztick','zticklabel',2*MicroMeterPerPixel); zlabel('z/\mum');
             v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
-            w = cross(rand(3,1)-0.5,v); w = w/norm(w);
+            %w = cross(rand(3,1)-0.5,v); w = w/norm(w);
+            w = cross([.75,1,0]',v); w = w/norm(w);
             set(gca,'CameraUpVector',v)
             set(gca,'CameraTarget',origo/2)
             set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
+            set(gca,'FONTSIZE',SMALLFONTSIZE)
+            set(gca,'Position', get(gca,'Position') - [0.05,0,0,0])
             delete(findall(gcf,'Type','light'))
             camlight('left')
             camlight('right')
