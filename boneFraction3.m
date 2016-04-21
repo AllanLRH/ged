@@ -6,15 +6,15 @@ SAVERESULT = true;
 %annotationsPrefix = fullfile('~','akiraMount','ged'); % Annotation file prefix (input)
 annotationsPrefix = fullfile('.'); % Annotation file prefix (input)
 if SMALLDATA
-    %    inputPrefix = fullfile('~','akiraMount','ged','smallData'); % Analysis files prefix (input)
-    %    analysisPrefix = fullfile('~','akiraMount','ged','smallData'); % Analysis files prefix (input)
-    inputPrefix = fullfile('smallData'); % Analysis files prefix (input)
-    analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
+        inputPrefix = fullfile('~','akiraMount','ged','smallData'); % Analysis files prefix (input)
+        analysisPrefix = fullfile('~','akiraMount','ged','smallData'); % Analysis files prefix (input)
+    %inputPrefix = fullfile('smallData'); % Analysis files prefix (input)
+    %analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
 else
-    %    inputPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
-    %    analysisPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
-    inputPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
-    analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
+        inputPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
+        analysisPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
+    %inputPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
+    %analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
 end
 
 load(fullfile(annotationsPrefix,'annotations.mat')); % load p
@@ -31,7 +31,7 @@ datasets = {...
     'ID1689_807_pag'};
 %}
 
-for i = 1:length(datasets)
+for i = 1:1%length(datasets)
     s = p.(datasets{i});  % struct for current dataset
     
     [~, fn, fe] = fileparts(s.inputFilename);

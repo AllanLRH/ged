@@ -1,5 +1,6 @@
 % Global plotting parameters
 FONTSIZE = 18;
+SMALLFONTSIZE = 12;
 MARKERSIZE = 15;
 LINEWIDTH=3;
 PROGRESSOUTPUT=true;
@@ -84,10 +85,12 @@ for j = 1:length(names)
         convertUnit('ytick','yticklabel',2*MicroMeterPerPixel); ylabel('y/\mum');
         convertUnit('ztick','zticklabel',2*MicroMeterPerPixel); zlabel('z/\mum');
         v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
-        w = cross(rand(3,1)-0.5,v); w = w/norm(w);
+        %w = cross(rand(3,1)-0.5,v); w = w/norm(w);
+        w = cross([1,0.75,0]',v); w = w/norm(w);
         set(gca,'CameraUpVector',v)
         set(gca,'CameraTarget',origo/2)
         set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
+        set(gca,'FONTSIZE',SMALLFONTSIZE)
         delete(findall(gcf,'Type','light'))
         camlight('left')
         camlight('right')
@@ -96,7 +99,24 @@ for j = 1:length(names)
             fprintf('  _masks file read and printed (%gs)\n',toc);
             tic;
         end
-        
+
+        for i = 1:size(pJ.marks,1)-1
+            xMax = round(size(newVol)/2);
+            x1 = -(xMax(1)-1):xMax(1);
+            x2 = -(xMax(2)-1):xMax(2);
+            x3 = -(xMax(3)-1):xMax(3);
+            t = round((pJ.marks(i,3)+pJ.marks(i+1,3))/2);
+            x3 = x3(t);
+            %slice = squeeze(sample3d(newVol,pJ.origo,pJ.R,x1,x2,x3));
+            slice = squeeze(sample3d(newVol.*mask,pJ.origo,pJ.R,x1,x2,x3));
+            imagesc(slice); colormap(gray); axis image tight;
+            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+            title(sprintf('z = %d\\mum',t*MicroMeterPerPixel));
+            %pause;
+            export_fig(fullfile(pdfPrefix,sprintf('%s_%s%d_%s.pdf',fn,'zone',i,'example')));
+        end
+
         xMax = round(size(newVol)/2);
         x1 = 0;
         x2 = -(xMax(2)-1):xMax(2);
@@ -110,7 +130,7 @@ for j = 1:length(names)
         for i = 1:size(pJ.marks,1)
             plot(pJ.marks(i,3)*ones(i,2),[1,size(slice,1)],'r-');
             if (i < size(pJ.marks,1))
-                text(pJ.marks(i,3)+textDir*2*FONTSIZE/2,1,sprintf('Zone %d ',i),'HorizontalAlignment','right','FontSize',FONTSIZE,'Color','r','Rotation',90)
+                text(pJ.marks(i,3)+textDir*2*FONTSIZE*2/3,1,sprintf('Zone %d ',i),'HorizontalAlignment','right','FontSize',FONTSIZE,'Color','r','Rotation',90)
             end
         end
         hold off
@@ -122,7 +142,7 @@ for j = 1:length(names)
         for i = 1:size(pJ.marks,1)
             plot([1,size(slice,1)],pJ.marks(i,3)*ones(i,2),'r-');
             if (i < size(pJ.marks,1))
-                text(1,pJ.marks(i,3)+textDir*2*FONTSIZE/2,sprintf('Zone %d ',i),'FontSize',FONTSIZE,'Color','r')
+                text(10,pJ.marks(i,3)+textDir*2*FONTSIZE*2/3,sprintf('Zone %d ',i),'FontSize',FONTSIZE,'Color','r')
             end
         end
         hold off
