@@ -1,4 +1,4 @@
-function J = biasCorrect3d(I, mask, degree)
+function [J,a] = biasCorrect3d(I, mask, degree)
 %BIASCORRECT Calculate the quadratic bias field on I(mask)
 %
 %  J = biasCorrect3d(I,mask)
@@ -60,4 +60,3 @@ if degree > 1
     J = J+a(10)*x3.^2;
 end
 %J = reshape(Phi*a,size(I,1),size(I,2),size(I,3));
-disp([max(abs(a)),a']);

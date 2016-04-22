@@ -1,79 +1,399 @@
-function visualize3d(setup, FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, PROGRESSOUTPUT)
+function visualise3d(setup, parametersSuffix, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractionsSuffix, numberSlicesToShow, fid, FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, PROGRESSOUTPUT, VERBOSE)
+
+tic;
 
 % Prefixes for the data files
-analysisPrefix = setup.analysisPrefix;
-pdfPrefix = setup.pdfPrefix;
+imageFilename = setup.imageFilename;
 scaleFactor = setup.scaleFactor;
+inputFilenamePrefix = setup.inputFilenamePrefix;
 MicroMeterPerPixel = setup.MicroMeterPerPixel;
-numberSlicesToShow = setup.numberSlicesToShow;
-annotationsFilename = setup.annotationsFilename;
-outputFilenamePrefix = setup.outputFilenamePrefix;
-parameterSuffix = setup.parameterSuffix;
-masksSuffix = setup.masksSuffix;
-segmentsSuffix = setup.segmentsSuffix;
-edgeEffectSuffix = setup.edgeEffectSuffix;
-fractionsSuffix = setup.fractionsSuffix;
+figurePrefix = setup.figurePrefix;
 
 %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
 set(0,'DefaultAxesFontSize',FONTSIZE)
 set(0,'defaultlinelinewidth',LINEWIDTH)
 set(0,'DefaultLineMarkerSize',MARKERSIZE)
 
-load(annotationsFilename); % load p
-names = fieldnames(p);
-for j = 1:length(names)
+p = scaleBoneFractionParameters(setup, scaleFactor);
+
+if VERBOSE
+    fprintf('  loading %s\n',imageFilename);
+end
+load(imageFilename,'newVol'); % loads newVol
+if PROGRESSOUTPUT
+    fprintf('  image file read (%gs)\n',toc);
+    tic;
+end
+
+slices = round(linspace(1,size(newVol,3),numberSlicesToShow+2));
+slices = slices(2:end-1);
+
+inputFilename = [inputFilenamePrefix,parametersSuffix];
+if ~exist(inputFilename,'file')
     if PROGRESSOUTPUT
-        fprintf('%d: %s\n',j,names{j})
+        fprintf('  ''%s'' does not exist, moving on to next (%gs)\n', inputFilenamePrefix, toc);
         tic;
     end
-    n = 0;
-    pJ = scaleBoneFractionParameters(p.(names{j}), scaleFactor);
-    [fp, fn, fe] = fileparts(pJ.inputFilename);
-    % We may have moved stuff, so we override path
-    load(fullfile(analysisPrefix,[fn,fe]));
-    if PROGRESSOUTPUT
-        fprintf('  annotation file read (%gs)\n',toc);
-        tic;
+else
+    visualizeImageSections(newVol, inputFilename, figurePrefix, fid, VERBOSE, PROGRESSOUTPUT);
+    
+    inputFilename = [inputFilenamePrefix,masksSuffix];
+    if VERBOSE
+        fprintf('  loading %s\n',inputFilename);
+    end
+    load(inputFilename,'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
+    if ~isempty(fid)
+        fprintf(fid, '\\begin{figure}[ht]\n  \\centering\n');
+        [~, fn, fe] = fileparts(figurePrefix);
+        fnEsc = strrep([fn,fe], '_', '\_'); % Prefix has no suffix
+        caption = sprintf('%s: Implant.',fnEsc);
+    end
+    clf; set(gcf,'color',[1,1,1]);
+    xMax = round(size(newVol)/2);
+    x1 = -(xMax(1)-1):xMax(1);
+    x2 = -(xMax(2)-1):xMax(2);
+    x3 = -(xMax(3)-1):xMax(3);
+    rotatedImplant = sample3d(single(implant),origo,R,x1,x2,x3)>.5;
+    isosurface(rotatedImplant(1:2:size(rotatedImplant,1),1:2:size(rotatedImplant,2),1:2:size(rotatedImplant,3)),0.5);
+    axis equal tight
+    convertUnit('xtick','xticklabel',2*MicroMeterPerPixel); xlabel('x/\mum');
+    convertUnit('ytick','yticklabel',2*MicroMeterPerPixel); ylabel('y/\mum');
+    convertUnit('ztick','zticklabel',2*MicroMeterPerPixel); zlabel('z/\mum');
+    v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
+    %w = cross(rand(3,1)-0.5,v); w = w/norm(w);
+    w = cross([1,0.75,0]',v); w = w/norm(w);
+    set(gca,'CameraUpVector',v)
+    set(gca,'CameraTarget',origo/2)
+    set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
+    set(gca,'FONTSIZE',SMALLFONTSIZE)
+    set(gca,'Position', get(gca,'Position') - [0.05,0,0,0])
+    delete(findall(gcf,'Type','light'))
+    camlight('left')
+    camlight('right')
+    outputFilename = [figurePrefix,sprintf('%s.png','implant')];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    export_fig(outputFilename,'-m2');
+    if ~isempty(fid)
+        fprintf(fid, '  \\subfigure{\\includegraphics[width=0.3\\linewidth]{%s}}\n', outputFilename);
+        fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
     end
     
-    slices = round(linspace(1,size(newVol,3),numberSlicesToShow+2));
-    slices = slices(2:end-1);
+    if ~isempty(fid)
+        fprintf(fid, '\\begin{figure}[ht][ht]\n  \\centering\n');
+        [~, fn, fe] = fileparts(figurePrefix);
+        fnEsc = strrep([fn,fe], '_', '\_'); % Prefix has no suffix
+        caption = sprintf('%s: Zones.',fnEsc);
+    end
+    xMax = round(size(newVol)/2);
+    x1 = 0;
+    x2 = -(xMax(2)-1):xMax(2);
+    x3 = -(xMax(3)-1):xMax(3);
+    textDir = sign(dot(p.marks(end,:)-p.marks(1,:),[0,0,1]));
+    slice = squeeze(sample3d(newVol,p.origo,p.R,x1,x2,x3));
+    imagesc(slice); colormap(gray); axis image tight;
+    convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('z/\mum');
+    convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('x/\mum');
+    hold on;
+    for i = 1:size(p.marks,1)
+        plot(p.marks(i,3)*ones(i,2),[1,size(slice,1)],'r-');
+        if (i < size(p.marks,1))
+            text(p.marks(i,3)+textDir*2*FONTSIZE*2/3,1,sprintf('Zone %d ',i),'HorizontalAlignment','right','FontSize',FONTSIZE,'Color','r','Rotation',90)
+        end
+    end
+    hold off
+    outputFilename = [figurePrefix,sprintf('%s.pdf','zones')];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    export_fig(outputFilename);
+    if ~isempty(fid)
+        fprintf(fid, '  \\subfigure{\\includegraphics[width=0.3\\linewidth]{%s}}\n', outputFilename);
+    end
     
-    if ~exist(fullfile(analysisPrefix,[fn,'_params.mat']),'file')
-        if PROGRESSOUTPUT
-            fprintf('  file does not exist, moving on to next (%gs)\n',toc);
-            tic;
+    imagesc(fliplr(slice')); colormap(gray); axis image tight;
+    convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+    convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('z/\mum');
+    hold on;
+    for i = 1:size(p.marks,1)
+        plot([1,size(slice,1)],p.marks(i,3)*ones(i,2),'r-');
+        if (i < size(p.marks,1))
+            text(10,p.marks(i,3)+textDir*2*FONTSIZE*2/3,sprintf('Zone %d ',i),'FontSize',FONTSIZE,'Color','r')
         end
-    else
-        load([outputFilenamePrefix,parameterSuffix]);%'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
-        for i = slices
-            clf; set(gcf,'color',[1,1,1]);
-            showSlice = i;
-            imagesc(newVol(:,:,showSlice)); colormap(gray); axis image tight;
-            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'original_slice',showSlice)));
-        end
-        if PROGRESSOUTPUT
-            fprintf('  _params.mat file read and printed (%gs)\n',toc);
-            tic;
-        end
-        
-        load([outputFilenamePrefix,masksSuffix]);%,'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
-        clf; set(gcf,'color',[1,1,1]);
+    end
+    hold off
+    outputFilename = [figurePrefix,sprintf('%s_rotated.pdf','zones')];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    export_fig(outputFilename);
+    if ~isempty(fid)
+        fprintf(fid, '  \\subfigure{\\includegraphics[width=0.6\\linewidth]{%s}}\n', outputFilename);
+    end
+    if ~isempty(fid)
+        fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
+    end
+    
+    if ~isempty(fid)
+        fprintf(fid, '\\begin{figure}[ht]\n  \\centering\n');
+        [~, fn, fe] = fileparts(figurePrefix);
+        fnEsc = strrep([fn,fe], '_', '\_'); % Prefix has no suffix
+        caption = sprintf('%s: Zones samples.',fnEsc);
+    end
+    for i = 1:size(p.marks,1)-1
         xMax = round(size(newVol)/2);
         x1 = -(xMax(1)-1):xMax(1);
         x2 = -(xMax(2)-1):xMax(2);
         x3 = -(xMax(3)-1):xMax(3);
-        rotatedImplant = sample3d(single(implant),origo,R,x1,x2,x3)>.5;
+        t = round((p.marks(i,3)+p.marks(i+1,3))/2);
+        x3 = x3(t);
+        %slice = squeeze(sample3d(newVol,pJ.origo,pJ.R,x1,x2,x3));
+        slice = squeeze(sample3d(newVol.*mask,p.origo,p.R,x1,x2,x3));
+        slice(isnan(slice))=0;
+        imagesc(slice); colormap(gray); axis image tight;
+        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+        title(sprintf('z = %d\\mum',t*MicroMeterPerPixel));
+        %pause;
+        outputFilename = [figurePrefix,sprintf('%s%d_%s.pdf','zone',i,'example')];
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.3\\linewidth]{%s}}\n', outputFilename);
+        end
+    end
+    if ~isempty(fid)
+        fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
+    end
+    if PROGRESSOUTPUT
+        fprintf('  %s file read and printed (%gs)\n',masksSuffix, toc);
+        tic;
+    end
+    
+    inputFilename = [inputFilenamePrefix,segmentsSuffix];
+    if VERBOSE
+        fprintf('  loading %s\n',inputFilename);
+    end
+    load(inputFilename,'meanImg','boneMask','cavityMask','neitherMask');
+    if ~isempty(fid)
+        fprintf(fid, '\\begin{figure}[ht][ht]\n  \\centering\n');
+        [~, fn, fe] = fileparts(figurePrefix);
+        fnEsc = strrep([fn,fe], '_', '\_'); % Prefix has no suffix
+        caption = sprintf('%s: Segments.',fnEsc);
+    end
+    for i = slices
+        clf; set(gcf,'color',[1,1,1]);
+        showSlice = i;
+        imagesc(meanImg(:,:,showSlice)); colormap(gray); axis image tight;
+        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+        outputFilename = [figurePrefix,sprintf('%s_%d.pdf','bias_corrected_slice',showSlice)];
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.24\\linewidth]{%s}}\n', outputFilename);
+        end
+        
+        imagesc(mask(:,:,showSlice)); colormap(gray); axis image tight;
+        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+        outputFilename = [figurePrefix,sprintf('%s_%d.pdf','mask_slice',showSlice)];
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.24\\linewidth]{%s}}\n', outputFilename);
+        end
+        
+        imagesc(cavityMask(:,:,showSlice)); colormap(gray); axis image tight;
+        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+        outputFilename = [figurePrefix,sprintf('%s_%d.pdf','cavities_slice',showSlice)];
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.24\\linewidth]{%s}}\n', outputFilename);
+        end
+        
+        imagesc(boneMask(:,:,showSlice)); colormap(gray); axis image tight;
+        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+        outputFilename = [figurePrefix,sprintf('%s_%d.pdf','bone_slice',showSlice)];
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.24\\linewidth]{%s}}\n', outputFilename);
+        end
+        
+        imagesc(neitherMask(:,:,showSlice).*meanImg(:,:,showSlice)); colormap(gray); axis image tight;
+        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+        outputFilename = [figurePrefix,sprintf('%s_%d.pdf','neither_slice',showSlice)];
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        hist(meanImg(neitherMask(:,:,showSlice)),1000); axis tight;
+        xlabel('normalised intensity');
+        ylabel('frequency');
+        outputFilename = [figurePrefix,sprintf('%s_%d.pdf','neither_histogram_slice',showSlice)];
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        %{
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.24\\linewidth]{%s}}\n', outputFilename);
+        end
+        %}
+    end
+    if ~isempty(fid)
+        fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
+    end
+    if PROGRESSOUTPUT
+        fprintf('  %s file read and printed (%gs)\n',segmentsSuffix,toc);
+        tic;
+    end
+    
+    inputFilename = [inputFilenamePrefix,edgeEffectSuffix];
+    if VERBOSE
+        fprintf('  loading %s\n',inputFilename);
+    end
+    load(inputFilename,'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
+    if ~isempty(fid)
+        fprintf(fid, '\\begin{figure}[ht][ht]\n  \\centering\n');
+        [~, fn, fe] = fileparts(figurePrefix);
+        fnEsc = strrep([fn,fe], '_', '\_'); % Prefix has no suffix
+        caption = sprintf('%s: Overshooting effect.',fnEsc);
+    end
+    clf; set(gcf,'color',[1,1,1]);
+    b = MicroMeterPerPixel*linspace(min(bands),max(bands),100);
+    plot(b,interp1(bands,sumImgByBandsFromBone,b,'pchip')); axis tight;
+    xlabel('distance/\mum');
+    ylabel('normalized intensity');
+    outputFilename = [figurePrefix,sprintf('%s.pdf','edge_effect_bone')];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    export_fig(outputFilename);
+    if ~isempty(fid)
+        fprintf(fid, '  \\subfigure{\\includegraphics[width=0.3\\linewidth]{%s}}\n', outputFilename);
+    end
+    
+    plot(b,interp1(bands,sumImgByBandsFromCavity,b,'pchip')); axis tight;
+    xlabel('distance/\mum');
+    ylabel('normalized intensity');
+    outputFilename = [figurePrefix,sprintf('%s.pdf','edge_effect_cavity')];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    export_fig(outputFilename);
+    if ~isempty(fid)
+        fprintf(fid, '  \\subfigure{\\includegraphics[width=0.3\\linewidth]{%s}}\n', outputFilename);
+    end
+    if ~isempty(fid)
+        fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
+    end
+    if PROGRESSOUTPUT
+        fprintf('  %s file read and printed (%gs)\n',edgeEffectSuffix,toc);
+        tic;
+    end
+    
+    inputFilename = [inputFilenamePrefix,fractionsSuffix];
+    if VERBOSE
+        fprintf('  loading %s\n',inputFilename);
+    end
+    load(inputFilename,'fractions');
+    if ~isempty(fid)
+        fprintf(fid, '\\begin{figure}[ht]\n  \\centering\n');
+        [~, fn, fe] = fileparts(figurePrefix);
+        fnEsc = strrep([fn,fe], '_', '\_'); % Prefix has no suffix
+        caption = sprintf('%s: Fractions.',fnEsc);
+    end
+    for i = 1:size(fractions,1)
+        clf; set(gcf,'color',[1,1,1]);
+        x3RegionOfInterest = fractions{i}{1};
+        minSlice = round(fractions{i}{2});
+        maxSlice = round(fractions{i}{3});
+        bone = fractions{i}{4};
+        cavity = fractions{i}{5};
+        neither = fractions{i}{6};
+        distances = fractions{i}{7};
+        
+        distances = distances*MicroMeterPerPixel;
+        ind = find(distances<1000);
+        ind = ind(end);
+        plot(distances(1:ind), bone(1:ind));
+        ylim([0,1]);
+        xlabel('distance/\mum');
+        ylabel('fraction');
+        if(i==size(fractions,1))
+            outputFilename = [figurePrefix,sprintf('%s_all.pdf','bone_fraction')];
+        else
+            outputFilename = [figurePrefix,sprintf('%s_%d.pdf','bone_fraction',i)];
+        end
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.24\\linewidth]{%s}}\n', outputFilename);
+        end
+        
+        plot(distances(1:ind), cavity(1:ind));
+        ylim([0,1]);
+        xlabel('distance/\mum');
+        ylabel('fraction');
+        if(i==size(fractions,1))
+            outputFilename = [figurePrefix,sprintf('%s_all.pdf','cavity_fraction')];
+        else
+            outputFilename = [figurePrefix,sprintf('%s_%d.pdf','cavity_fraction',i)];
+        end
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.24\\linewidth]{%s}}\n', outputFilename);
+        end
+        
+        plot(distances(1:ind), neither(1:ind));
+        ylim([0,1]);
+        xlabel('distance/\mum');
+        ylabel('fraction');
+        if(i==size(fractions,1))
+            outputFilename = [figurePrefix,sprintf('%s_all.pdf','neither_fraction')];
+        else
+            outputFilename = [figurePrefix,sprintf('%s_%d.pdf','neither_fraction',i)];
+        end
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.24\\linewidth]{%s}}\n', outputFilename);
+        end
+        
+        clf; set(gcf,'color',[1,1,1]);
         isosurface(rotatedImplant(1:2:size(rotatedImplant,1),1:2:size(rotatedImplant,2),1:2:size(rotatedImplant,3)),0.5);
+        isosurface(x3RegionOfInterest(1:2:size(x3RegionOfInterest,1),1:2:size(x3RegionOfInterest,2),1:2:size(x3RegionOfInterest,3)),0.5);
         axis equal tight
         convertUnit('xtick','xticklabel',2*MicroMeterPerPixel); xlabel('x/\mum');
         convertUnit('ytick','yticklabel',2*MicroMeterPerPixel); ylabel('y/\mum');
         convertUnit('ztick','zticklabel',2*MicroMeterPerPixel); zlabel('z/\mum');
         v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
         %w = cross(rand(3,1)-0.5,v); w = w/norm(w);
-        w = cross([1,0.75,0]',v); w = w/norm(w);
+        w = cross([.75,1,0]',v); w = w/norm(w);
         set(gca,'CameraUpVector',v)
         set(gca,'CameraTarget',origo/2)
         set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
@@ -82,181 +402,61 @@ for j = 1:length(names)
         delete(findall(gcf,'Type','light'))
         camlight('left')
         camlight('right')
-        export_fig(fullfile(pdfPrefix,sprintf('%s_%s.png',fn,'implant')),'-m2');
-        if PROGRESSOUTPUT
-            fprintf('  _masks file read and printed (%gs)\n',toc);
-            tic;
+        if(i==size(fractions,1))
+            outputFilename = [figurePrefix,sprintf('%s_all.png','implantNfraction')];
+        else
+            outputFilename = [figurePrefix,sprintf('%s_%d.png','implantNfraction',i)];
+        end
+        if VERBOSE
+            fprintf('  saving %s\n',outputFilename);
+        end
+        export_fig(outputFilename);
+        if ~isempty(fid)
+            fprintf(fid, '  \\subfigure{\\includegraphics[width=0.24\\linewidth]{%s}}\n', outputFilename);
         end
         
-        for i = 1:size(pJ.marks,1)-1
-            xMax = round(size(newVol)/2);
-            x1 = -(xMax(1)-1):xMax(1);
-            x2 = -(xMax(2)-1):xMax(2);
-            x3 = -(xMax(3)-1):xMax(3);
-            t = round((pJ.marks(i,3)+pJ.marks(i+1,3))/2);
-            x3 = x3(t);
-            %slice = squeeze(sample3d(newVol,pJ.origo,pJ.R,x1,x2,x3));
-            slice = squeeze(sample3d(newVol.*mask,pJ.origo,pJ.R,x1,x2,x3));
-            slice(isnan(slice))=0;
-            imagesc(slice); colormap(gray); axis image tight;
-            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
-            title(sprintf('z = %d\\mum',t*MicroMeterPerPixel));
-            %pause;
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s%d_%s.pdf',fn,'zone',i,'example')));
-        end
-        
-        xMax = round(size(newVol)/2);
-        x1 = 0;
-        x2 = -(xMax(2)-1):xMax(2);
-        x3 = -(xMax(3)-1):xMax(3);
-        textDir = sign(dot(pJ.marks(end,:)-pJ.marks(1,:),[0,0,1]));
-        slice = squeeze(sample3d(newVol,pJ.origo,pJ.R,x1,x2,x3));
-        imagesc(slice); colormap(gray); axis image tight;
-        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('z/\mum');
-        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('x/\mum');
-        hold on;
-        for i = 1:size(pJ.marks,1)
-            plot(pJ.marks(i,3)*ones(i,2),[1,size(slice,1)],'r-');
-            if (i < size(pJ.marks,1))
-                text(pJ.marks(i,3)+textDir*2*FONTSIZE*2/3,1,sprintf('Zone %d ',i),'HorizontalAlignment','right','FontSize',FONTSIZE,'Color','r','Rotation',90)
-            end
-        end
-        hold off
-        export_fig(fullfile(pdfPrefix,sprintf('%s_%s.pdf',fn,'zones')));
-        imagesc(fliplr(slice')); colormap(gray); axis image tight;
-        convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-        convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('z/\mum');
-        hold on;
-        for i = 1:size(pJ.marks,1)
-            plot([1,size(slice,1)],pJ.marks(i,3)*ones(i,2),'r-');
-            if (i < size(pJ.marks,1))
-                text(10,pJ.marks(i,3)+textDir*2*FONTSIZE*2/3,sprintf('Zone %d ',i),'FontSize',FONTSIZE,'Color','r')
-            end
-        end
-        hold off
-        export_fig(fullfile(pdfPrefix,sprintf('%s_%s_rotated.pdf',fn,'zones')));
-        if PROGRESSOUTPUT
-            fprintf('  zones printed (%gs)\n',toc);
-            tic;
-        end
-        
-        load([outputFilenamePrefix,segmentsSuffix]);%,'meanImg','boneMask','cavityMask','neitherMask');
-        for i = slices
-            clf; set(gcf,'color',[1,1,1]);
-            showSlice = i;
-            imagesc(meanImg(:,:,showSlice)); colormap(gray); axis image tight;
-            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'bias_corrected_slice',showSlice)));
-            imagesc(mask(:,:,showSlice)); colormap(gray); axis image tight;
-            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'mask_slice',showSlice)));
-            imagesc(cavityMask(:,:,showSlice)); colormap(gray); axis image tight;
-            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'cavities_slice',showSlice)));
-            imagesc(boneMask(:,:,showSlice)); colormap(gray); axis image tight;
-            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'bone_slice',showSlice)));
-            imagesc(neitherMask(:,:,showSlice).*meanImg(:,:,showSlice)); colormap(gray); axis image tight;
-            convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'neither_slice',showSlice)));
-            hist(meanImg(neitherMask(:,:,showSlice)),1000); axis tight;
-            xlabel('normalised intensity');
-            ylabel('frequency');
-            export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'neither_histogram_slice',showSlice)));
-        end
-        if PROGRESSOUTPUT
-            fprintf('  _segments.mat file read and printed (%gs)\n',toc);
-            tic;
-        end
-        
-        load([outputFilenamePrefix,edgeEffectSuffix]);%,'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
-        clf; set(gcf,'color',[1,1,1]);
-        b = MicroMeterPerPixel*linspace(min(bands),max(bands),100);
-        plot(b,interp1(bands,sumImgByBandsFromBone,b,'pchip')); axis tight;
-        xlabel('distance/\mum');
-        ylabel('normalized intensity');
-        export_fig(fullfile(pdfPrefix,sprintf('%s_%s.pdf',fn,'edge_effect_bone')));
-        plot(b,interp1(bands,sumImgByBandsFromCavity,b,'pchip')); axis tight;
-        xlabel('distance/\mum');
-        ylabel('normalized intensity');
-        export_fig(fullfile(pdfPrefix,sprintf('%s_%s.pdf',fn,'edge_effect_cavity')));
-        if PROGRESSOUTPUT
-            fprintf('  _edgeEffect.mat file read and printed (%gs)\n',toc);
-            tic;
-        end
-        
-        load([outputFilenamePrefix,fractionsSuffix]);%,'fractions');
-        for i = 1:size(fractions,1)
-            clf; set(gcf,'color',[1,1,1]);
-            x3RegionOfInterest = fractions{i}{1};
-            minSlice = round(fractions{i}{2});
-            maxSlice = round(fractions{i}{3});
-            bone = fractions{i}{4};
-            cavity = fractions{i}{5};
-            neither = fractions{i}{6};
-            distances = fractions{i}{7};
-            
-            distances = distances*MicroMeterPerPixel;
-            ind = find(distances<1000);
-            ind = ind(end);
-            plot(distances(1:ind), bone(1:ind));
-            xlabel('distance/\mum');
-            ylabel('fraction');
-            if(i==size(fractions,1))
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'bone_fraction')));
-            else
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'bone_fraction',i)));
-            end
-            plot(distances(1:ind), cavity(1:ind));
-            xlabel('distance/\mum');
-            ylabel('fraction');
-            if(i==size(fractions,1))
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'cavity_fraction')));
-            else
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'cavity_fraction',i)));
-            end
-            plot(distances(1:ind), neither(1:ind));
-            xlabel('distance/\mum');
-            ylabel('fraction');
-            if(i==size(fractions,1))
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.pdf',fn,'neither_fraction')));
-            else
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.pdf',fn,'neither_fraction',i)));
-            end
-            
-            clf; set(gcf,'color',[1,1,1]);
-            isosurface(rotatedImplant(1:2:size(rotatedImplant,1),1:2:size(rotatedImplant,2),1:2:size(rotatedImplant,3)),0.5);
-            isosurface(x3RegionOfInterest(1:2:size(x3RegionOfInterest,1),1:2:size(x3RegionOfInterest,2),1:2:size(x3RegionOfInterest,3)),0.5);
-            axis equal tight
-            convertUnit('xtick','xticklabel',2*MicroMeterPerPixel); xlabel('x/\mum');
-            convertUnit('ytick','yticklabel',2*MicroMeterPerPixel); ylabel('y/\mum');
-            convertUnit('ztick','zticklabel',2*MicroMeterPerPixel); zlabel('z/\mum');
-            v = (marks(1,:)-marks(end,:))'; v = v/norm(v);
-            %w = cross(rand(3,1)-0.5,v); w = w/norm(w);
-            w = cross([.75,1,0]',v); w = w/norm(w);
-            set(gca,'CameraUpVector',v)
-            set(gca,'CameraTarget',origo/2)
-            set(gca,'CameraPosition',marks(1,:)/2+2*size(newVol,1)*w'/2)
-            set(gca,'FONTSIZE',SMALLFONTSIZE)
-            set(gca,'Position', get(gca,'Position') - [0.05,0,0,0])
-            delete(findall(gcf,'Type','light'))
-            camlight('left')
-            camlight('right')
-            if(i==size(fractions,1))
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_all.png',fn,'implantNfraction')));
-            else
-                export_fig(fullfile(pdfPrefix,sprintf('%s_%s_%d.png',fn,'implantNfraction',i)));
-            end
-        end
-        if PROGRESSOUTPUT
-            fprintf('  _fractions.mat file read and printed (%gs)\n',toc);
-            tic;
-        end
     end
+    if ~isempty(fid)
+        fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
+    end
+    if PROGRESSOUTPUT
+        fprintf('  %s file read and printed (%gs)\n',fractionsSuffix,toc);
+        tic;
+    end
+end
+end
+
+function visualizeImageSections(newVol, inputFilename, figurePrefix, fid, VERBOSE, PROGRESSOUTPUT)
+if VERBOSE
+    fprintf('  loading %s\n',inputFilename);
+end
+load(inputFilename,'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
+if ~isempty(fid)
+    fprintf(fid, '\\begin{figure}[ht]\n  \\centering\n');
+    [~, fn, fe] = fileparts(figurePrefix);
+    fnEsc = strrep([fn,fe], '_', '\_'); % Prefix has no suffix
+    caption = sprintf('%s: Original image sections.',fnEsc);
+end
+for i = slices
+    clf; set(gcf,'color',[1,1,1]);
+    showSlice = i;
+    imagesc(newVol(:,:,showSlice)); colormap(gray); axis image tight;
+    convertUnit('xtick','xticklabel',MicroMeterPerPixel); xlabel('x/\mum');
+    convertUnit('ytick','yticklabel',MicroMeterPerPixel); ylabel('y/\mum');
+    outputFilename = [figurePrefix,sprintf('%s_%d.pdf','original_slice',showSlice)];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    export_fig(outputFilename);
+    if ~isempty(fid)
+        fprintf(fid, '  \\subfigure[z=%d voxels]{\\includegraphics[width=0.3\\linewidth]{%s}}\n', i, outputFilename);
+    end
+end
+if ~isempty(fid)
+    fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
+end
+if PROGRESSOUTPUT
+    fprintf('  %s file read and printed (%gs)\n',parametersSuffix,toc);
+    tic;
+end
 end

@@ -1,4 +1,4 @@
-function [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample, aCavityExample, halfEdgeSize)
+function [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample, aCavityExample, halfEdgeSize, VERBOSE)
 
 for i = 1:maxIter
     meanImg = getMeanImage3d(newVol, mask, filterRadius);
@@ -6,7 +6,11 @@ for i = 1:maxIter
     [boneMask, ~] = getSegments3d(meanImg, mask, thresholdAfterBiasCorrection, halfEdgeSize);
 
     % Bias correct
-    newVol = newVol-biasCorrect3d(newVol, boneMask, 2);
+    [B,a] = biasCorrect3d(newVol, boneMask, 2);
+    if VERBOSE
+        disp([max(abs(a)),a']);
+    end
+    newVol = newVol-B;
     % Segment by thresholding of normalized-convoluted image
 end
 meanImg = getMeanImage3d(newVol, mask, filterRadius);

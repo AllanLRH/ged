@@ -1,6 +1,6 @@
-function analyse3d(setup, SHOWRESULT, SAVERESULT)
+function analyse3d(setup, parametersSuffix, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractionsSuffix, SHOWRESULT, SAVERESULT, VERBOSE)
 
-inputFilename = setup.inputFilename;
+imageFilename = setup.imageFilename;
 aBoneExample = setup.aBoneExample;
 aCavityExample = setup.aCavityExample;
 anImplantExample = setup.anImplantExample;
@@ -15,21 +15,24 @@ origo = setup.origo;
 R = setup.R;
 marks = setup.marks;
 outputFilenamePrefix = setup.outputFilenamePrefix;
-parameterSuffix = setup.parameterSuffix;
-masksSuffix = setup.masksSuffix;
-segmentsSuffix = setup.segmentsSuffix;
-edgeEffectSuffix = setup.edgeEffectSuffix;
-fractionsSuffix = setup.fractionsSuffix;
 
 if SAVERESULT
-    save([outputFilenamePrefix,parameterSuffix],'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
+    outputFilename = [outputFilenamePrefix,parametersSuffix];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    
+    save(outputFilename,'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
 end
 
 % Internal variables
 n = 0;
 
 % loads newVol
-load(inputFilename);
+if VERBOSE
+    fprintf('  loading %s\n',imageFilename);
+end
+load(imageFilename, 'newVol');
 minNewVol = min(min(min(newVol)));
 maxNewVol = max(max(max(newVol)));
 if SHOWRESULT
@@ -51,7 +54,11 @@ ind = sub2ind(size(newVol),aBoneExample(:,1),aBoneExample(:,2),aBoneExample(:,3)
 x3RegionOfInterest(ind) = true;
 mask = ~implant & circularRegionOfInterest;
 if SAVERESULT
-    save([outputFilenamePrefix,masksSuffix],'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
+    outputFilename = [outputFilenamePrefix,masksSuffix];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    save(outputFilename,'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
 end
 if false %SHOWRESULT
     n=n+1; figure(n); clf;
@@ -66,7 +73,7 @@ boneMask = false(size(mask));
 n=n+1; figure(n); clf;
 for i = [50,100,150,200]
     imagesc(newVol(:,:,i).*mask(:,:,i)); title('Saggital slice'); colormap(gray); axis image tight;
-    hold on; 
+    hold on;
     for j = 1:5
         x = ginput(1);
         plot(x(1),x(2),'g+');
@@ -77,11 +84,15 @@ end
 [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(1, boneMask, newVol, mask, filterRadius, aBoneExample, aCavityExample, halfEdgeSize);
 %}
 boneMask = mask & x3RegionOfInterest;
-[newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample(1,:), aCavityExample, halfEdgeSize);
+[newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample(1,:), aCavityExample, halfEdgeSize, VERBOSE);
 
 neitherMask = mask & ~boneMask & ~cavityMask;
 if SAVERESULT
-    save([outputFilenamePrefix,segmentsSuffix],'meanImg','boneMask','cavityMask','neitherMask');
+    outputFilename = [outputFilenamePrefix,segmentsSuffix];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    save(outputFilename,'meanImg','boneMask','cavityMask','neitherMask');
 end
 if SHOWRESULT
     n=n+1; figure(n); clf;
@@ -126,7 +137,11 @@ end
 % Analyze the over and undershooting effects
 [sumImgByBandsFromBone, sumImgByBandsFromCavity, bands] = edgeEffect3d(boneMask, cavityMask, meanImg);
 if SAVERESULT
-    save([outputFilenamePrefix,edgeEffectSuffix],'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
+    outputFilename = [outputFilenamePrefix,edgeEffectSuffix];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    save(outputFilename,'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
 end
 if SHOWRESULT
     n=n+1; figure(n); clf;
@@ -151,7 +166,11 @@ x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
 fractions{end} = {x3RegionOfInterest, minSlice, maxSlice, bone, cavity, neither, distances};
 
 if SAVERESULT
-    save([outputFilenamePrefix,fractionsSuffix],'fractions');
+    outputFilename = [outputFilenamePrefix,fractionsSuffix];
+    if VERBOSE
+        fprintf('  saving %s\n',outputFilename);
+    end
+    save(outputFilename,'fractions');
 end
 if SHOWRESULT
     n=n+1; figure(n); clf;
