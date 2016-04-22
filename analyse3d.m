@@ -1,7 +1,28 @@
-function analyse3d(inputFilename, aBoneExample, aCavityExample, anImplantExample, avoidEdgeDistance, minSlice, maxSlice, halfEdgeSize, filterRadius, maxIter, maxDistance, SHOWRESULT, SAVERESULT, origo, R, marks, outputFilenamePrefix)
+function analyse3d(setup, SHOWRESULT, SAVERESULT)
+
+inputFilename = setup.inputFilename;
+aBoneExample = setup.aBoneExample;
+aCavityExample = setup.aCavityExample;
+anImplantExample = setup.anImplantExample;
+avoidEdgeDistance = setup.avoidEdgeDistance;
+minSlice = setup.minSlice;
+maxSlice = setup.maxSlice;
+halfEdgeSize = setup.halfEdgeSize;
+filterRadius = setup.filterRadius;
+maxIter = setup.maxIter;
+maxDistance = setup.maxDistance;
+origo = setup.origo;
+R = setup.R;
+marks = setup.marks;
+outputFilenamePrefix = setup.outputFilenamePrefix;
+parameterSuffix = setup.parameterSuffix;
+masksSuffix = setup.masksSuffix;
+segmentsSuffix = setup.segmentsSuffix;
+edgeEffectSuffix = setup.edgeEffectSuffix;
+fractionsSuffix = setup.fractionsSuffix;
 
 if SAVERESULT
-    save([outputFilenamePrefix,'params.mat'],'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
+    save([outputFilenamePrefix,parameterSuffix],'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
 end
 
 % Internal variables
@@ -30,7 +51,7 @@ ind = sub2ind(size(newVol),aBoneExample(:,1),aBoneExample(:,2),aBoneExample(:,3)
 x3RegionOfInterest(ind) = true;
 mask = ~implant & circularRegionOfInterest;
 if SAVERESULT
-    save([outputFilenamePrefix,'masks.mat'],'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
+    save([outputFilenamePrefix,masksSuffix],'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
 end
 if false %SHOWRESULT
     n=n+1; figure(n); clf;
@@ -60,7 +81,7 @@ boneMask = mask & x3RegionOfInterest;
 
 neitherMask = mask & ~boneMask & ~cavityMask;
 if SAVERESULT
-    save([outputFilenamePrefix,'segments.mat'],'meanImg','boneMask','cavityMask','neitherMask');
+    save([outputFilenamePrefix,segmentsSuffix],'meanImg','boneMask','cavityMask','neitherMask');
 end
 if SHOWRESULT
     n=n+1; figure(n); clf;
@@ -105,7 +126,7 @@ end
 % Analyze the over and undershooting effects
 [sumImgByBandsFromBone, sumImgByBandsFromCavity, bands] = edgeEffect3d(boneMask, cavityMask, meanImg);
 if SAVERESULT
-    save([outputFilenamePrefix,'edgeEffect.mat'],'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
+    save([outputFilenamePrefix,edgeEffectSuffix],'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
 end
 if SHOWRESULT
     n=n+1; figure(n); clf;
@@ -130,7 +151,7 @@ x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
 fractions{end} = {x3RegionOfInterest, minSlice, maxSlice, bone, cavity, neither, distances};
 
 if SAVERESULT
-    save([outputFilenamePrefix,'fractions.mat'],'fractions');
+    save([outputFilenamePrefix,fractionsSuffix],'fractions');
 end
 if SHOWRESULT
     n=n+1; figure(n); clf;

@@ -1,19 +1,14 @@
-clear
-SMALLDATA = true;
-
-% Visualization parameters
-numberSlicesToShow = 3; % The number of exemplar slices generated
-
 % Prefixes for the data files
-annotationsPrefix = fullfile('~', 'ged'); % Annotation file prefix (input)
-if SMALLDATA
-    analysisPrefix = fullfile('~', 'ged', 'smallData'); % Analysis files prefix (input)
-    pdfPrefix = fullfile('~', 'gedTex', 'figuresSmall'); % pdf filename prefix (output)
-else
-    analysisPrefix = fullfile('~', 'ged', 'halfSizeData'); % Analysis files prefix (input)
-    pdfPrefix = fullfile('~', 'gedTex', 'figuresMedium'); % pdf filename prefix (output)
-end
-latexFile = fullfile('~', 'gedTex', 'autoMain.tex'); % pdf filename prefix (output)
+setup = setPrefixes3d();
+annotationsPrefix = setup.annotationsPrefix;
+inputPrefix = setup.inputPrefix;
+analysisPrefix = setup.analysisPrefix;
+figurePrefix = setup.figurePrefix;
+scaleFactor = setup.scaleFactor;
+MicroMeterPerPixel = setup.MicroMeterPerPixel;
+numberSlicesToShow = setup.numberSlicesToShow;
+
+latexFile = fullfile(latexPrefix, 'autoMain.tex'); % pdf filename prefix (output)
 
 %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
 fid = fopen(latexFile, 'wt');
@@ -35,7 +30,7 @@ for j = 1:length(names)
     fprintf(fid, '\\begin{figure}\n  \\centering\n');
     for i = slices
         % make filename path and check that the file exists
-        filename = fullfile(pdfPrefix, sprintf('%s_%s_%d', fn, 'original_slice', i));
+        filename = fullfile(figurePrefix, sprintf('%s_%s_%d', fn, 'original_slice', i));
         if exist([filename '.pdf'], 'file') == 0
             warning('Filename "%s.pdf" does not exist!', filename)
             missingFiles{length(missingFiles)+1} = [filename '.pdf'];
@@ -47,7 +42,7 @@ for j = 1:length(names)
 
     fprintf(fid, '\\begin{figure}\n  \\centering\n');
     % make filename path and check that the file exists
-    filename = fullfile(pdfPrefix, sprintf('%s_%s', fn, 'implant'));
+    filename = fullfile(figurePrefix, sprintf('%s_%s', fn, 'implant'));
     if exist([filename '.png'], 'file') == 0
         warning('Filename "%s.png" does not exist!', filename)
         missingFiles{length(missingFiles)+1} = [filename '.png'];
@@ -55,7 +50,7 @@ for j = 1:length(names)
     % Write the line to the tex file
     fprintf(fid, '  \\subfigure{\\includegraphics[width=0.3\\linewidth]{%s}}\n', filename);
     % make filename path and check that the file exists
-    filename = fullfile(pdfPrefix, sprintf('%s_%s', fn, 'zones'));
+    filename = fullfile(figurePrefix, sprintf('%s_%s', fn, 'zones'));
     if exist([filename '.pdf'], 'file') == 0
         warning('Filename "%s.pdf" does not exist!', filename)
         missingFiles{length(missingFiles)+1} = [filename '.pdf'];
@@ -67,7 +62,7 @@ for j = 1:length(names)
     fprintf(fid, '\\begin{figure}\n  \\centering\n');
     for i = slices
         % make filename path and check that the file exists
-        filename = fullfile(pdfPrefix, sprintf('%s_%s_%d', fn, 'bias_corrected_slice', i));
+        filename = fullfile(figurePrefix, sprintf('%s_%s_%d', fn, 'bias_corrected_slice', i));
         if exist([filename '.pdf'], 'file') == 0
             warning('Filename "%s.pdf" does not exist!', filename)
             missingFiles{length(missingFiles)+1} = [filename '.pdf'];
@@ -78,7 +73,7 @@ for j = 1:length(names)
     fprintf(fid, '\n');
     for i = slices
         % make filename path and check that the file exists
-        filename = fullfile(pdfPrefix, sprintf('%s_%s_%d', fn, 'mask_slice', i));
+        filename = fullfile(figurePrefix, sprintf('%s_%s_%d', fn, 'mask_slice', i));
         if exist([filename '.pdf'], 'file') == 0
             warning('Filename "%s.pdf" does not exist!', filename)
             missingFiles{length(missingFiles)+1} = [filename '.pdf'];
@@ -89,7 +84,7 @@ for j = 1:length(names)
     fprintf(fid, '\n');
     for i = slices
         % make filename path and check that the file exists
-        filename = fullfile(pdfPrefix, sprintf('%s_%s_%d', fn, 'bone_slice', i));
+        filename = fullfile(figurePrefix, sprintf('%s_%s_%d', fn, 'bone_slice', i));
         if exist([filename '.pdf'], 'file') == 0
             warning('Filename "%s.pdf" does not exist!', filename)
             missingFiles{length(missingFiles)+1} = [filename '.pdf'];
@@ -100,7 +95,7 @@ for j = 1:length(names)
     fprintf(fid, '\n');
     for i = slices
         % make filename path and check that the file exists
-        filename = fullfile(pdfPrefix, sprintf('%s_%s_%d', fn, 'cavities_slice', i));
+        filename = fullfile(figurePrefix, sprintf('%s_%s_%d', fn, 'cavities_slice', i));
         if exist([filename '.pdf'], 'file') == 0
             warning('Filename "%s.pdf" does not exist!', filename)
             missingFiles{length(missingFiles)+1} = [filename '.pdf'];
@@ -112,7 +107,7 @@ for j = 1:length(names)
 
     fprintf(fid, '\\begin{figure}\n  \\centering\n');
     % make filename path and check that the file exists
-    filename = fullfile(pdfPrefix, sprintf('%s_%s.pdf', fn, 'edge_effect_bone'));
+    filename = fullfile(figurePrefix, sprintf('%s_%s.pdf', fn, 'edge_effect_bone'));
     if exist(filename, 'file') == 0
         warning('Filename "%s" does not exist!', filename)
         missingFiles{length(missingFiles)+1} = filename;
@@ -124,7 +119,7 @@ for j = 1:length(names)
     fprintf(fid, '\\begin{figure}\n  \\centering\n');
     for i = 1:3
         % make filename path and check that the file exists
-        filename = fullfile(pdfPrefix, sprintf('%s_%s_%d', fn, 'bone_fraction', i));
+        filename = fullfile(figurePrefix, sprintf('%s_%s_%d', fn, 'bone_fraction', i));
         if exist([filename '.pdf'], 'file') == 0
             warning('Filename "%s.pdf" does not exist!', filename)
             missingFiles{length(missingFiles)+1} = [filename '.pdf'];
@@ -135,7 +130,7 @@ for j = 1:length(names)
     fprintf(fid, '  \\caption{%s: Bone fractions.}\n  \\label{fig:%s}\n\\end{figure}\n', fnEsc, fn);
     fprintf(fid, '\\begin{figure}\n  \\centering\n');
     % make filename path and check that the file exists
-    filename = fullfile(pdfPrefix, sprintf('%s_%s', fn, 'edge_effect_bone'));
+    filename = fullfile(figurePrefix, sprintf('%s_%s', fn, 'edge_effect_bone'));
     if exist([filename '.pdf'], 'file') == 0
         warning('Filename "%s.pdf" does not exist!', filename)
         missingFiles{length(missingFiles)+1} = [filename '.pdf'];

@@ -1,40 +1,27 @@
-% Global plotting parameters
-FONTSIZE = 18;
-SMALLFONTSIZE = 12;
-MARKERSIZE = 15;
-LINEWIDTH=3;
-PROGRESSOUTPUT=true;
-SMALLDATA = true;
-
-% Visualization parameters
-numberSlicesToShow = 3; % The number of exemplar slices generated
+function visualize3d(setup, FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, PROGRESSOUTPUT)
 
 % Prefixes for the data files
-%annotationsPrefix = fullfile('~','AKIRA','ged'); % Annotation file prefix (input)
-annotationsPrefix = fullfile('.'); % Annotation file prefix (input)
-if SMALLDATA
-    scaleFactor = 1; % scaling factor used in the analysis fase w.r.t. annotation file
-    analysisPrefix = fullfile('~','akiraMount','ged','smallData'); % Analysis files prefix (input)
-    pdfPrefix = fullfile('~','akiraMount','gedTex','figuresSmall'); % pdf filename prefix (output)
-    %analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
-    %pdfPrefix = fullfile('..','gedTex','figuresSmall'); % pdf filename prefix (output)
-else
-    scaleFactor = 2; % scaling factor used in the analysis fase w.r.t. annotation file
-    analysisPrefix = fullfile('~','akiraMount','ged','halfSizeData'); % Analysis files prefix (input)
-    pdfPrefix = fullfile('~','akiraMount','gedTex','figuresMedium'); % pdf filename prefix (output)
-    %analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
-    %pdfPrefix = fullfile('..','gedTex','figuresMedium'); % pdf filename prefix (output)
-end
-MicroMeterPerPixel = 5*4/scaleFactor;
+analysisPrefix = setup.analysisPrefix;
+pdfPrefix = setup.pdfPrefix;
+scaleFactor = setup.scaleFactor;
+MicroMeterPerPixel = setup.MicroMeterPerPixel;
+numberSlicesToShow = setup.numberSlicesToShow;
+annotationsFilename = setup.annotationsFilename;
+outputFilenamePrefix = setup.outputFilenamePrefix;
+parameterSuffix = setup.parameterSuffix;
+masksSuffix = setup.masksSuffix;
+segmentsSuffix = setup.segmentsSuffix;
+edgeEffectSuffix = setup.edgeEffectSuffix;
+fractionsSuffix = setup.fractionsSuffix;
 
 %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
 set(0,'DefaultAxesFontSize',FONTSIZE)
 set(0,'defaultlinelinewidth',LINEWIDTH)
-set(0,'DefaultLineMarkerSize',15)
+set(0,'DefaultLineMarkerSize',MARKERSIZE)
 
-load(fullfile(annotationsPrefix,'annotations.mat')); % load p
+load(annotationsFilename); % load p
 names = fieldnames(p);
-for j = 2:2%length(names)
+for j = 1:length(names)
     if PROGRESSOUTPUT
         fprintf('%d: %s\n',j,names{j})
         tic;
@@ -58,7 +45,7 @@ for j = 2:2%length(names)
             tic;
         end
     else
-        load(fullfile(analysisPrefix,[fn,'_params.mat']));%'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
+        load([outputFilenamePrefix,parameterSuffix]);%'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
         for i = slices
             clf; set(gcf,'color',[1,1,1]);
             showSlice = i;
@@ -72,7 +59,7 @@ for j = 2:2%length(names)
             tic;
         end
         
-        load(fullfile(analysisPrefix,[fn,'_masks.mat']));%,'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
+        load([outputFilenamePrefix,masksSuffix]);%,'implant','circularRegionOfInterest','x3RegionOfInterest','mask');
         clf; set(gcf,'color',[1,1,1]);
         xMax = round(size(newVol)/2);
         x1 = -(xMax(1)-1):xMax(1);
@@ -154,7 +141,7 @@ for j = 2:2%length(names)
             tic;
         end
         
-        load(fullfile(analysisPrefix,[fn,'_segments.mat']));%,'meanImg','boneMask','cavityMask','neitherMask');
+        load([outputFilenamePrefix,segmentsSuffix]);%,'meanImg','boneMask','cavityMask','neitherMask');
         for i = slices
             clf; set(gcf,'color',[1,1,1]);
             showSlice = i;
@@ -188,7 +175,7 @@ for j = 2:2%length(names)
             tic;
         end
         
-        load(fullfile(analysisPrefix,[fn,'_edgeEffect.mat']));%,'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
+        load([outputFilenamePrefix,edgeEffectSuffix]);%,'bands','sumImgByBandsFromBone','sumImgByBandsFromCavity');
         clf; set(gcf,'color',[1,1,1]);
         b = MicroMeterPerPixel*linspace(min(bands),max(bands),100);
         plot(b,interp1(bands,sumImgByBandsFromBone,b,'pchip')); axis tight;
@@ -204,7 +191,7 @@ for j = 2:2%length(names)
             tic;
         end
         
-        load(fullfile(analysisPrefix,[fn,'_fractions.mat']));%,'fractions');
+        load([outputFilenamePrefix,fractionsSuffix]);%,'fractions');
         for i = 1:size(fractions,1)
             clf; set(gcf,'color',[1,1,1]);
             x3RegionOfInterest = fractions{i}{1};
