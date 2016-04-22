@@ -22,7 +22,7 @@ if SAVERESULT
         fprintf('  saving %s\n',outputFilename);
     end
     
-    save(outputFilename,'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
+    save(outputFilename,'outputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
 end
 
 % Internal variables

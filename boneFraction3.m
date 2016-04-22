@@ -29,7 +29,7 @@ datasets = {...
     'ID1689_807_pag'};
 %}
 
-for i = 1:1%length(datasets)
+for i = 1:3%length(datasets)
     datasetSetup = p.(datasets{i});  % struct for current dataset
     
     % Things may have moved, so we ensure that the prefix of the input

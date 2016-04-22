@@ -60,7 +60,7 @@ inputFilename = [inputFilenamePrefix,parametersSuffix];
 if VERBOSE
     fprintf('  loading %s\n',inputFilename);
 end
-load(inputFilename,'inputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
+load(inputFilename,'outputFilename','aBoneExample','aCavityExample','anImplantExample','avoidEdgeDistance','avoidEdgeDistance','filterRadius','maxIter','maxDistance','origo','R','marks');
 if ~isempty(fid)
     fprintf(fid, '\\begin{figure}[ht]\n  \\centering\n');
     [~, fn, fe] = fileparts(figurePrefix);
