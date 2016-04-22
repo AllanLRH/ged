@@ -32,6 +32,8 @@ load(annotationsFilename, 'p'); % load p
 datasets = fieldnames(p);
 
 for i = 1:1%length(datasets)
+    datasetSetup = p.(datasets{i});  % struct for current dataset
+
     % Things may have moved, so we ensure that the prefix of the input
     % filename is proper
     [~, fn, fe] = fileparts(datasetSetup.inputFilename);
