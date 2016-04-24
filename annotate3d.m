@@ -1,5 +1,12 @@
-SMALLDATA = true;
 APPEND = true;
+
+setup = setPrefixes3d();
+annotationsFilename = setup.annotationsFilename;
+inputPrefix = setup.inputPrefix;
+analysisPrefix = setup.analysisPrefix;
+annotationsPrefix = setup.annotationsPrefix;
+scaleFactor = setup.scaleFactor;
+filenamePattern = setup.filenamePattern;
 
 avoidEdgeDistance = 10;
 minSlice = 1;
@@ -9,16 +16,6 @@ filterRadius = 2;
 maxIter = 3;
 maxDistance = 100;
 noMarks = 3;
-
-filenamePattern = '*v7.3_double.mat';
-annotationsPrefix = fullfile('.'); % Annotation file prefix (input)
-if SMALLDATA
-    scaleFactor = 1; % scaling factor used in the analysis fase w.r.t. annotation file
-    analysisPrefix = fullfile('smallData'); % Analysis files prefix (input)
-else
-    scaleFactor = 2; % scaling factor used in the analysis fase w.r.t. annotation file
-    analysisPrefix = fullfile('halfSizeData'); % Analysis files prefix (input)
-end
 
 % filenames= {'5.05_ID1662_769_v7.3_double', ...
 %     '5.05_ID1662_770_v7.3_double', ...
@@ -39,7 +36,7 @@ filenames = {tmp(:).name};
 
 figure(1);
 if APPEND
-    load(fullfile(annotationsPrefix,'annotations.mat'), 'p');
+    load(annotationsFilename, 'p');
 else
     p = [];
 end
@@ -111,6 +108,7 @@ for i = 1:length(filenames)
         x3 = -(xMax(3)-1):xMax(3);
         accepted = false;
         [origo, R, D] = getAxes3d(implant);
+%{
         while ~accepted
             slice = squeeze(sample3d(newVol, origo, R, x1, x2, x3));
             
@@ -136,7 +134,8 @@ for i = 1:length(filenames)
                 R(:,1) = R(:,1)/sqrt(sum(R(:,1).^2));
             end
         end
-        p.(nameID).marks = marks;
+        %}
+        p.(nameID).marks = [];
         p.(nameID).inputFilename = inputFilename;
         p.(nameID).origo = origo;
         p.(nameID).aBoneExample = boneSamples;
@@ -152,7 +151,7 @@ for i = 1:length(filenames)
         p.(nameID).maxIter = maxIter;
         p.(nameID).maxDistance = maxDistance;
         p.(nameID).scaleFactor = scaleFactor;
-        save(fullfile(annotationsPrefix,'annotations.mat'), 'p');
+        save(annotationsFilename, 'p');
     end
 end
 
