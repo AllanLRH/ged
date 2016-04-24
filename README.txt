@@ -6,5 +6,5 @@ Version 3:
 annotate3d.m
 correctAnnotations3d.m
 boneFraction3.m
-visualise3d.m
+visualise3.m
 pdflatex

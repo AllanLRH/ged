@@ -13,7 +13,7 @@ if VERBOSE
 end
 
 if VERBOSE
-  fprintf('  loading %s\n',annotationsFilename);
+  fprintf('  loading %s\n', annotationsFilename);
 end
 load(annotationsFilename, 'p'); % load p
 datasets = fieldnames(p);
@@ -35,18 +35,18 @@ for i = 1:3%length(datasets)
   % Things may have moved, so we ensure that the prefix of the input
   % filename is proper
   [~, fn, fe] = fileparts(datasetSetup.inputFilename);
-  datasetSetup.imageFilename=fullfile(inputPrefix,[fn,fe]); % load p
+  datasetSetup.imageFilename=fullfile(inputPrefix, [fn, fe]); % load p
   
   % Output filenames are modified to include inputFilename identifier
-  datasetSetup.outputFilenamePrefix = fullfile(analysisPrefix,[fn, '_']);
+  datasetSetup.outputFilenamePrefix = fullfile(analysisPrefix, [fn, '_']);
   
-  fprintf('%d/%d: %s\n',i,length(datasets),datasetSetup.inputFilename);
+  fprintf('%d/%d: %s\n', i, length(datasets), datasetSetup.inputFilename);
   analyse3d(datasetSetup, setup.parametersSuffix, setup.masksSuffix, setup.segmentsSuffix, setup.edgeEffectSuffix, setup.fractionsSuffix, SHOWRESULT, SAVERESULT, VERBOSE);
 end
 
 %{
-p{i,6}=150
-p{i,7}=250
+p{i, 6}=150
+p{i, 7}=250
 outPath = '../gedData/smallData/';
-save([outPath,'annotations.mat'],'p');
+save([outPath, 'annotations.mat'], 'p');
 %}

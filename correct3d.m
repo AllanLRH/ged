@@ -32,7 +32,7 @@ function points = correct3d(setup, masksSuffix, VERBOSE)
   fprintf('Press ''r'' to toggle rotate, ''<backspace>'' to delete last point, ''q'' to save and continue.\n');
   
   while true
-    k = waitforbuttonpress; 
+    k = waitforbuttonpress;
     if k == 1
       c = get(fig,'CurrentCharacter');
       if c == 'r'
