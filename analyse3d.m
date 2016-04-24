@@ -1,32 +1,30 @@
-function analyse3d(setup, parametersSuffix, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractionsSuffix, SHOWRESULT, SAVERESULT, VERBOSE)
+function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractionsSuffix, SHOWRESULT, SAVERESULT, VERBOSE)
   
   imageFilename = setup.imageFilename;
   aBoneExample = setup.aBoneExample;
   aCavityExample = setup.aCavityExample;
   anImplantExample = setup.anImplantExample;
   avoidEdgeDistance = setup.avoidEdgeDistance;
-  minSlice = setup.minSlice;
-  maxSlice = setup.maxSlice;
   halfEdgeSize = setup.halfEdgeSize;
   filterRadius = setup.filterRadius;
   maxIter = setup.maxIter;
   maxDistance = setup.maxDistance;
   origo = setup.origo;
   R = setup.R;
-  marks = setup.marks;
   outputFilenamePrefix = setup.outputFilenamePrefix;
   
   % Internal variables
-  n = 0;
-  
+  if SHOWRESULT
+    n = 0;
+  end
   % loads newVol
   if VERBOSE
     fprintf('  loading %s\n', imageFilename);
   end
   load(imageFilename, 'newVol');
-  minNewVol = min(min(min(newVol)));
-  maxNewVol = max(max(max(newVol)));
   if SHOWRESULT
+    minNewVol = min(min(min(newVol)));
+    maxNewVol = max(max(max(newVol)));
     n=n+1; figure(n); clf;
     for i = [1:size(newVol, 3), 128]
       showSlice = i;
@@ -51,29 +49,13 @@ function analyse3d(setup, parametersSuffix, masksSuffix, segmentsSuffix, edgeEff
     end
     save(outputFilename, 'implant', 'circularRegionOfInterest', 'x3RegionOfInterest', 'mask');
   end
-  if false %SHOWRESULT
+  if SHOWRESULT
     n=n+1; figure(n); clf;
     isosurface(implant, 0.5); title('Implant segment'); xlabel('x'); ylabel('y'); zlabel('z'); axis equal tight
     drawnow;
   end
   
-  % We bias correct on bone, but first we need to find the bone, so we
-  % iterate a couple of times
-  %{
-boneMask = false(size(mask));
-n=n+1; figure(n); clf;
-for i = [50, 100, 150, 200]
-    imagesc(newVol(:, :, i).*mask(:, :, i)); title('Saggital slice'); colormap(gray); axis image tight;
-    hold on;
-    for j = 1:5
-        x = ginput(1);
-        plot(x(1), x(2), 'g+');
-        boneMask(round(x(2)), round(x(1)), i) = true;
-    end
-     hold off
-end
-[newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(1, boneMask, newVol, mask, filterRadius, aBoneExample, aCavityExample, halfEdgeSize);
-  %}
+  % We bias correct on bone
   boneMask = mask & x3RegionOfInterest;
   [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample(1, :), aCavityExample, halfEdgeSize, VERBOSE);
   
@@ -97,6 +79,22 @@ end
       subplot(2, 3, 6); hist(meanImg(neitherMask(:, :, showSlice)), 1000); title('Histogram of neither');
       drawnow;
     end
+  end
+  
+  % Analyze the over and undershooting effects
+  [sumImgByBandsFromBone, sumImgByBandsFromCavity, bands] = edgeEffect3d(boneMask, cavityMask, meanImg);
+  if SAVERESULT
+    outputFilename = [outputFilenamePrefix, edgeEffectSuffix];
+    if VERBOSE
+      fprintf('  saving %s\n', outputFilename);
+    end
+    save(outputFilename, 'bands', 'sumImgByBandsFromBone', 'sumImgByBandsFromCavity');
+  end
+  if SHOWRESULT
+    n=n+1; figure(n); clf;
+    subplot(1, 2, 1); b = linspace(min(bands), max(bands), 100); plot(b, interp1(bands, sumImgByBandsFromBone, b, 'pchip')); title('Overshooting from Bone'); xlabel('distance/voxels'); ylabel('intensity');
+    subplot(1, 2, 2); b = linspace(min(bands), max(bands), 100); plot(b, interp1(bands, sumImgByBandsFromCavity, b, 'pchip')); title('Overshooting from Cavity'); xlabel('distance/voxels'); ylabel('intensity');
+    drawnow;
   end
   
   % Transform to implant aligned coordinate system
@@ -125,41 +123,9 @@ end
     end
   end
   
-  % Analyze the over and undershooting effects
-  [sumImgByBandsFromBone, sumImgByBandsFromCavity, bands] = edgeEffect3d(boneMask, cavityMask, meanImg);
-  if SAVERESULT
-    outputFilename = [outputFilenamePrefix, edgeEffectSuffix];
-    if VERBOSE
-      fprintf('  saving %s\n', outputFilename);
-    end
-    save(outputFilename, 'bands', 'sumImgByBandsFromBone', 'sumImgByBandsFromCavity');
-  end
-  if SHOWRESULT
-    n=n+1; figure(n); clf;
-    subplot(1, 2, 1); b = linspace(min(bands), max(bands), 100); plot(b, interp1(bands, sumImgByBandsFromBone, b, 'pchip')); title('Overshooting from Bone'); xlabel('distance/voxels'); ylabel('intensity');
-    subplot(1, 2, 2); b = linspace(min(bands), max(bands), 100); plot(b, interp1(bands, sumImgByBandsFromCavity, b, 'pchip')); title('Overshooting from Cavity'); xlabel('distance/voxels'); ylabel('intensity');
-    drawnow;
-  end
-  
   % Count the volume of bone, cavity and neither by distance from implant
   [bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
   fractions = {x1, x2, x3, bone, cavity, neither, distances};
-  %{
-  fractions = cell(size(marks, 1), 1);
-  for i = 1:size(marks, 1)-1
-    minSlice = min(marks(i, 3), marks(i+1, 3));
-    maxSlice = max(marks(i, 3), marks(i+1, 3));
-    x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
-    [bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedMask, x3RegionOfInterest, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
-    fractions{i} = {x3RegionOfInterest, minSlice, maxSlice, bone, cavity, neither, distances};
-  end
-  minSlice = min(marks(1, 3), marks(end, 3));
-  maxSlice = max(marks(1, 3), marks(end, 3));
-  x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
-  [bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedMask, x3RegionOfInterest, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
-  fractions{end} = {x3RegionOfInterest, minSlice, maxSlice, bone, cavity, neither, distances};
-  %}
-  
   if SAVERESULT
     outputFilename = [outputFilenamePrefix, fractionsSuffix];
     if VERBOSE
