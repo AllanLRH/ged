@@ -17,16 +17,15 @@ load(annotationsFilename, 'p'); % load p
 datasets = fieldnames(p);
 
 choice = 'Overwrite';
-for i = 1:length(datasets)
+for i = 12:length(datasets)
   datasetSetup = p.(datasets{i});  % struct for current dataset
   
   if isfield(datasetSetup, 'oldR')
     if strcmp(choice, 'Skip all')
       continue
     end
-    choice = questdlg(sprintf('Data "%s" appears already to have been updated.', dataset{i}), 'Question', 'Overwrite', 'Skip', 'Skip all', 'Skip');
-    if strcmp(choice, 'Skip')
-      choice = 'Overwrite';
+    choice = questdlg(sprintf('Data "%s" appears already to have been updated.', datasets{i}), 'Question', 'Overwrite', 'Skip', 'Skip all', 'Skip');
+    if ~strcmp(choice, 'Overwrite')
       continue
     end
   end

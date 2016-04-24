@@ -115,11 +115,11 @@ end
     n=n+1; figure(n); clf;
     for i = [1:size(meanImg, 3), 128]
       showSlice = i;
-      subplot(2, 3, 1); imagesc(rotatedMeanImg(:, :, showSlice)); title(sprintf('Bias corrected slice %d', showSlice)); colormap(gray); axis image tight;
-      subplot(2, 3, 2); imagesc(rotatedMask(:, :, showSlice)); title('Mask'); colormap(gray); axis image tight
-      subplot(2, 3, 3); imagesc(rotatedCavityMask(:, :, showSlice)); title('Cavities'); colormap(gray); axis image tight
-      subplot(2, 3, 4); imagesc(rotatedBoneMask(:, :, showSlice)); title('Bone'); colormap(gray); axis image tight
-      subplot(2, 3, 5); imagesc(rotatedNeitherMask(:, :, showSlice).*rotatedMeanImg(:, :, showSlice)); title('Neither'); colormap(gray); axis image tight
+      subplot(2, 3, 1); imagesc(rotatedMeanImg(:, :, showSlice),'XData',x1,'YData',x2); title(sprintf('Bias corrected slice %d', showSlice)); colormap(gray); axis image tight;
+      subplot(2, 3, 2); imagesc(rotatedMask(:, :, showSlice),'XData',x1,'YData',x2); title('Mask'); colormap(gray); axis image tight
+      subplot(2, 3, 3); imagesc(rotatedCavityMask(:, :, showSlice),'XData',x1,'YData',x2); title('Cavities'); colormap(gray); axis image tight
+      subplot(2, 3, 4); imagesc(rotatedBoneMask(:, :, showSlice),'XData',x1,'YData',x2); title('Bone'); colormap(gray); axis image tight
+      subplot(2, 3, 5); imagesc(rotatedNeitherMask(:, :, showSlice).*rotatedMeanImg(:, :, showSlice),'XData',x1,'YData',x2); title('Neither'); colormap(gray); axis image tight
       subplot(2, 3, 6); hist(rotatedMeanImg(rotatedNeitherMask(:, :, showSlice)), 1000); title('Histogram of neither');
       drawnow;
     end
@@ -142,6 +142,9 @@ end
   end
   
   % Count the volume of bone, cavity and neither by distance from implant
+  [bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
+  fractions = {x1, x2, x3, bone, cavity, neither, distances};
+  %{
   fractions = cell(size(marks, 1), 1);
   for i = 1:size(marks, 1)-1
     minSlice = min(marks(i, 3), marks(i+1, 3));
@@ -155,6 +158,7 @@ end
   x3RegionOfInterest = x3RegionOfInterst3d(newVol, minSlice, maxSlice);
   [bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedMask, x3RegionOfInterest, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
   fractions{end} = {x3RegionOfInterest, minSlice, maxSlice, bone, cavity, neither, distances};
+  %}
   
   if SAVERESULT
     outputFilename = [outputFilenamePrefix, fractionsSuffix];
@@ -163,6 +167,8 @@ end
     end
     save(outputFilename, 'fractions');
   end
+  %{
+  % This part needs to be rewritten to fit new fraction3d output.
   if SHOWRESULT
     n=n+1; figure(n); clf;
     for i = 1:length(fractions)
@@ -180,4 +186,5 @@ end
     end
     drawnow;
   end
+  %}
 end

@@ -9,6 +9,9 @@ function visualise3d(setup, parametersSuffix, masksSuffix, segmentsSuffix, edgeE
   inputFilenamePrefix = setup.inputFilenamePrefix;
   MicroMeterPerPixel = setup.MicroMeterPerPixel;
   figurePrefix = setup.figurePrefix;
+  origo = setup.origo;
+  R = setup.R;
+  marks = setup.marks;
   
   %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
   set(0, 'DefaultAxesFontSize', FONTSIZE)
@@ -29,7 +32,7 @@ function visualise3d(setup, parametersSuffix, masksSuffix, segmentsSuffix, edgeE
       tic;
     end
   else
-    [marks, origo, R] = visualizeImageSections(newVol, slices, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, parametersSuffix, fid, VERBOSE, PROGRESSOUTPUT);
+    visualizeImageSections(newVol, origo, R, slices, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, parametersSuffix, fid, VERBOSE, PROGRESSOUTPUT);
     
     [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, masksSuffix, fid, FONTSIZE, SMALLFONTSIZE, VERBOSE, PROGRESSOUTPUT);
     
@@ -53,14 +56,9 @@ function newVol = loadImage(imageFilename, VERBOSE, PROGRESSOUTPUT)
   end
 end
 
-function [marks, origo, R] = visualizeImageSections(newVol, slices, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, parametersSuffix, fid, VERBOSE, PROGRESSOUTPUT)
+function visualizeImageSections(newVol, slices, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, parametersSuffix, fid, VERBOSE, PROGRESSOUTPUT)
   %
-  inputFilename = [inputFilenamePrefix, parametersSuffix];
-  
-  if VERBOSE
-    fprintf('  loading %s\n', inputFilename);
-  end
-  load(inputFilename, 'outputFilename', 'aBoneExample', 'aCavityExample', 'anImplantExample', 'avoidEdgeDistance', 'avoidEdgeDistance', 'filterRadius', 'maxIter', 'maxDistance', 'origo', 'R', 'marks');
+
   if ~isempty(fid)
     fprintf(fid, '\\begin{figure}[ht]\n  \\centering\n');
     [~, fn, fe] = fileparts(figurePrefix);

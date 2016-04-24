@@ -15,9 +15,7 @@ function points = correct3d(setup, masksSuffix, VERBOSE)
   cla(ax);
   fig = gcf;
   
-  newVol = loadImage(imageFilename, VERBOSE);
-  
-  implantPatch = visualizeImplant(ax, newVol, origo, R, inputFilenamePrefix, masksSuffix, downsampleFactor, VERBOSE);
+  implantPatch = visualizeImplant(ax, inputFilenamePrefix, masksSuffix, downsampleFactor, VERBOSE);
   
   set(implantPatch, 'ButtonDownFcn', @addPoint);
   rotate3d off;
@@ -52,31 +50,25 @@ function points = correct3d(setup, masksSuffix, VERBOSE)
     load(imageFilename, 'newVol'); % loads newVol
   end
   
-  function p = visualizeImplant(ax, newVol, origo, R, inputFilenamePrefix, masksSuffix, downsampleFactor, VERBOSE)
+  function p = visualizeImplant(ax, inputFilenamePrefix, masksSuffix, downsampleFactor, VERBOSE)
     %
     inputFilename = [inputFilenamePrefix, masksSuffix];
     
     if VERBOSE
       fprintf('  loading %s\n', inputFilename);
     end
-    load(inputFilename, 'implant', 'circularRegionOfInterest', 'x3RegionOfInterest', 'mask');
+    load(inputFilename, 'implant');
     
     if VERBOSE
       fprintf('  visualizing surface\n');
     end
     
-    xMax = round(size(newVol)/2);
-    x1 = -(xMax(1)-1):xMax(1);
-    x2 = -(xMax(2)-1):xMax(2);
-    x3 = -(xMax(3)-1):xMax(3);
-    rotatedImplant = sample3d(single(implant), origo, R, x1, x2, x3)>.5;
-    v = rotatedImplant(1:downsampleFactor:size(rotatedImplant, 1), 1:downsampleFactor:size(rotatedImplant, 2), 1:downsampleFactor:size(rotatedImplant, 3));
-    [x, y, z] = meshgrid(1:size(v, 1), 1:size(v, 2), 1:size(v, 3));
+    v = implant(1:downsampleFactor:size(implant, 1), 1:downsampleFactor:size(implant, 2), 1:downsampleFactor:size(implant, 3));
     tax = gca;
     axes(ax);
     p = patch(isosurface(v, 0.5));
     axes(tax);
-    isonormals(x, y, z, v, p)
+    isonormals(v, p)
     p.FaceColor = 'red';
     p.EdgeColor = 'none';
     daspect([1 1 1])
