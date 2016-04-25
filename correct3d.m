@@ -82,7 +82,7 @@ function points = correct3d(setup, masksSuffix, VERBOSE)
   function addPoint(hObject,callbackdata)
     %
     x = callbackdata.IntersectionPoint;
-    points(:,end+1) = downsampleFactor*(x-1)+1;
+    points(:,end+1) = downsampleFactor*(x([2,1,3])-1)+1; % We store in row, column form!
     hold on;
     pointHandles(end+1) = plot3(x(1),x(2),x(3),'ob');
     hold off

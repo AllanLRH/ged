@@ -99,9 +99,9 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   
   % Transform to implant aligned coordinate system
   xMax = round(size(newVol)/2);
-  x1 = -(xMax(1)-1):xMax(1);
-  x2 = -(xMax(2)-1):xMax(2);
-  x3 = -(xMax(3)-1):xMax(3);
+  x1 = -xMax(1):xMax(1);
+  x2 = -xMax(2):xMax(2);
+  x3 = -xMax(3):xMax(3);
   rotatedMeanImg = sample3d(meanImg, origo, R, x1, x2, x3);
   rotatedImplant = sample3d(single(implant), origo, R, x1, x2, x3)>.5;
   rotatedMask = sample3d(single(mask), origo, R, x1, x2, x3)>.5;

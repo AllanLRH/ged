@@ -48,11 +48,11 @@ for i = 12:length(datasets)
   u = cross(v, w); u = u / norm(u);
   v = cross(w, u);
   R = [u, v, w];
-  marks = (x(:, [3, 2, 4, 1]) - o * ones(1, 4))' * R;
+  marks = R'*bsxfun(@plus,x,-o); %R'*(x(:, [3, 2, 4, 1]) - o * ones(1, 4));
   p.(datasets{i}).oldR = p.(datasets{i}).R;
   p.(datasets{i}).oldMarks = p.(datasets{i}).marks;
   p.(datasets{i}).R = R;
   p.(datasets{i}).marks = marks;
-  p.(datasets{i}).xMarks = x(:, [3, 2, 4, 1]);
+  p.(datasets{i}).xMarks = x;
 end
 save(annotationsFilename, 'p');

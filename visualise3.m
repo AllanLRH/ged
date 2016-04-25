@@ -5,7 +5,6 @@ FONTSIZE = 18;
 SMALLFONTSIZE = 12;
 MARKERSIZE = 15;
 LINEWIDTH=3;
-PROGRESSOUTPUT=true;
 
 % Prefixes for the data files
 setup = setPrefixes3d();
@@ -22,7 +21,7 @@ else
 end
 
 if VERBOSE
-    fprintf('Visualising bone: FONTSIZE=%d, SMALLFONTSIZE=%d, MARKERSIZE=%d, LINEWIDTH=%d, PROGRESSOUTPUT=%d, VERBOSE=%d\n', FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, PROGRESSOUTPUT, VERBOSE);
+    fprintf('Visualising bone: FONTSIZE=%d, SMALLFONTSIZE=%d, MARKERSIZE=%d, LINEWIDTH=%d, VERBOSE=%d\n', FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, VERBOSE);
 end
 
 if VERBOSE
@@ -31,7 +30,7 @@ end
 load(annotationsFilename, 'p'); % load p
 datasets = fieldnames(p);
 
-for i = 1:1%length(datasets)
+for i = 1:length(datasets)
     datasetSetup = p.(datasets{i});  % struct for current dataset
 
     % Things may have moved, so we ensure that the prefix of the input
@@ -53,5 +52,5 @@ for i = 1:1%length(datasets)
         fprintf(fid, '\\clearpage\n');
         fprintf(fid, '\\section{%s}\n',fnEsc);
     end
-    visualise3d(datasetSetup, setup.parametersSuffix, setup.masksSuffix, setup.segmentsSuffix, setup.edgeEffectSuffix, setup.fractionsSuffix, setup.numberSlicesToShow, fid, FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, PROGRESSOUTPUT, VERBOSE);
+    visualise3d(datasetSetup, setup.parametersSuffix, setup.masksSuffix, setup.segmentsSuffix, setup.edgeEffectSuffix, setup.fractionsSuffix, setup.numberSlicesToShow, fid, FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, VERBOSE);
 end

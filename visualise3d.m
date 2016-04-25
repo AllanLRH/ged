@@ -1,7 +1,5 @@
-function visualise3d(setup, parametersSuffix, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractionsSuffix, numberSlicesToShow, fid, FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, PROGRESSOUTPUT, VERBOSE)
+function visualise3d(setup, parametersSuffix, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractionsSuffix, numberSlicesToShow, fid, FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, VERBOSE)
   %
-  
-  tic;
   
   % Prefixes for the data files
   imageFilename = setup.imageFilename;
@@ -20,45 +18,38 @@ function visualise3d(setup, parametersSuffix, masksSuffix, segmentsSuffix, edgeE
   
   %p = scaleBoneFractionParameters(setup, scaleFactor);
   
-  newVol = loadImage(imageFilename, VERBOSE, PROGRESSOUTPUT);
+  tic;
+  newVol = loadImage(imageFilename, VERBOSE);
   
   slices = round(linspace(1, size(newVol, 3), numberSlicesToShow+2));
   slices = slices(2:end-1);
   
-  inputFilename = [inputFilenamePrefix, parametersSuffix];
-  if ~exist(inputFilename, 'file')
-    if PROGRESSOUTPUT
-      fprintf('  ''%s'' does not exist, moving on to next (%gs)\n', inputFilenamePrefix, toc);
-      tic;
-    end
-  else
-    visualizeImageSections(newVol, origo, R, slices, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, parametersSuffix, fid, VERBOSE, PROGRESSOUTPUT);
-    
-    [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, masksSuffix, fid, FONTSIZE, SMALLFONTSIZE, VERBOSE, PROGRESSOUTPUT);
-    
-    visualizeSegments(mask, MicroMeterPerPixel, slices, figurePrefix, inputFilenamePrefix, segmentsSuffix, fid, VERBOSE, PROGRESSOUTPUT);
-    
-    visualizeBands(MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, edgeEffectSuffix, fid, VERBOSE, PROGRESSOUTPUT);
-    
-    visualizeFractions(newVol, marks, rotatedImplant, origo, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, fractionsSuffix, fid, SMALLFONTSIZE, VERBOSE, PROGRESSOUTPUT);
-  end
+  visualizeImageSections(newVol, slices, MicroMeterPerPixel, figurePrefix, fid, VERBOSE);
+  
+  [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, masksSuffix, fid, FONTSIZE, SMALLFONTSIZE, VERBOSE);
+  
+  visualizeSegments(mask, MicroMeterPerPixel, slices, figurePrefix, inputFilenamePrefix, segmentsSuffix, fid, VERBOSE);
+  
+  visualizeBands(MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, edgeEffectSuffix, fid, VERBOSE);
+  
+  visualizeFractions(newVol, marks, rotatedImplant, origo, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, fractionsSuffix, fid, SMALLFONTSIZE, VERBOSE);
 end
 
-function newVol = loadImage(imageFilename, VERBOSE, PROGRESSOUTPUT)
+function newVol = loadImage(imageFilename, VERBOSE)
   %
   if VERBOSE
     fprintf('  loading %s\n', imageFilename);
   end
   load(imageFilename, 'newVol'); % loads newVol
-  if PROGRESSOUTPUT
+  if VERBOSE
     fprintf('  image file read (%gs)\n', toc);
     tic;
   end
 end
 
-function visualizeImageSections(newVol, slices, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, parametersSuffix, fid, VERBOSE, PROGRESSOUTPUT)
+function visualizeImageSections(newVol, slices, MicroMeterPerPixel, figurePrefix, fid, VERBOSE)
   %
-
+  
   if ~isempty(fid)
     fprintf(fid, '\\begin{figure}[ht]\n  \\centering\n');
     [~, fn, fe] = fileparts(figurePrefix);
@@ -83,13 +74,13 @@ function visualizeImageSections(newVol, slices, MicroMeterPerPixel, figurePrefix
   if ~isempty(fid)
     fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
   end
-  if PROGRESSOUTPUT
-    fprintf('  %s file read and printed (%gs)\n', parametersSuffix, toc);
+  if VERBOSE
+    fprintf('  Original image sections printed (%gs)\n', toc);
     tic;
   end
 end
 
-function [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, masksSuffix, fid, FONTSIZE, SMALLFONTSIZE, VERBOSE, PROGRESSOUTPUT)
+function [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, masksSuffix, fid, FONTSIZE, SMALLFONTSIZE, VERBOSE)
   %
   inputFilename = [inputFilenamePrefix, masksSuffix];
   
@@ -103,28 +94,30 @@ function [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, Micr
     fnEsc = strrep([fn, fe], '_', '\_'); % Prefix has no suffix
     caption = sprintf('%s: Implant.', fnEsc);
   end
+  
   clf; set(gcf, 'color', [1, 1, 1]);
   xMax = round(size(newVol)/2);
-  x1 = -(xMax(1)-1):xMax(1);
-  x2 = -(xMax(2)-1):xMax(2);
-  x3 = -(xMax(3)-1):xMax(3);
+  x1 = -xMax(1):xMax(1); % x = c*(i-1)-xMax; i = (x+xMax)/c+1
+  x2 = -xMax(2):xMax(2);
+  x3 = -xMax(3):xMax(3);
+  
   rotatedImplant = sample3d(single(implant), origo, R, x1, x2, x3)>.5;
-  isosurface(rotatedImplant(1:2:size(rotatedImplant, 1), 1:2:size(rotatedImplant, 2), 1:2:size(rotatedImplant, 3)), 0.5);
+  isosurface(x1, x2, x3, rotatedImplant, 0.5);
+  % Note: To get the original marks xMark do:
+  %  x = (bsxfun(@plus,R*marks,origo));
+  % To get the original marks on the isosurface do:
+  %  xx = R'*bsxfun(@plus,x,-origo);
+  set(gca, 'CameraUpVector', [0,0,1])
+  set(gca, 'CameraTarget', [0,0,0])
+  set(gca, 'CameraPosition', xMax)
   axis equal tight
-  convertUnit('xtick', 'xticklabel', 2*MicroMeterPerPixel); xlabel('x/\mum');
-  convertUnit('ytick', 'yticklabel', 2*MicroMeterPerPixel); ylabel('y/\mum');
-  convertUnit('ztick', 'zticklabel', 2*MicroMeterPerPixel); zlabel('z/\mum');
-  v = (marks(1, :)-marks(end, :))'; v = v/norm(v);
-  %w = cross(rand(3, 1)-0.5, v); w = w/norm(w);
-  w = cross([1, 0.75, 0]', v); w = w/norm(w);
-  set(gca, 'CameraUpVector', v)
-  set(gca, 'CameraTarget', origo/2)
-  set(gca, 'CameraPosition', marks(1, :)/2+2*size(newVol, 1)*w'/2)
+  convertUnit('xtick', 'xticklabel', MicroMeterPerPixel); xlabel('x/\mum');
+  convertUnit('ytick', 'yticklabel', MicroMeterPerPixel); ylabel('y/\mum');
+  convertUnit('ztick', 'zticklabel', MicroMeterPerPixel); zlabel('z/\mum');
   set(gca, 'FONTSIZE', SMALLFONTSIZE)
-  set(gca, 'Position', get(gca, 'Position') - [0.05, 0, 0, 0])
+%  set(gca, 'Position', get(gca, 'Position') + [0.15, 0, 0, 0])
   delete(findall(gcf, 'Type', 'light'))
-  camlight('left')
-  camlight('right')
+  camlight;
   outputFilename = [figurePrefix, sprintf('%s.png', 'implant')];
   if VERBOSE
     fprintf('  saving %s\n', outputFilename);
@@ -143,18 +136,20 @@ function [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, Micr
   end
   xMax = round(size(newVol)/2);
   x1 = 0;
-  x2 = -(xMax(2)-1):xMax(2);
-  x3 = -(xMax(3)-1):xMax(3);
-  textDir = sign(dot(marks(end, :)-marks(1, :), [0, 0, 1]));
+  x2 = -xMax(2):xMax(2); % x = c*(i-1)-xMax; i = (x+xMax)/c+1
+  x3 = -xMax(3):xMax(3);
   slice = squeeze(sample3d(newVol, origo, R, x1, x2, x3));
-  imagesc(slice); colormap(gray); axis image tight;
+  imagesc(slice,'XData',x3,'YData',x2); colormap(gray); axis image tight;
+  axis equal tight;
   convertUnit('xtick', 'xticklabel', MicroMeterPerPixel); xlabel('z/\mum');
   convertUnit('ytick', 'yticklabel', MicroMeterPerPixel); ylabel('x/\mum');
+  marksToShow = [3, 2, 4]; %size(marks, 2)
   hold on;
-  for i = 1:size(marks, 1)
-    plot(marks(i, 3)*ones(i, 2), [1, size(slice, 1)], 'r-');
+  for i = 1:length(marksToShow)
+    ii = marks(3,marksToShow(i));
+    plot(ii * ones(i, 2), [min(x2),max(x2)], 'r-');
     if (i < size(marks, 1))
-      text(marks(i, 3)+textDir*2*FONTSIZE*2/3, 1, sprintf('Zone %d ', i), 'HorizontalAlignment', 'right', 'FontSize', FONTSIZE, 'Color', 'r', 'Rotation', 90)
+      text(ii - FONTSIZE, max(x2)-10, sprintf('Zone %d ', i), 'FontSize', FONTSIZE, 'Color', 'r', 'Rotation', 90)
     end
   end
   hold off
@@ -167,14 +162,18 @@ function [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, Micr
     fprintf(fid, '  \\subfigure{\\includegraphics[width=0.3\\linewidth]{%s}}\n', outputFilename);
   end
   
-  imagesc(fliplr(slice')); colormap(gray); axis image tight;
-  convertUnit('xtick', 'xticklabel', MicroMeterPerPixel); xlabel('x/\mum');
-  convertUnit('ytick', 'yticklabel', MicroMeterPerPixel); ylabel('z/\mum');
+  imagesc(slice,'XData',x3,'YData',x2); colormap(gray); axis image tight;
+  view(-90, 90);
+  axis equal tight;
+  convertUnit('xtick', 'xticklabel', MicroMeterPerPixel); xlabel('z/\mum');
+  convertUnit('ytick', 'yticklabel', MicroMeterPerPixel); ylabel('x/\mum');
+  marksToShow = [3, 2, 4]; %size(marks, 2)
   hold on;
   for i = 1:size(marks, 1)
-    plot([1, size(slice, 1)], marks(i, 3)*ones(i, 2), 'r-');
+    ii = marks(3,marksToShow(i));
+    plot(ii * ones(i, 2), [min(x2),max(x2)], 'r-');
     if (i < size(marks, 1))
-      text(10, marks(i, 3)+textDir*2*FONTSIZE*2/3, sprintf('Zone %d ', i), 'FontSize', FONTSIZE, 'Color', 'r')
+      text(ii - FONTSIZE, max(x2), sprintf('Zone %d ', i), 'FontSize', FONTSIZE, 'Color', 'r', 'HorizontalAlignment', 'right')
     end
   end
   hold off
@@ -196,20 +195,18 @@ function [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, Micr
     fnEsc = strrep([fn, fe], '_', '\_'); % Prefix has no suffix
     caption = sprintf('%s: Zones samples.', fnEsc);
   end
-  for i = 1:size(marks, 1)-1
+  marksToShow = [3, 2, 4]; %size(marks, 2)
+  for i = 1:length(marksToShow)-1 %size(marks, 1)-1
     xMax = round(size(newVol)/2);
-    x1 = -(xMax(1)-1):xMax(1);
-    x2 = -(xMax(2)-1):xMax(2);
-    x3 = -(xMax(3)-1):xMax(3);
-    t = round((marks(i, 3)+marks(i+1, 3))/2);
-    x3 = x3(t);
-    %slice = squeeze(sample3d(newVol, pJ.origo, pJ.R, x1, x2, x3));
+    x1 = -xMax(1):xMax(1);
+    x2 = -xMax(2):xMax(2);
+    x3 = round((marks(3, marksToShow(i))+marks(3, marksToShow(i+1)))/2);
     slice = squeeze(sample3d(newVol.*mask, origo, R, x1, x2, x3));
     slice(isnan(slice))=0;
-    imagesc(slice); colormap(gray); axis image tight;
+    imagesc(slice,'XData',x2,'YData',x1); colormap(gray); axis image tight;
     convertUnit('xtick', 'xticklabel', MicroMeterPerPixel); xlabel('x/\mum');
     convertUnit('ytick', 'yticklabel', MicroMeterPerPixel); ylabel('y/\mum');
-    title(sprintf('z = %d\\mum', t*MicroMeterPerPixel));
+    title(sprintf('z = %d\\mum', x3*MicroMeterPerPixel));
     %pause;
     outputFilename = [figurePrefix, sprintf('%s%d_%s.pdf', 'zone', i, 'example')];
     if VERBOSE
@@ -223,13 +220,13 @@ function [mask, rotatedImplant] = visualizeImplant(newVol, origo, R, marks, Micr
   if ~isempty(fid)
     fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
   end
-  if PROGRESSOUTPUT
+  if VERBOSE
     fprintf('  %s file read and printed (%gs)\n', masksSuffix, toc);
     tic;
   end
 end
 
-function visualizeSegments(mask, MicroMeterPerPixel, slices, figurePrefix, inputFilenamePrefix, segmentsSuffix, fid, VERBOSE, PROGRESSOUTPUT)
+function visualizeSegments(mask, MicroMeterPerPixel, slices, figurePrefix, inputFilenamePrefix, segmentsSuffix, fid, VERBOSE)
   %
   inputFilename = [inputFilenamePrefix, segmentsSuffix];
   
@@ -323,13 +320,13 @@ function visualizeSegments(mask, MicroMeterPerPixel, slices, figurePrefix, input
   if ~isempty(fid)
     fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
   end
-  if PROGRESSOUTPUT
+  if VERBOSE
     fprintf('  %s file read and printed (%gs)\n', segmentsSuffix, toc);
     tic;
   end
 end
 
-function visualizeBands(MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, edgeEffectSuffix, fid, VERBOSE, PROGRESSOUTPUT)
+function visualizeBands(MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, edgeEffectSuffix, fid, VERBOSE)
   %
   inputFilename = [inputFilenamePrefix, edgeEffectSuffix];
   
@@ -371,13 +368,13 @@ function visualizeBands(MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, e
   if ~isempty(fid)
     fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
   end
-  if PROGRESSOUTPUT
+  if VERBOSE
     fprintf('  %s file read and printed (%gs)\n', edgeEffectSuffix, toc);
     tic;
   end
 end
 
-function visualizeFractions(newVol, marks, rotatedImplant, origo, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, fractionsSuffix, fid, SMALLFONTSIZE, VERBOSE, PROGRESSOUTPUT)
+function visualizeFractions(newVol, marks, rotatedImplant, origo, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, fractionsSuffix, fid, SMALLFONTSIZE, VERBOSE)
   %
   inputFilename = [inputFilenamePrefix, fractionsSuffix];
   
@@ -494,7 +491,7 @@ function visualizeFractions(newVol, marks, rotatedImplant, origo, MicroMeterPerP
   if ~isempty(fid)
     fprintf(fid, '  \\caption{%s}\n\\end{figure}\n', caption);
   end
-  if PROGRESSOUTPUT
+  if VERBOSE
     fprintf('  %s file read and printed (%gs)\n', fractionsSuffix, toc);
     tic;
   end
