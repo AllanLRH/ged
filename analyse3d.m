@@ -21,6 +21,7 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   if VERBOSE
     fprintf('  loading %s\n', imageFilename);
   end
+  newVol = []; % default, mock value. Will be overwritten by load
   load(imageFilename, 'newVol');
   if SHOWRESULT
     minNewVol = min(min(min(newVol)));
@@ -55,9 +56,16 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
     drawnow;
   end
   
-  % We bias correct on bone
+  % We segment and bias-correct on bone
+  xMax = round(size(newVol)/2);
+  x1 = -xMax(1):xMax(1);
+  x2 = -xMax(2):xMax(2);
+  x3 = -xMax(3):xMax(3);
+  rotatedImplant = sample3d(single(implant), origo, R, x1, x2, x3)>.5;
+  dstMap = sgnDstFromImg(rotatedImplant);
+
   boneMask = mask & x3RegionOfInterest;
-  [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample(1, :), aCavityExample, halfEdgeSize, VERBOSE);
+  [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask, a] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, dstMap, filterRadius, aBoneExample(1, :), aCavityExample, halfEdgeSize, VERBOSE);
   
   neitherMask = mask & ~boneMask & ~cavityMask;
   if SAVERESULT
@@ -65,7 +73,7 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
     if VERBOSE
       fprintf('  saving %s\n', outputFilename);
     end
-    save(outputFilename, 'meanImg', 'boneMask', 'cavityMask', 'neitherMask');
+    save(outputFilename, 'meanImg', 'boneMask', 'cavityMask', 'neitherMask', 'thresholdAfterBiasCorrection', 'a');
   end
   if SHOWRESULT
     n=n+1; figure(n); clf;
@@ -98,12 +106,7 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   end
   
   % Transform to implant aligned coordinate system
-  xMax = round(size(newVol)/2);
-  x1 = -xMax(1):xMax(1);
-  x2 = -xMax(2):xMax(2);
-  x3 = -xMax(3):xMax(3);
   rotatedMeanImg = sample3d(meanImg, origo, R, x1, x2, x3);
-  rotatedImplant = sample3d(single(implant), origo, R, x1, x2, x3)>.5;
   rotatedMask = sample3d(single(mask), origo, R, x1, x2, x3)>.5;
   rotatedBoneMask = sample3d(single(boneMask), origo, R, x1, x2, x3)>.5;
   rotatedCavityMask = sample3d(single(cavityMask), origo, R, x1, x2, x3)>.5;
@@ -124,33 +127,20 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   end
   
   % Count the volume of bone, cavity and neither by distance from implant
-  [bone, cavity, neither, distances] = fraction3d(rotatedImplant, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
-  fractions = {x1, x2, x3, bone, cavity, neither, distances};
+  [bone, cavity, neither, distances] = fraction3d(dstMap, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
   if SAVERESULT
     outputFilename = [outputFilenamePrefix, fractionsSuffix];
     if VERBOSE
       fprintf('  saving %s\n', outputFilename);
     end
-    save(outputFilename, 'fractions');
+    save(outputFilename, 'x1', 'x2', 'x3', 'bone', 'cavity', 'neither', 'distances');
   end
-  %{
-  % This part needs to be rewritten to fit new fraction3d output.
+  
   if SHOWRESULT
     n=n+1; figure(n); clf;
-    for i = 1:length(fractions)
-      minSlice = round(fractions{i}{1});
-      maxSlice = round(fractions{i}{2});
-      bone = fractions{i}{3};
-      cavity = fractions{i}{4};
-      neither = fractions{i}{5};
-      distances = fractions{i}{6};
-      
-      m0 = (i-1)*3;
-      subplot(length(fractions), 3, m0+1); plot(distances, bone); title(sprintf('Bone fraction %d:%d', i, maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
-      subplot(length(fractions), 3, m0+2); plot(distances, cavity); title(sprintf('Cavity fraction %d:%d', i, maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
-      subplot(length(fractions), 3, m0+3); plot(distances, neither); title(sprintf('Neither fraction %d:%d', i, maxSlice-minSlice)); xlabel('distance/voxels'); ylabel('fraction');
-    end
+    subplot(1,3,1); imagesc(bone); axis equal tight; colormap(gray);
+    subplot(1,3,2); imagesc(cavity); axis equal tight; colormap(gray);
+    subplot(1,3,3); imagesc(neither); axis equal tight; colormap(gray);
     drawnow;
   end
-  %}
 end

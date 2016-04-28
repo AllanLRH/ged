@@ -13,11 +13,10 @@ inputPrefix = setup.inputPrefix;
 analysisPrefix = setup.analysisPrefix;
 annotationsFilename = setup.annotationsFilename;
 
+fid = -1;
 if setup.makeLatex
     latexFilename = fullfile(setup.latexPrefix, 'autoMain.tex'); % pdf filename prefix (output)
-    fid = fopen(latexFilename, 'wt');
-else
-    fid = [];
+    fid = fopen(latexFilename, 'wt', 'n', 'UTF-8');
 end
 
 if VERBOSE
@@ -47,10 +46,13 @@ for i = 1:length(datasets)
     % do we fix dataSetup.scaleFactor as well?
 
     fprintf('%d/%d: %s\n',i,length(datasets),datasetSetup.inputFilename);
-    if ~isempty(fid)
+    if fid ~= -1
         fnEsc = strrep(fn, '_', '\_');
         fprintf(fid, '\\clearpage\n');
         fprintf(fid, '\\section{%s}\n',fnEsc);
     end
-    visualise3d(datasetSetup, setup.parametersSuffix, setup.masksSuffix, setup.segmentsSuffix, setup.edgeEffectSuffix, setup.fractionsSuffix, setup.numberSlicesToShow, fid, FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, VERBOSE);
+    visualise3d(datasetSetup, setup.masksSuffix, setup.segmentsSuffix, setup.edgeEffectSuffix, setup.fractionsSuffix, setup.numberSlicesToShow, fid, FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, VERBOSE);
+end
+if fid ~= -1
+  fclose(fid);
 end
