@@ -3,10 +3,11 @@ function [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask, a
   a = 0;
   oldA = 0;
   I = newVol;
+  sigmoidalDstMap = 1./(1+exp(-dstMap));
   for i = 1:maxIter
     meanImg = getMeanImage3d(I, mask, filterRadius);
     thresholdAfterBiasCorrection = (meanImg(aBoneExample(1),aBoneExample(2),aBoneExample(3))+meanImg(aCavityExample(1),aCavityExample(2),aCavityExample(3)))/2;
-    [boneMask, ~] = getSegments3d(meanImg, mask, thresholdAfterBiasCorrection, halfEdgeSize);
+    [boneMask, ~] = getSegments3d(meanImg, mask, thresholdAfterBiasCorrection*sigmoidalDstMap, halfEdgeSize);
     
     % Bias correct
     [B,a] = biasCorrect3d(I, boneMask, 2);

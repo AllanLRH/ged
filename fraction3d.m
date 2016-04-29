@@ -1,6 +1,5 @@
-function [bone, cavity, neither, distFct] = fraction3d(dstMap, boneMask, cavityMask, neitherMask, maxDistance)
+function [bone, cavity, neither] = fraction3d(dstMap, boneMask, cavityMask, neitherMask, distFct)
 
-distFct = 1:maxDistance;
 bone = zeros(size(dstMap,3),length(distFct));
 cavity = zeros(size(bone));
 neither = zeros(size(bone));

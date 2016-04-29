@@ -97,7 +97,7 @@ function [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R,
   rotatedImplant = sample3d(single(implant), origo, R, x1, x2, x3)>.5;
   
   clf;
-  visualiseIsosurface(rotatedImplant, x1, x2, x3, 0.5, MicroMeterPerPixel, 'x_1', 'x_2', 'x_3', [0,0,1], [0,0,0], xMax, SMALLFONTSIZE)
+  visualiseIsosurface(rotatedImplant, x1, x2, x3, 0.5, 2, MicroMeterPerPixel, 'x_1', 'x_2', 'x_3', [0,0,1], [0,0,0], xMax, SMALLFONTSIZE)
   outputFilename = [figurePrefix, sprintf('%s.png', 'implant')];
   saveFigure(outputFilename, VERBOSE, '-m2');
   addLatexSubfigure(fid, outputFilename, 0.3);
@@ -376,10 +376,10 @@ function visualizeFractions(marks, rotatedImplant, rix1, rix2, rix3, marksToShow
     
     xMax = [max(rix1),max(rix2),max(rix3)];
     clf;
-    visualiseIsosurface(rotatedImplant, rix1, rix2, rix3, 0.5, MicroMeterPerPixel, 'x_1', 'x_2', 'x_3', [0,0,1], [0,0,0], xMax, SMALLFONTSIZE)
+    visualiseIsosurface(rotatedImplant, rix1, rix2, rix3, 0.5, 2, MicroMeterPerPixel, 'x_1', 'x_2', 'x_3', [0,0,1], [0,0,0], xMax, SMALLFONTSIZE)
     x3RegionOfInterest = zeros(size(rotatedImplant));
     x3RegionOfInterest(:,:,ii1:ii2) = 1;
-    visualizeAdditionalIsosurface(x3RegionOfInterest, x1, x2, x3, 0.5);
+    visualizeAdditionalIsosurface(x3RegionOfInterest, x1, x2, x3, 0.5, 2);
     outputFilename = [figurePrefix, sprintf('%s_%d.png', 'implantNfraction', i)];
     saveFigure(outputFilename, VERBOSE)
     addLatexSubfigure(fid, outputFilename, 0.24)
@@ -411,8 +411,11 @@ function addTextToImage(x1, x2, varargin)
   text(x2, x1, varargin{:})
 end
 
-function visualiseIsosurface(I, x1, x2, x3, v, MicroMeterPerPixel, x1label, x2label, x3label, cameraUp, cameraTarget, cameraPosition, FONTSIZE)
-  isosurface(x2, x1, x3, I, v);
+function visualiseIsosurface(I, x1, x2, x3, v, reduceFactor, MicroMeterPerPixel, x1label, x2label, x3label, cameraUp, cameraTarget, cameraPosition, FONTSIZE)
+
+  %isosurface(permute(x2,[2,1,3]), permute(x1,[2,1,3]), permute(x3,[2,1,3]), I, v);
+  [nx,ny,nz,nI] = reducevolume(permute(x2,[2,1,3]),permute(x1,[2,1,3]),permute(x3,[2,1,3]),I,reduceFactor);
+  isosurface(nx, ny, nz, nI, v);
   set(gca, 'CameraUpVector', cameraUp)
   set(gca, 'CameraTarget', cameraTarget)
   set(gca, 'CameraPosition', cameraPosition)
@@ -426,8 +429,10 @@ function visualiseIsosurface(I, x1, x2, x3, v, MicroMeterPerPixel, x1label, x2la
   camlight;
 end
 
-function visualizeAdditionalIsosurface(I, x1, x2, x3, v)
-  isosurface(x2, x1, x3, I, v);
+function visualizeAdditionalIsosurface(I, x1, x2, x3, v, reduceFactor)
+  %isosurface(permute(x2,[2,1,3]),permute(x1,[2,1,3]),permute(x3,[2,1,3]), I, v);
+  [nx,ny,nz,nI] = reducevolume(permute(x2,[2,1,3]),permute(x1,[2,1,3]),permute(x3,[2,1,3]),I,reduceFactor);
+  isosurface(nx, ny, nz, nI, v);
 end
 
 function saveFigure(outputFilename, VERBOSE, varargin)

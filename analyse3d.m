@@ -12,6 +12,7 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   origo = setup.origo;
   R = setup.R;
   outputFilenamePrefix = setup.outputFilenamePrefix;
+  MicroMeterPerPixel = setup.MicroMeterPerPixel;
   
   % Internal variables
   if SHOWRESULT
@@ -57,12 +58,7 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   end
   
   % We segment and bias-correct on bone
-  xMax = round(size(newVol)/2);
-  x1 = -xMax(1):xMax(1);
-  x2 = -xMax(2):xMax(2);
-  x3 = -xMax(3):xMax(3);
-  rotatedImplant = sample3d(single(implant), origo, R, x1, x2, x3)>.5;
-  dstMap = sgnDstFromImg(rotatedImplant);
+  dstMap = sgnDstFromImg(implant);
 
   boneMask = mask & x3RegionOfInterest;
   [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask, a] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, dstMap, filterRadius, aBoneExample(1, :), aCavityExample, halfEdgeSize, VERBOSE);
@@ -106,6 +102,13 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   end
   
   % Transform to implant aligned coordinate system
+  xMax = round(size(newVol)/2);
+  x1 = -xMax(1):xMax(1);
+  x2 = -xMax(2):xMax(2);
+  x3 = -xMax(3):xMax(3);
+  %rotatedImplant = sample3d(single(implant), origo, R, x1, x2, x3)>.5;
+  %rotateddstMap = sgnDstFromImg(rotatedImplant);
+  rotateddstMap = sample3d(single(dstMap), origo, R, x1, x2, x3)>.5;
   rotatedMeanImg = sample3d(meanImg, origo, R, x1, x2, x3);
   rotatedMask = sample3d(single(mask), origo, R, x1, x2, x3)>.5;
   rotatedBoneMask = sample3d(single(boneMask), origo, R, x1, x2, x3)>.5;
@@ -127,7 +130,9 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   end
   
   % Count the volume of bone, cavity and neither by distance from implant
-  [bone, cavity, neither, distances] = fraction3d(dstMap, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, maxDistance);
+  distances = (0:maxDistance)*25/MicroMeterPerPixel; % Camilla would like to be able to read the output in units of 50 mu.
+  distances = distances(2:end);
+  [bone, cavity, neither] = fraction3d(rotateddstMap, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, distances);
   if SAVERESULT
     outputFilename = [outputFilenamePrefix, fractionsSuffix];
     if VERBOSE

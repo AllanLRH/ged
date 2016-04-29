@@ -1,7 +1,8 @@
-function [segment1, segment2] = getSegments3d(im, mask, threshold, erodeSize)
+function [segment1, segment2] = getSegments3d(im, mask, thresholdFct, erodeSize)
 % Threshold an image and possibly contract each segment
 
-segment1 = (im > threshold) & mask;
+segment1 = (im > thresholdFct) & mask;
+%segment1 = (im > threshold*1./(1+exp(-dstMap))) & mask;
 segment2 = ~segment1 & mask;
 
 if erodeSize >= 1.5

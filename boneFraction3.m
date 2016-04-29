@@ -28,10 +28,7 @@ for i = 1:1%length(datasets)
   
   % Output filenames are modified to include inputFilename identifier
   datasetSetup.outputFilenamePrefix = fullfile(analysisPrefix, [fn, '_']);
- 
-  % Experiment with smaller filterRadius
-  % datasetSetup.filterRadius = 1;
-  
+   
   fprintf('%d/%d: %s\n', i, length(datasets), datasetSetup.inputFilename);
   analyse3d(datasetSetup, setup.masksSuffix, setup.segmentsSuffix, setup.edgeEffectSuffix, setup.fractionsSuffix, SHOWRESULT, SAVERESULT, VERBOSE);
 end
