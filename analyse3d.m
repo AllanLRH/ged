@@ -61,7 +61,11 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   dstMap = sgnDstFromImg(implant);
 
   boneMask = mask & x3RegionOfInterest;
-  [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask, a] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, dstMap, filterRadius, aBoneExample(1, :), aCavityExample, halfEdgeSize, VERBOSE);
+  [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask, a] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample(1, :), aCavityExample, halfEdgeSize, VERBOSE);
+  boneValue = meanImg(aBoneExample(1,1),aBoneExample(1,2),aBoneExample(1,3));
+  cavityValue = meanImg(aCavityExample(1),aCavityExample(2),aCavityExample(3));
+  sigmoidalDstMap = thresholdAfterBiasCorrection-abs(boneValue-cavityValue)*(1-1./(1+exp(-dstMap)));
+  [boneMask, cavityMask] = getSegments3d(meanImg, mask, sigmoidalDstMap, halfEdgeSize);
   
   neitherMask = mask & ~boneMask & ~cavityMask;
   if SAVERESULT

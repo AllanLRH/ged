@@ -29,6 +29,9 @@ for i = 1:1%length(datasets)
   % Output filenames are modified to include inputFilename identifier
   datasetSetup.outputFilenamePrefix = fullfile(analysisPrefix, [fn, '_']);
    
+  % Fix missing data from setup
+  datasetSetup.MicroMeterPerPixel = setup.MicroMeterPerPixel;
+
   fprintf('%d/%d: %s\n', i, length(datasets), datasetSetup.inputFilename);
   analyse3d(datasetSetup, setup.masksSuffix, setup.segmentsSuffix, setup.edgeEffectSuffix, setup.fractionsSuffix, SHOWRESULT, SAVERESULT, VERBOSE);
 end
