@@ -1,22 +1,21 @@
-function [newVol, meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask, a] = biasCorrectNSegment3d(maxIter, boneMask, newVol, mask, filterRadius, aBoneExample, aCavityExample, halfEdgeSize, VERBOSE)
+function [meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask, a] = biasCorrectNSegment3d(maxIter, newVol, mask, filterRadius, aBoneLocation, aCavityLocation, halfEdgeSize, VERBOSE)
   
   a = 0;
   oldA = 0;
-  I = newVol;
+  B = 0;
   for i = 1:maxIter
-    meanImg = getMeanImage3d(I, mask, filterRadius);
-    thresholdAfterBiasCorrection = (meanImg(aBoneExample(1),aBoneExample(2),aBoneExample(3))+meanImg(aCavityExample(1),aCavityExample(2),aCavityExample(3)))/2;
+    meanImg = getMeanImage3d(newVol-B, mask, filterRadius);
+    thresholdAfterBiasCorrection = (meanImg(aBoneLocation(1),aBoneLocation(2),aBoneLocation(3))+meanImg(aCavityLocation(1),aCavityLocation(2),aCavityLocation(3)))/2;
     [boneMask, ~] = getSegments3d(meanImg, mask, thresholdAfterBiasCorrection, halfEdgeSize);
     
     % Bias correct
-    [B,a] = biasCorrect3d(I, boneMask, 2);
+    [B,a] = biasCorrect3d(newVol, boneMask, 2);
     if VERBOSE
       disp([max(abs(a-oldA)),a']);
       oldA = a;
     end
-    I = newVol - B;
   end
-  meanImg = getMeanImage3d(I, mask, filterRadius);
-  thresholdAfterBiasCorrection = (meanImg(aBoneExample(1),aBoneExample(2),aBoneExample(3))+meanImg(aCavityExample(1),aCavityExample(2),aCavityExample(3)))/2;
+  meanImg = getMeanImage3d(newVol-B, mask, filterRadius);
+  thresholdAfterBiasCorrection = (meanImg(aBoneLocation(1),aBoneLocation(2),aBoneLocation(3))+meanImg(aCavityLocation(1),aCavityLocation(2),aCavityLocation(3)))/2;
   [boneMask, cavityMask] = getSegments3d(meanImg, mask, thresholdAfterBiasCorrection, halfEdgeSize);
 end

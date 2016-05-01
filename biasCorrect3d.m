@@ -30,12 +30,15 @@ function [J,a] = biasCorrect3d(I, mask, degree)
 %                     Copyright, Jon Sporring, DIKU, December 2015.
 
 [x1,x2,x3] = ndgrid(linspace(-1,1,size(I,1)),linspace(-1,1,size(I,2)),linspace(-1,1,size(I,3)));
+x1 = single(x1);
+x2 = single(x2);
+x3 = single(x3);
 
 % Calculations are done on the smaller set specified by mask
 ind = find(mask);
 N = floor(min(sum(mask(:)),max(0.01*numel(ind),10000)));
 ind = ind(randperm(length(ind),N));
-Phi = [ones(numel(ind),1)];
+Phi = ones(numel(ind),1);
 if degree > 0
     Phi = [Phi, x1(ind), x2(ind), x3(ind)];
 end

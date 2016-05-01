@@ -8,11 +8,11 @@ function setup = setPrefixes3d()
   
   % Prefixes for the data files
   %annotationsPrefix = fullfile('~', 'akiraMount', 'ged'); % Annotation file prefix (input)
-  setup.annotationsPrefix = fullfile('.'); % Annotation file prefix (input)
   %dataPrefix = fullfile('~', 'akiraMount', 'ged');
   %setup.latexPrefix = fullfile('~', 'akiraMount', 'gedTex');
-  dataPrefix = fullfile('..');
-  setup.latexPrefix = fullfile('..', 'gedTex');
+  dataPrefix = fullfile('..','data');
+  setup.annotationsPrefix = fullfile(dataPrefix); % Annotation file prefix (input)
+  setup.latexPrefix = fullfile('..', 'tex');
   if SMALLDATA
     setup.scaleFactor = 1; % scaling factor used in the analysis fase w.r.t. annotation file
     setup.inputPrefix = fullfile(dataPrefix, 'smallData'); % Analysis files prefix (input)

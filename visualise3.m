@@ -35,6 +35,9 @@ for i = 1:1%length(datasets)
     % Things may have moved, so we ensure that the prefix of the input
     % filename is proper
     [~, fn, fe] = fileparts(datasetSetup.inputFilename);
+    % We will work on the reduced data
+    fn = strrep(fn,'double','single');
+    
     datasetSetup.imageFilename=fullfile(inputPrefix,[fn,fe]);
     
     % Input and output filenames are modified to include inputFilename identifier

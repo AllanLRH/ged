@@ -1,4 +1,3 @@
-SHOWRESULT = false;
 SAVERESULT = true;
 VERBOSE = true;
 
@@ -9,7 +8,7 @@ inputPrefix = setup.inputPrefix;
 analysisPrefix = setup.analysisPrefix;
 
 if VERBOSE
-  fprintf('Analysing bone: SHOWRESULT=%d, SAVERESULT=%d, VERBOSE=%d\n', SHOWRESULT, SAVERESULT, VERBOSE);
+  fprintf('Analysing bone: SAVERESULT=%d, VERBOSE=%d\n', SAVERESULT, VERBOSE);
 end
 
 if VERBOSE
@@ -24,14 +23,17 @@ for i = 1:1%length(datasets)
   % Things may have moved, so we ensure that the prefix of the input
   % filename is proper
   [~, fn, fe] = fileparts(datasetSetup.inputFilename);
+  % We will work on the reduced data
+  fn = strrep(fn,'double','single');
+
   datasetSetup.imageFilename=fullfile(inputPrefix, [fn, fe]); % load p
   
   % Output filenames are modified to include inputFilename identifier
   datasetSetup.outputFilenamePrefix = fullfile(analysisPrefix, [fn, '_']);
-   
+  
   % Fix missing data from setup
   datasetSetup.MicroMeterPerPixel = setup.MicroMeterPerPixel;
-
+  
   fprintf('%d/%d: %s\n', i, length(datasets), datasetSetup.inputFilename);
-  analyse3d(datasetSetup, setup.masksSuffix, setup.segmentsSuffix, setup.edgeEffectSuffix, setup.fractionsSuffix, SHOWRESULT, SAVERESULT, VERBOSE);
+  analyse3d(datasetSetup, setup.masksSuffix, setup.segmentsSuffix, setup.edgeEffectSuffix, setup.fractionsSuffix, SAVERESULT, VERBOSE);
 end

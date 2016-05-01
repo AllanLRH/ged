@@ -7,8 +7,8 @@ function visualise3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fract
   inputFilenamePrefix = setup.inputFilenamePrefix;
   MicroMeterPerPixel = setup.MicroMeterPerPixel;
   figurePrefix = setup.figurePrefix;
-  origo = setup.origo;
-  R = setup.R;
+  origo = single(setup.origo);
+  R = single(setup.R);
   marks = setup.marks;
   maxDistance = 1000;
 
@@ -87,9 +87,9 @@ function [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R,
   openLatexFigure(fid)
   
   xMax = round(size(newVol)/2);
-  x1 = -xMax(1):xMax(1); % x = c*(i-1)-xMax; i = (x+xMax)/c+1
-  x2 = -xMax(2):xMax(2);
-  x3 = -xMax(3):xMax(3);
+  x1 = single(-xMax(1):xMax(1)); % x = c*(i-1)-xMax; i = (x+xMax)/c+1
+  x2 = single(-xMax(2):xMax(2));
+  x3 = single(-xMax(3):xMax(3));
   % Note: To get the original marks xMark do:
   %  x = (bsxfun(@plus,R*marks,origo));
   % To get the original marks on the isosurface do:
@@ -113,7 +113,7 @@ function [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R,
   
   openLatexFigure(fid)
   
-  xSlice = 0;
+  xSlice = single(0);
   slice = squeeze(sample3d(newVol, origo, R, xSlice, x2, x3));
   visualiseImage(slice, x2, x3, MicroMeterPerPixel, sprintf('x_1 = %d\\mum', xSlice*MicroMeterPerPixel), 'x_2', 'x_3');
   hold on;
@@ -159,7 +159,7 @@ function [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R,
   openLatexFigure(fid)
   
   for i = 1:length(marksToShow)-1 %size(marks, 1)-1
-    xSlice = round((marks(3, marksToShow(i))+marks(3, marksToShow(i+1)))/2);
+    xSlice = single(round((marks(3, marksToShow(i))+marks(3, marksToShow(i+1)))/2));
     slice = squeeze(sample3d(newVol.*mask, origo, R, x1, x2, xSlice));
     slice(isnan(slice))=0;
     visualiseImage(slice, x1, x2, MicroMeterPerPixel, sprintf('x_3 = %d\\mum', xSlice*MicroMeterPerPixel), 'x_1', 'x_2');
@@ -296,13 +296,13 @@ function visualizeFractions(marks, rotatedImplant, rix1, rix2, rix3, marksToShow
   
   [fp, fn, ~] = fileparts(fractionsSuffix);
   csvSuffix = fullfile(fp,[fn,'.csv']);
-  csvwrite([inputFilenamePrefix, 'x1_', csvSuffix], x1*MicroMeterPerPixel);
-  csvwrite([inputFilenamePrefix, 'x2_', csvSuffix], x2*MicroMeterPerPixel);
-  csvwrite([inputFilenamePrefix, 'x3_', csvSuffix], x3*MicroMeterPerPixel);
-  csvwrite([inputFilenamePrefix, 'distances_', csvSuffix], distances*MicroMeterPerPixel);
-  csvwrite([inputFilenamePrefix, 'bone_', csvSuffix], bone);
-  csvwrite([inputFilenamePrefix, 'cavity_', csvSuffix], cavity);
-  csvwrite([inputFilenamePrefix, 'neither_', csvSuffix], neither);
+  csvwrite([figurePrefix, 'x1_', csvSuffix], x1*MicroMeterPerPixel);
+  csvwrite([figurePrefix, 'x2_', csvSuffix], x2*MicroMeterPerPixel);
+  csvwrite([figurePrefix, 'x3_', csvSuffix], x3*MicroMeterPerPixel);
+  csvwrite([figurePrefix, 'distances_', csvSuffix], distances*MicroMeterPerPixel);
+  csvwrite([figurePrefix, 'bone_', csvSuffix], bone);
+  csvwrite([figurePrefix, 'cavity_', csvSuffix], cavity);
+  csvwrite([figurePrefix, 'neither_', csvSuffix], neither);
   
   distances = distances*MicroMeterPerPixel;
   % distances are right values of interval. We reset it to middle of
@@ -338,6 +338,11 @@ function visualizeFractions(marks, rotatedImplant, rix1, rix2, rix3, marksToShow
     boneFraction = bone(ii2,:)-bone(ii1,:);
     cavityFraction = cavity(ii2,:)-cavity(ii1,:);
     neitherFraction = neither(ii2,:)-neither(ii1,:);
+
+    csvwrite([figurePrefix, sprintf('%s_%d.cvs', 'bone_sum', i)], boneFraction);
+    csvwrite([figurePrefix, sprintf('%s_%d.cvs', 'cavity_sum', i)], cavityFraction);
+    csvwrite([figurePrefix, sprintf('%s_%d.cvs', 'neither_sum', i)], neitherFraction);
+    
     boneFraction = [0,boneFraction(1:end-1)]-boneFraction;
     cavityFraction = [0,cavityFraction(1:end-1)]-cavityFraction;
     neitherFraction = [0,neitherFraction(1:end-1)]-neitherFraction;
@@ -404,11 +409,11 @@ function visualiseImage(I, x1, x2, MicroMeterPerPixel, figureTitle, x1label, x2l
 end
 
 function addPlotToImage(x1, x2, varargin)
-  plot(x2, x1, varargin{:});
+  plot(double(x2), double(x1), varargin{:});
 end
 
 function addTextToImage(x1, x2, varargin)
-  text(x2, x1, varargin{:})
+  text(double(x2), double(x1), varargin{:})
 end
 
 function visualiseIsosurface(I, x1, x2, x3, v, reduceFactor, MicroMeterPerPixel, x1label, x2label, x3label, cameraUp, cameraTarget, cameraPosition, FONTSIZE)
