@@ -339,9 +339,9 @@ function visualizeFractions(marks, rotatedImplant, rix1, rix2, rix3, marksToShow
     cavityFraction = cavity(ii2,:)-cavity(ii1,:);
     neitherFraction = neither(ii2,:)-neither(ii1,:);
 
-    csvwrite([figurePrefix, sprintf('%s_%d.cvs', 'bone_sum', i)], boneFraction);
-    csvwrite([figurePrefix, sprintf('%s_%d.cvs', 'cavity_sum', i)], cavityFraction);
-    csvwrite([figurePrefix, sprintf('%s_%d.cvs', 'neither_sum', i)], neitherFraction);
+    csvwrite([figurePrefix, sprintf('%s_%d.csv', 'bone_sum', i)], boneFraction);
+    csvwrite([figurePrefix, sprintf('%s_%d.csv', 'cavity_sum', i)], cavityFraction);
+    csvwrite([figurePrefix, sprintf('%s_%d.csv', 'neither_sum', i)], neitherFraction);
     
     boneFraction = [0,boneFraction(1:end-1)]-boneFraction;
     cavityFraction = [0,cavityFraction(1:end-1)]-cavityFraction;
