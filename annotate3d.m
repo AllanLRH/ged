@@ -40,7 +40,7 @@ if APPEND
 else
   p = [];
 end
-for i = 1:length(filenames)
+for i = 37 %1:length(filenames)
   clf;
   fprintf('%d/%d: %s\n', i, length(filenames), filenames{i});
   

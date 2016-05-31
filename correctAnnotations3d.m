@@ -17,7 +17,7 @@ load(annotationsFilename, 'p'); % load p
 datasets = fieldnames(p);
 
 choice = 'Overwrite';
-for i = 12:length(datasets)
+for i = 1:length(datasets)
   datasetSetup = p.(datasets{i});  % struct for current dataset
   
   if isfield(datasetSetup, 'oldR')
@@ -42,7 +42,7 @@ for i = 12:length(datasets)
   x = correct3d(datasetSetup, setup.masksSuffix, VERBOSE);
   % 4 points are returned: 1. The stop point of the micro thread, the reference point (rf), 2. The macro thread below rf, 3. 10 micro threads higher than rf, 4. 3 macro threads lower than rf.
   disp(x);
-  o = datasetSetup.origo';
+  o = datasetSetup.origo;
   w = x(:, 3) - x(:, 4); w = w / norm(w);
   v = x(:, 1) - o;
   u = cross(v, w); u = u / norm(u);

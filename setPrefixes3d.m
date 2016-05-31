@@ -1,6 +1,17 @@
-function setup = setPrefixes3d()
+function setup = setPrefixes3d(varargin)
+  % Generate datastructure of parameters for the pipeline.
+  %
+  % E.g.,
+  %   setup = setPrefixes3d(SMALLDATA)
+  % where SMALLDATA is an optional boolean, true implies 1/4 resolution and
+  % false 1/2. Default is true.
+  %
   
-  SMALLDATA = true;
+  if nargin > 0
+    SMALLDATA = varargin{1};
+  else
+    SMALLDATA = true;
+  end
   
   % Visualization parameters
   setup.numberSlicesToShow = 3; % The number of exemplar slices generated
@@ -26,7 +37,7 @@ function setup = setPrefixes3d()
   end
   
   % data filename selector
-  setup.filenamePattern = '*v7.3_double.mat';
+  setup.filenamePattern = '*v7.3_single.mat';
   
   % Prefixes for the data files
   setup.MicroMeterPerPixel = 5*4/setup.scaleFactor;

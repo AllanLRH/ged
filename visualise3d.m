@@ -10,6 +10,8 @@ function visualise3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fract
   origo = single(setup.origo);
   R = single(setup.R);
   marks = setup.marks;
+  % We increase the number of micro threads by 2 (20% higher)
+  marks(3,3) = 1.2*(marks(3,3)-marks(3,2)) + marks(3,2);
   maxDistance = 1000;
 
   %-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%
