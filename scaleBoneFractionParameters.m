@@ -7,6 +7,8 @@
 function pp = scaleBoneFractionParameters(pp, scale)
     scaleWithOffset = @(x, scale) (x-1)*scale+1;
 
+    pp.scaleFactor       = scale;
+    pp.marks             = pp.marks*scale;
     pp.aBoneExample      = scaleWithOffset(pp.aBoneExample,       scale);
     pp.aCavityExample    = scaleWithOffset(pp.aCavityExample,     scale);
     pp.anImplantExample  = scaleWithOffset(pp.anImplantExample,   scale);
@@ -16,7 +18,11 @@ function pp = scaleBoneFractionParameters(pp, scale)
     pp.halfEdgeSize      = pp.halfEdgeSize*scale;
     pp.filterRadius      = pp.filterRadius*scale;
     pp.maxDistance       = pp.maxDistance*scale;
+    if isfield(pp, 'distanceStep')
+      pp.distanceStep      = pp.distanceStep*scale;
+    end
     pp.origo             = scaleWithOffset(pp.origo,              scale);
     pp.R                 = pp.R;
-    pp.marks             = scaleWithOffset(pp.marks,              scale);
+    pp.xMarks            = scaleWithOffset(pp.xMarks,             scale);
+    pp.lambda            = scale;
 end

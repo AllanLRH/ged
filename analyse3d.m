@@ -1,6 +1,7 @@
 function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractionsSuffix, SAVERESULT, VERBOSE)
   
   imageFilename = setup.imageFilename;
+  lambda = setup.lambda;
   aBoneExample = setup.aBoneExample;
   aCavityExample = setup.aCavityExample;
   anImplantExample = setup.anImplantExample;
@@ -9,6 +10,7 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   filterRadius = setup.filterRadius;
   maxIter = setup.maxIter;
   maxDistance = setup.maxDistance;
+  distanceStep = setup.distanceStep;
   origo = single(setup.origo);
   R = single(setup.R);
   outputFilenamePrefix = setup.outputFilenamePrefix;
@@ -60,10 +62,11 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   [meanImg, thresholdAfterBiasCorrection, boneMask, cavityMask, a] = biasCorrectNSegment3d(maxIter, newVol, mask, filterRadius, aBoneExample(1, :), aCavityExample, halfEdgeSize, VERBOSE); %#ok<ASGLU>
   
   % Correct for overshooting near implant
+  %This does not scale properly!!!
   dstMap = sgnDstFromImg(implant);
   boneValue = meanImg(aBoneExample(1,1),aBoneExample(1,2),aBoneExample(1,3));
   cavityValue = meanImg(aCavityExample(1),aCavityExample(2),aCavityExample(3));
-  sigmoidalDstMap = thresholdAfterBiasCorrection-3*abs(boneValue-cavityValue)*(1-1./(1+exp(-dstMap)));
+  sigmoidalDstMap = thresholdAfterBiasCorrection-3*lambda*abs(boneValue-cavityValue)*(1-1./(1+exp(-dstMap/lambda)));
   [boneMask, cavityMask] = getSegments3d(meanImg, mask, sigmoidalDstMap, halfEdgeSize);
   
   neitherMask = mask & ~boneMask & ~cavityMask;
@@ -115,7 +118,7 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   rotatedNeitherMask = sample3d(single(neitherMask), origo, R, x1, x2, x3)>.5;
   
   % Count the volume of bone, cavity and neither by distance from implant
-  distances = (0:maxDistance)*10/MicroMeterPerPixel; % Camilla would like to be able to read the output in units of 50 mu.
+  distances = (0:distanceStep:maxDistance); % Camilla would like to be able to read the output in units of 50 mu.
   distances = distances(2:end);
   [bone, cavity, neither] = fraction3d(rotateddstMap, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, distances); %#ok<ASGLU>
   if SAVERESULT

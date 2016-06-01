@@ -1,4 +1,5 @@
 VERBOSE = true;
+SMALLDATA = false;
 
 % Global plotting parameters
 FONTSIZE = 18;
@@ -7,7 +8,7 @@ MARKERSIZE = 15;
 LINEWIDTH=3;
 
 % Prefixes for the data files
-setup = setPrefixes3d();
+setup = setPrefixes3d(SMALLDATA);
 annotationsPrefix = setup.annotationsPrefix;
 inputPrefix = setup.inputPrefix;
 analysisPrefix = setup.analysisPrefix;
@@ -20,7 +21,7 @@ if setup.makeLatex
 end
 
 if VERBOSE
-    fprintf('Visualising bone: FONTSIZE=%d, SMALLFONTSIZE=%d, MARKERSIZE=%d, LINEWIDTH=%d, VERBOSE=%d\n', FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, VERBOSE);
+    fprintf('Visualising bone: FONTSIZE=%d, SMALLFONTSIZE=%d, MARKERSIZE=%d, LINEWIDTH=%d, VERBOSE=%d, SMALLDATA=%d\n', FONTSIZE, SMALLFONTSIZE, MARKERSIZE, LINEWIDTH, VERBOSE, SMALLDATA);
 end
 
 if VERBOSE
@@ -29,8 +30,9 @@ end
 load(annotationsFilename, 'p'); % load p
 datasets = fieldnames(p);
 
-for i = 1:length(datasets)
+for i = 1%1:length(datasets)
     datasetSetup = p.(datasets{i});  % struct for current dataset
+    datasetSetup = scaleBoneFractionParameters(datasetSetup, setup.scaleFactor);
 
     % Things may have moved, so we ensure that the prefix of the input
     % filename is proper

@@ -31,8 +31,8 @@ function setup = setPrefixes3d(varargin)
     setup.figurePrefix = fullfile(setup.latexPrefix, 'figuresSmall'); % pdf filename prefix (output)
   else
     setup.scaleFactor = 2; % scaling factor used in the analysis fase w.r.t. annotation file
-    setup.inputPrefix = fullfile(dataPrefix, 'halfSizeData'); % Analysis files prefix (input)
-    setup.analysisPrefix = fullfile(dataPrefix, 'halfSizeData'); % Analysis files prefix (input)
+    setup.inputPrefix = fullfile(dataPrefix, 'halfData'); % Analysis files prefix (input)
+    setup.analysisPrefix = fullfile(dataPrefix, 'halfData'); % Analysis files prefix (input)
     setup.figurePrefix = fullfile(setup.latexPrefix, 'figuresMedium'); % pdf filename prefix (output)
   end
   

@@ -2,8 +2,8 @@ function visualise3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fract
   %
   
   % Prefixes for the data files
+  scaleFactor = setup.scaleFactor;
   imageFilename = setup.imageFilename;
-  %scaleFactor = setup.scaleFactor;
   inputFilenamePrefix = setup.inputFilenamePrefix;
   MicroMeterPerPixel = setup.MicroMeterPerPixel;
   figurePrefix = setup.figurePrefix;
@@ -19,8 +19,6 @@ function visualise3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fract
   set(0, 'defaultlinelinewidth', LINEWIDTH)
   set(0, 'DefaultLineMarkerSize', MARKERSIZE)
   
-  %p = scaleBoneFractionParameters(setup, scaleFactor);
-  
   tic;
   newVol = loadImage(imageFilename, VERBOSE);
   
@@ -30,7 +28,7 @@ function visualise3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fract
   visualizeImageSections(newVol, slices, MicroMeterPerPixel, figurePrefix, fid, VERBOSE);
   
   marksToShow = [3, 2, 4]; %size(marks, 2)
-  [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R, marks, marksToShow, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, masksSuffix, fid, FONTSIZE, SMALLFONTSIZE, VERBOSE);
+  [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R, marks, marksToShow, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, masksSuffix, scaleFactor, fid, FONTSIZE, SMALLFONTSIZE, VERBOSE);
   
   visualizeSegments(newVol, mask, MicroMeterPerPixel, slices, figurePrefix, inputFilenamePrefix, segmentsSuffix, fid, VERBOSE);
   
@@ -75,7 +73,7 @@ function visualizeImageSections(newVol, slices, MicroMeterPerPixel, figurePrefix
   end
 end
 
-function [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R, marks, marksToShow, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, masksSuffix, fid, FONTSIZE, SMALLFONTSIZE, VERBOSE)
+function [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R, marks, marksToShow, MicroMeterPerPixel, figurePrefix, inputFilenamePrefix, masksSuffix, scaleFactor, fid, FONTSIZE, SMALLFONTSIZE, VERBOSE)
   %
   inputFilename = [inputFilenamePrefix, masksSuffix];
   
@@ -123,7 +121,7 @@ function [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R,
     ii = marks(3,marksToShow(i));
     addPlotToImage([min(x2),max(x2)], ii * ones(i, 2), 'r-');
     if (i < size(marks, 1))
-      addTextToImage(max(x2)-10, ii - FONTSIZE, sprintf('Zone %d ', i), 'FontSize', FONTSIZE, 'Color', 'r', 'Rotation', 90);
+      addTextToImage(max(x2)-10, ii - scaleFactor*FONTSIZE, sprintf('Zone %d ', i), 'FontSize', FONTSIZE, 'Color', 'r', 'Rotation', 90);
     end
     %plot(ii * ones(i, 2), [min(x2),max(x2)], 'r-');
     %if (i < size(marks, 1))
@@ -142,7 +140,7 @@ function [mask, rotatedImplant, x1, x2, x3] = visualizeImplant(newVol, origo, R,
     ii = marks(3,marksToShow(i));
     addPlotToImage([min(x2),max(x2)], ii * ones(i, 2), 'r-');
     if (i < size(marks, 1))
-      addTextToImage(max(x2), ii - FONTSIZE, sprintf('Zone %d ', i), 'FontSize', FONTSIZE, 'Color', 'r', 'HorizontalAlignment', 'right');
+      addTextToImage(max(x2), ii - scaleFactor*FONTSIZE, sprintf('Zone %d ', i), 'FontSize', FONTSIZE, 'Color', 'r', 'HorizontalAlignment', 'right');
     end
     
     %plot(ii * ones(i, 2), [min(x2),max(x2)], 'r-');
