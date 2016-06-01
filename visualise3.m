@@ -30,7 +30,7 @@ end
 load(annotationsFilename, 'p'); % load p
 datasets = fieldnames(p);
 
-for i = 1%1:length(datasets)
+for i = 1:length(datasets)
     datasetSetup = p.(datasets{i});  % struct for current dataset
     datasetSetup = scaleBoneFractionParameters(datasetSetup, setup.scaleFactor);
 

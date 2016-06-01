@@ -18,7 +18,7 @@ end
 load(annotationsFilename, 'p'); % load p
 datasets = fieldnames(p);
 
-for i = 1%1:length(datasets)
+for i = 2:length(datasets)
   datasetSetup = p.(datasets{i});  % struct for current dataset
   datasetSetup.maxDistance = 1000/20; % 1000 mu in units of 20 mu voxels as in 1/4 resolution
   datasetSetup.distanceStep = 10/20; % 10 mu in units of 20 mu voxels as in 1/4 resolution

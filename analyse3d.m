@@ -120,7 +120,7 @@ function analyse3d(setup, masksSuffix, segmentsSuffix, edgeEffectSuffix, fractio
   % Count the volume of bone, cavity and neither by distance from implant
   distances = (0:distanceStep:maxDistance); % Camilla would like to be able to read the output in units of 50 mu.
   distances = distances(2:end);
-  [bone, cavity, neither] = fraction3d(rotateddstMap, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, distances); %#ok<ASGLU>
+  [bone, cavity, neither] = fraction3d(rotateddstMap, rotatedBoneMask, rotatedCavityMask, rotatedNeitherMask, distances);
   if SAVERESULT
     outputFilename = [outputFilenamePrefix, fractionsSuffix];
     if VERBOSE
